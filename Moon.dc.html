@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Moon</title>
+<style>html,body{margin:0;background:#04060f}</style>
+<script src="./bridge.js"></script>
+<script src="./support.js"></script>
+<script src="./a/wishfall-ui6.js"></script>
+<script src="./a/three.min.js"></script>
+<script src="./a/astronomy.browser.min.js"></script>
+<script src="./a/wishfall-astro3.js"></script>
+<script src="./a/wishfall-moon4.js"></script>
+<script src="./a/wishfall-events9.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="./outfit.css" rel="stylesheet">
+</helmet>
+<div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
+
+
+<canvas id="spacecv_moon" class="bgfade" aria-hidden="true" style="position:absolute;left:0;top:0;width:390px;height:844px;display:block"></canvas>
+<div style="position:absolute;left:0;top:0;width:390px;height:844px;background:linear-gradient(180deg,rgba(3,4,11,.2) 0%,rgba(3,4,11,.1) 40%,rgba(3,4,11,.55) 100%);pointer-events:none"></div>
+
+<div class="wf-body" style="position:absolute;left:0;top:0;width:390px;height:844px">
+<div class="noscroll" style="position:absolute;left:0;top:0;width:390px;height:844px;overflow-y:auto;overflow-x:hidden">
+<div style="padding:24px 24px 40px 24px;display:flex;flex-direction:column">
+
+<div class="rise" style="--i:0;display:flex;align-items:center;gap:12px;height:48px">
+<sc-if value="{{backMain}}" hint-placeholder-val="{{true}}"><a class="fg press btn-ic" href="Main.dc.html" onClick="{{goBack}}" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a></sc-if><sc-if value="{{backEvents}}" hint-placeholder-val="{{false}}"><a class="fg press btn-ic" href="Events.dc.html" onClick="{{goBack}}" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a></sc-if><sc-if value="{{backSky}}" hint-placeholder-val="{{false}}"><a class="fg press btn-ic" href="Sky.dc.html" onClick="{{goBack}}" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a></sc-if>
+<span class="t-title" style="flex:1;min-width:0">Moon</span>
+<button class="fg press btn-pill" onClick="{{goToday}}" style="opacity:{{todayOn}};pointer-events:{{todayEvents}}">Today</button>
+</div>
+
+<div class="fg rise" style="--i:1;display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 8px;border-radius:var(--wf-r-bar);margin-top:16px">
+<button class="press btn-ic" onClick="{{prev}}" aria-label="Previous day" style="border:0;background:none;opacity:{{prevOp}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+<span class="swap" data-s="{{sw}}" style="display:flex;flex-direction:column;align-items:center;min-width:0"><span class="t-name nw">{{dayName}}</span><span class="t-cap i2 nw">{{dayDate}}</span></span>
+<button class="press btn-ic" onClick="{{next}}" aria-label="Next day" style="border:0;background:none;opacity:{{nextOp}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+</div>
+
+<div style="position:relative;height:236px;margin-top:8px">
+<div class="halo halo-pulse" style="position:absolute;left:35px;top:-24px;width:280px;height:280px;border-radius:140px"></div>
+<div class="floaty" style="position:absolute;left:71px;top:8px;width:200px;height:200px"><span class="moon-in" style="display:block;width:200px;height:200px"><canvas id="mooncv_moon" class="bgfade" aria-label="The Moon on this date" style="width:200px;height:200px;display:block"></canvas></span></div>
+<div class="t-eyebrow nw swap" data-s="{{sw}}" style="position:absolute;left:0;right:0;top:216px;text-align:center;color:var(--wf-ink-3)">{{shownAt}}</div>
+</div>
+
+<div class="swap" data-s="{{sw}}" style="display:flex;flex-direction:column;align-items:center;text-align:center">
+<span class="t-display">{{phase}}</span>
+<span class="t-body i2" style="margin-top:8px;max-width:320px">{{note}}</span>
+</div>
+
+<div class="swap" data-s="{{sw}}">
+<div class="rise" style="--i:4;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:12px;margin-top:24px">
+<div class="fg tile"><div class="t-label i3 nw">Lit</div><div class="t-value nw">{{lit}}%</div><div class="t-label i3 el">{{litSub}}</div></div><div class="fg tile"><div class="t-label i3 nw">Age</div><div class="t-value nw">{{age}}<span class="t-label i2" style="margin-left:3px">days</span></div><div class="t-label i3 el">of 29.5</div></div><div class="fg tile"><div class="t-label i3 nw">Distance</div><div class="t-value nw">{{dist}}<span class="t-label i2" style="margin-left:3px">km</span></div><div class="t-label i3 el">{{distSub}}</div></div>
+</div>
+
+<div class="fg card rise" style="--i:5;margin-top:12px">
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:12px">
+<div style="min-width:0"><div class="t-label i3">Moonrise</div><div class="t-value nw">{{riseT}}<span class="t-label i2" style="margin-left:3px">{{riseAp}}</span></div><div class="t-label i3 el">{{riseSub}}</div></div>
+<div style="min-width:0"><div class="t-label i3">Moonset</div><div class="t-value nw">{{setT}}<span class="t-label i2" style="margin-left:3px">{{setAp}}</span></div><div class="t-label i3 el">{{setSub}}</div></div>
+</div>
+<div style="height:1px;background:var(--wf-line);margin:14px 0 12px"></div>
+<div class="t-small i1">{{where}}</div>
+</div>
+
+<div class="fg card rise" style="--i:6;margin-top:12px">
+<div class="t-eyebrow i2" style="letter-spacing:.14em">For stargazing</div>
+<div class="t-small i1" style="margin-top:6px">{{gaze}}</div>
+</div>
+</div>
+
+<div class="t-h2 rise" style="--i:7;margin-top:32px">Nearby days</div>
+<div class="fg rise swap" data-s="{{sw}}" style="--i:8;margin-top:12px;border-radius:var(--wf-r-card);padding:10px 8px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));column-gap:2px">
+<sc-for list="{{week}}" as="w" hint-placeholder-count="7">
+<button class="press" onClick="{{w.pick}}" aria-label="{{w.aria}}" style="{{w.style}}">
+<span class="t-tab nw">{{w.wd}}</span>
+<img class="mthumb" src="{{w.thumb}}" alt="" width="28" height="28" style="width:28px;height:28px;background:var(--wf-fill)">
+<span class="t-tab i2 nw" style="font-weight:400">{{w.pct}}</span>
+</button>
+</sc-for>
+</div>
+
+<div class="t-h2 rise" style="--i:9;margin-top:32px">Coming up</div>
+<div class="fg rise swap" data-s="{{sw}}" style="--i:10;margin-top:12px;border-radius:var(--wf-r-card);padding:0 16px;display:flex;flex-direction:column">
+<sc-for list="{{phases}}" as="p" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:12px;height:64px;box-sizing:border-box;border-top:{{p.border}}">
+<img class="mthumb" src="{{p.thumb}}" alt="" width="36" height="36" style="width:36px;height:36px;background:var(--wf-fill)">
+<span style="display:flex;flex-direction:column;min-width:0;flex:1"><span class="el" style="font-size:16px;line-height:20px;font-weight:500">{{p.name}}</span><span class="t-cap i2 el">{{p.date}}</span></span>
+<span class="t-cap i2 nw" style="flex:none">{{p.rel}}</span>
+</div>
+</sc-for>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.goT = 0;
+    this.state = { off: (() => { try { const g = JSON.parse(localStorage.getItem('wf_moon_go') || 'null'); if (g && Date.now() - g.t < 20000 && isFinite(g.off)) { this.goT = g.t; return Math.max(-60, Math.min(120, g.off)); } const k = window.WFUI && window.WFUI.kept('moon_off'); if (k != null && isFinite(k)) return Math.max(-60, Math.min(120, k)); return 0; } catch (e) { return 0; } })(), sw: 0, obs: { lat: 26.9124, lon: 75.7873, name: 'Jaipur' }, nav: window.WFUI ? window.WFUI.nav() : 'cold' };
+    this.cur = null; this.raf = 0;
+    this.space = null; this.moonR = null;
+  }
+  componentDidMount() {
+    const tryStart = () => {
+      if (this.space && this.moonR) return true;
+      if (!window.THREE || !window.WishfallSky || !window.WishfallMoon || !window.WF || !window.Astronomy) return false;
+      const cv = document.getElementById('spacecv_moon'); const mc = document.getElementById('mooncv_moon');
+      if (!cv || !mc) return false;
+      const o = this.state.obs;
+      this.space = window.WishfallSky.create({ canvas: cv, texUrl: './a/mw_eq_clean4.jpg', mode: 'bg', interactive: false, az: 150, alt: 55, fov: 70, sid: 140, gain: 1.7, starScale: 1.2, lat: o.lat, lon: o.lon });
+      this.moonR = window.WishfallMoon.create({ canvas: mc, texUrl: './a/c_moon_disc.jpg', texW: 1536 });
+      if (!this.thumb) { this.thumb = window.WishfallMoon.thumb({ texUrl: './a/c_moon_disc.jpg', texW: 1536, size: 96 }); if (this.thumb) this.thumb.onReady(() => this.setState({ th: 1 })); }
+      this.pushMoon(true);
+      setTimeout(() => { cv.classList.add('on'); mc.classList.add('on'); }, 120);
+      return true;
+    };
+    const boot = () => {
+      if (!tryStart()) { this.retry = setTimeout(boot, 300); return; }
+      if (window.WF) window.WF.getObserver((o) => { this.setState({ obs: o }); if (this.space) this.space.relocate(o.lat, o.lon); setTimeout(() => this.pushMoon(true), 0); });
+    };
+    boot();
+    this.goPoll = setInterval(() => { try { const g = JSON.parse(localStorage.getItem('wf_moon_go') || 'null'); if (g && g.t > this.goT && Date.now() - g.t < 20000) { this.goT = g.t; this.go(g.off); } } catch (e) {} }, 400);
+  }
+  componentWillUnmount() { clearInterval(this.goPoll); if (this.thumb) this.thumb.dispose(); clearTimeout(this.retry); clearTimeout(this.swT); cancelAnimationFrame(this.raf); if (this.space) this.space.dispose(); }
+  dayStart(off) { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate() + off, 0, 0, 0); }
+  sample(off) { return off === 0 ? new Date() : new Date(this.dayStart(off).getTime() + 21 * 3600000); }
+  target(off) { const m = window.WF.moonToday(this.state.obs, this.sample(off)); return { L: m.L, rot: m.rot }; }
+  pushMoon(instant, offOverride) {
+    if (!window.WF || !this.moonR) return;
+    const t = this.target(offOverride == null ? this.state.off : offOverride);
+    if (instant || !this.cur) { this.cur = { L: t.L.slice(), rot: t.rot }; this.moonR.set(this.cur.L, this.cur.rot); return; }
+    cancelAnimationFrame(this.raf);
+    const a = { L: this.cur.L.slice(), rot: this.cur.rot }; let dr = t.rot - a.rot; dr = Math.atan2(Math.sin(dr), Math.cos(dr));
+    const t0 = performance.now(), dur = 700;
+    const step = (now) => {
+      let k = Math.min(1, (now - t0) / dur); k = 1 - Math.pow(1 - k, 3);
+      const L = [0, 1, 2].map((i) => a.L[i] + (t.L[i] - a.L[i]) * k); const n = Math.hypot(L[0], L[1], L[2]) || 1;
+      this.cur = { L: [L[0] / n, L[1] / n, L[2] / n], rot: a.rot + dr * k }; this.moonR.set(this.cur.L, this.cur.rot);
+      if (k < 1) this.raf = requestAnimationFrame(step);
+    };
+    this.raf = requestAnimationFrame(step);
+  }
+  go(off) {
+    const o = Math.max(-60, Math.min(120, off)); if (window.WFUI) window.WFUI.keep('moon_off', o); if (o === this.state.off) return;
+    clearTimeout(this.swT); this.setState({ sw: 1 }); this.pushMoon(false, o);
+    this.swT = setTimeout(() => this.setState({ off: o, sw: 0 }), 170);
+  }
+  phasePath(deg) {
+    const D = Math.PI / 180, r = 12; const k = Math.cos(deg * D); const rx = Math.max(0.01, Math.abs(k) * r).toFixed(2);
+    const waxing = deg < 180; const il = (1 - k) / 2;
+    if (il < 0.02) return { path: '', tf: '' };
+    if (il > 0.98) return { path: 'M0 -12 A12 12 0 1 1 0 12 A12 12 0 1 1 0 -12Z', tf: '' };
+    return { path: 'M0 -12 A12 12 0 0 1 0 12 A' + rx + ' 12 0 0 ' + (k > 0 ? 0 : 1) + ' 0 -12Z', tf: waxing ? '' : 'scale(-1 1)' };
+  }
+  renderVals() {
+    const WF = window.WF, A = window.Astronomy, s = this.state, off = s.off;
+    const BLANK = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+    const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], WK = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const abbr = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+    const ab = (az) => abbr[Math.round((((az % 360) + 360) % 360) / 22.5) % 16];
+    const base = { navDir: s.nav, sw: s.sw, goBack: () => { if (window.WFUI) window.WFUI.mark('back', 'moon'); }, backMain: (window.WFUI ? window.WFUI.back() : 'Main.dc.html') !== 'Events.dc.html' && (window.WFUI ? window.WFUI.back() : '') !== 'Sky.dc.html', backSky: (window.WFUI ? window.WFUI.back() : '') === 'Sky.dc.html', backEvents: (window.WFUI ? window.WFUI.back() : '') === 'Events.dc.html', goToday: () => this.go(0), prev: () => this.go(off - 1), next: () => this.go(off + 1), prevOp: off <= -60 ? 0.3 : 1, nextOp: off >= 120 ? 0.3 : 1, todayOn: off === 0 ? 0 : 1, todayEvents: off === 0 ? 'none' : 'auto' };
+    if (!WF || !A) return Object.assign(base, { dayName: 'Today', dayDate: '', shownAt: '', phase: 'Moon', note: '', lit: '–', litSub: '', age: '–', dist: '–', distSub: '', riseT: '–', riseAp: '', riseSub: '', setT: '–', setAp: '', setSub: '', where: '', gaze: '', week: [], phases: [] });
+    const o = s.obs, ob = new A.Observer(o.lat, o.lon, 0);
+    const d0 = this.dayStart(off), smp = this.sample(off);
+    const m = WF.moonToday(o, smp);
+    let dn = null; try { dn = window.WFE ? window.WFE.dayNote(o, smp) : null; } catch (e) {}
+    const tp = (d) => { if (!d) return ['–', '']; const t = WF.fmtTime(d); const i = t.lastIndexOf(' '); return [t.slice(0, i), t.slice(i + 1)]; };
+    const azAt = (d) => { const eq = A.Equator(A.Body.Moon, d, ob, true, true); return A.Horizon(d, ob, eq.ra, eq.dec, null).azimuth; };
+    const ev = (dir, from, days) => { try { const t = A.SearchRiseSet(A.Body.Moon, ob, dir, from, days); return t ? t.date : null; } catch (e) { return null; } };
+    const dayEnd = new Date(d0.getTime() + 86400000);
+    const inDay = (t) => (t && t >= d0 && t < dayEnd) ? t : null;
+    const rise = inDay(ev(+1, d0, 1)), set = inDay(ev(-1, d0, 1));
+    const rr = tp(rise), ss = tp(set);
+    // night picture: is the Moon up at 8 pm, 10 pm, 12 am, 2 am, 4 am
+    const up = [20, 22, 24, 26, 28].map((h) => { const d = new Date(d0.getTime() + h * 3600000); const eq = A.Equator(A.Body.Moon, d, ob, true, true); return A.Horizon(d, ob, eq.ra, eq.dec, null).altitude > 0; });
+    const nUp = up.filter(Boolean).length;
+    const eve = new Date(d0.getTime() + 18 * 3600000);
+    let gaze;
+    if (m.illum < 10) gaze = 'Almost no Moon. The sky stays dark all night, the best time for faint stars and shooting stars.';
+    else if (nUp === 0) gaze = 'The Moon stays down through the night, so the sky is dark.';
+    else if (nUp === 5) gaze = m.illum >= 55 ? 'The Moon is up all night and bright. Faint stars and most shooting stars are washed out.' : 'The Moon is up all night but fairly dim. Good enough for most sky watching.';
+    else if (up[0] && !up[4]) { const t = ev(-1, eve, 1); gaze = 'The Moon sets at ' + WF.fmtTime(t) + '. The sky is darkest after that.'; }
+    else if (!up[0] && up[4]) { const t = ev(+1, eve, 1); gaze = 'The sky is dark until the Moon rises at ' + WF.fmtTime(t) + '.'; }
+    else gaze = 'The Moon is up for part of the night. ' + m.note;
+    const lbl = off === 0 ? 'Today' : off === 1 ? 'Tomorrow' : off === -1 ? 'Yesterday' : WK[d0.getDay()];
+    const alt = Math.round(m.alt);
+    const where = off === 0 ? (m.up ? 'Right now it is ' + alt + '° high in the ' + WF.dirName(m.az) + ' sky.' : 'Right now it is below the horizon.') : (m.up ? 'At 9 pm it is ' + alt + '° high in the ' + WF.dirName(m.az) + ' sky.' : 'At 9 pm it is below the horizon.');
+    let distKm = 384400; try { distKm = A.Libration(smp).dist_km; } catch (e) {}
+    const ageD = (m.deg / 360) * 29.53;
+    // week strip
+    const week = [];
+    for (let i = -3; i <= 3; i++) {
+      const o2 = off + i, dd = this.dayStart(o2), sd = new Date(dd.getTime() + 21 * 3600000);
+      const dg = A.MoonPhase(sd), il = Math.round(A.Illumination(A.Body.Moon, sd).phase_fraction * 100);
+      const pp = { path: '', tf: '' }, on = i === 0; const mw = WF.moonToday(o, sd); const wth = (this.thumb && this.thumb.isReady()) ? this.thumb.url(mw.L, mw.rot) : BLANK;
+      week.push({ wd: o2 === 0 ? 'Today' : WK[dd.getDay()], thumb: wth, pct: il + '%', aria: WK[dd.getDay()] + ' ' + dd.getDate() + ' ' + MON[dd.getMonth()] + ', ' + il + '% lit',
+        pick: () => this.go(o2),
+        style: 'border:1px solid ' + (on ? 'rgba(255,255,255,.4)' : 'transparent') + ';background:' + (on ? 'var(--wf-fill-2)' : 'none') + ';color:' + (on ? 'var(--wf-ink-1)' : 'var(--wf-ink-2)') + ';border-radius:16px;min-height:76px;padding:6px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-weight:' + (on ? 500 : 400) });
+    }
+    // phases
+    const names = { 0: 'New moon', 90: 'First quarter', 180: 'Full moon', 270: 'Last quarter' };
+    const today0 = this.dayStart(0);
+    const ph = [0, 90, 180, 270].map((t) => { try { return { name: names[t], date: A.SearchMoonPhase(t, d0, 40).date, deg: t }; } catch (e) { return null; } }).filter(Boolean).sort((a, b) => a.date - b.date);
+    const phases = ph.map((x, i) => {
+      const dd = new Date(x.date.getFullYear(), x.date.getMonth(), x.date.getDate()); const diff = Math.round((dd - today0) / 86400000);
+      const rel = diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : diff === -1 ? 'Yesterday' : diff > 0 ? 'in ' + diff + ' days' : -diff + ' days ago';
+      const mp = WF.moonToday(o, x.date); const pth = (this.thumb && this.thumb.isReady()) ? this.thumb.url(mp.L, mp.rot) : BLANK;
+      return { name: x.name, thumb: pth, date: WK[dd.getDay()] + ', ' + dd.getDate() + ' ' + MON[dd.getMonth()] + ' · ' + WF.fmtTime(x.date), rel: rel, border: i === 0 ? '0' : '1px solid rgba(255,255,255,.12)' };
+    });
+    return Object.assign(base, {
+      dayName: lbl, dayDate: WK[d0.getDay()] + ', ' + d0.getDate() + ' ' + MON[d0.getMonth()],
+      shownAt: off === 0 ? 'Right now' : 'As seen at 9 pm',
+      phase: dn ? dn.title : m.phase, note: dn ? dn.note : m.note,
+      lit: m.illum, litSub: m.deg < 180 ? 'Growing' : 'Shrinking',
+      age: ageD.toFixed(1), dist: Math.round(distKm / 1000) + 'k', distSub: distKm < 366000 ? 'Closer' : distKm > 400000 ? 'Farther' : 'Average',
+      riseT: rr[0], riseAp: rr[1], riseSub: rise ? 'toward ' + ab(azAt(rise)) : 'No moonrise today',
+      setT: ss[0], setAp: ss[1], setSub: set ? 'toward ' + ab(azAt(set)) : 'No moonset today',
+      where: where, gaze: gaze, week: week, phases: phases
+    });
+  }
+}
+</script>
+</body>
+</html>

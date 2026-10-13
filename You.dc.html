@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>You</title>
+<style>html,body{margin:0;background:#04060f}</style>
+<script src="./bridge.js"></script>
+<script src="./support.js"></script>
+<script src="./a/wishfall-ui6.js"></script>
+<script src="./a/three.min.js"></script>
+<script src="./a/astronomy.browser.min.js"></script>
+<script src="./a/wishfall-astro3.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="./outfit.css" rel="stylesheet">
+</helmet>
+<div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
+
+<canvas id="spacecv_you" class="bgfade" aria-hidden="true" style="position:absolute;left:0;top:0;width:390px;height:844px;display:block"></canvas>
+<div style="position:absolute;left:0;top:0;width:390px;height:844px;background:linear-gradient(180deg,rgba(3,4,11,.25) 0%,rgba(3,4,11,.35) 50%,rgba(3,4,11,.6) 100%)"></div>
+<div class="wf-body" style="position:absolute;left:0;top:0;width:390px;height:844px">
+<div class="noscroll" style="position:absolute;left:0;top:0;width:390px;height:844px;overflow-y:auto;overflow-x:hidden">
+<div style="padding:24px 24px 120px 24px;display:flex;flex-direction:column">
+
+<div class="rise" style="--i:0;display:flex;flex-direction:column;height:48px;justify-content:center"><span class="t-title">You</span></div>
+
+<div class="t-h2 rise" style="--i:1;margin-top:24px">Your place</div>
+<button class="fg card rise press" onClick="{{openEdit}}" aria-label="Change your place" style="--i:2;margin-top:12px;width:100%;display:flex;align-items:center;gap:12px;color:inherit;text-align:left;font-family:inherit">
+<span style="flex:none;width:44px;height:44px;border-radius:22px;background:var(--wf-fill-2);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
+<span style="flex:1;min-width:0;display:flex;flex-direction:column"><span class="t-name el">{{place}}</span><span class="t-cap i2 el">{{coords}}</span></span>
+<span class="t-label i2 nw" style="flex:none">Edit</span>
+</button>
+
+<div class="t-h2 rise" style="--i:4;margin-top:32px">Alerts</div>
+<a class="fg card rise press" href="Alerts.dc.html" onClick="{{toAlerts}}" style="--i:5;margin-top:12px;display:flex;align-items:center;gap:12px;color:inherit">
+<span style="flex:1;min-width:0"><div class="t-name">Alert settings</div><div class="t-cap i2">{{alertSummary}}</div></span><span class="i3" style="display:flex"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+</a>
+
+<div class="t-h2 rise" style="--i:6;margin-top:32px">About</div>
+<div class="fg card rise" style="--i:7;margin-top:12px">
+<div class="t-name">Wishfall 0.1</div>
+<div class="t-small i2" style="margin-top:6px">The Moon, planets and meteor showers are worked out on your phone for your place and time. Your location never leaves your phone.</div>
+<div class="t-cap i3" style="margin-top:10px;line-height:1.5">Planet, Earth and Moon maps: Solar System Scope, CC BY 4.0, resized and reprojected for Wishfall.</div>
+<div class="t-cap i3" style="margin-top:6px;line-height:1.5">Milky Way: Axel Mellinger, modified. Star data: d3-celestial. Sky maths: astronomy-engine. Place search: Open-Meteo, CC BY 4.0. Built with three.js and the Outfit font.</div>
+</div>
+
+</div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:150px;background:linear-gradient(180deg,rgba(3,4,11,0),rgba(3,4,11,.78));pointer-events:none"></div>
+<nav class="tabbar fgn" data-at="{{tabAt}}" aria-label="Main">
+<span class="tab-ind"></span>
+<a class="tab t-tab" href="Main.dc.html" aria-label="Tonight" onClick="{{onTab}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 5h4"/><path d="M20 3v4"/><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>Tonight</a>
+<a class="tab t-tab" href="Events.dc.html" aria-label="Events" onClick="{{onTab}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>Events</a>
+<a class="tab t-tab" href="Sky.dc.html" aria-label="Sky" onClick="{{onTab}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m10.065 12.493-6.18 1.318a.934.934 0 0 1-1.108-.702l-.537-2.15a1.07 1.07 0 0 1 .691-1.265l13.504-4.44"/><path d="m13.56 11.747 4.332-.924"/><path d="m16 21-3.105-6.21"/><path d="M16.485 5.94a2 2 0 0 1 1.455-2.425l1.09-.272a1 1 0 0 1 1.212.727l1.515 6.06a1 1 0 0 1-.727 1.213l-1.09.272a2 2 0 0 1-2.425-1.455z"/><path d="m6.158 8.633 1.114 4.456"/><path d="m8 21 3.105-6.21"/><circle cx="12" cy="13" r="2"/></svg>Sky</a>
+<button class="tab t-tab" aria-current="page" aria-label="You"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>You</button>
+</nav>
+<!-- place sheet -->
+<div class="scrim" data-open="{{sheetOpen}}" onClick="{{closeEdit}}"></div>
+<div class="sheet fgn" data-open="{{sheetOpen}}" style="height:600px;border-radius:28px 28px 0 0;padding:10px 24px 24px;display:flex;flex-direction:column">
+<div style="align-self:center;width:40px;height:4px;border-radius:2px;background:var(--wf-ink-off);margin:2px 0 14px"></div>
+<div class="t-h2">Your place</div>
+<div class="t-cap i2" style="margin-top:2px">Used for the Moon, sky and meteor times.</div>
+<button class="press cta" onClick="{{useGps}}" style="margin-top:16px;width:100%;color:var(--wf-select-ink);border:0;background:var(--wf-select);box-shadow:0 0 36px rgba(190,205,255,.3)">{{gpsLabel}}</button>
+<div class="t-cap i3" style="text-align:center;margin:14px 0 0">or search for a town or city</div>
+<div class="fg field" style="margin-top:12px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" style="flex:none;opacity:.7"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="you_q" type="text" placeholder="Search a place" onInput="{{onQ}}" autocomplete="off"></div>
+<div class="noscroll" style="flex:1;min-height:0;overflow-y:auto;margin:8px -8px 0;padding:0 8px">
+<sc-for list="{{results}}" as="r" hint-placeholder-count="4">
+<button class="row press" onClick="{{r.pick}}" style="width:100%;border:0;background:none;color:inherit;text-align:left;padding:0">
+<span style="flex:1;min-width:0;display:flex;flex-direction:column"><span class="t-name el">{{r.name}}</span><span class="t-cap i2 el">{{r.sub}}</span></span>
+</button>
+</sc-for>
+<sc-if value="{{hasMsg}}" hint-placeholder-val="{{false}}"><div class="t-small i2" style="padding:20px 0;text-align:center">{{msg}}</div></sc-if>
+</div>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const W = window.WFUI;
+    this.state = { nav: W ? W.nav() : 'cold', tabAt: W ? W.tabFrom('you') : 3, obs: { lat: 26.9124, lon: 75.7873, name: 'Jaipur' }, locating: false, open: false, q: '', res: [], busy: false, prefs: W ? W.prefs() : {} };
+  }
+  componentDidMount() {
+    const bgStart = () => {
+      const cv = document.getElementById('spacecv_you');
+      if (!window.THREE || !window.WishfallSky || !cv) { this.bgT = setTimeout(bgStart, 300); return; }
+      const o = (this.state && this.state.obs) || { lat: 26.9124, lon: 75.7873 };
+      this.space = window.WishfallSky.create({ canvas: cv, texUrl: './a/mw_eq_clean4.jpg', mode: 'bg', interactive: false, az: 150, alt: 55, fov: 70, sid: 140, gain: 1.7, starScale: 1.2, lat: o.lat, lon: o.lon });
+      setTimeout(() => cv.classList.add('on'), 120);
+      if (window.WF) window.WF.getObserver((ob) => { if (this.space) this.space.relocate(ob.lat, ob.lon); });
+    };
+    bgStart();
+    this.tabT = setTimeout(() => this.setState({ tabAt: 3 }), 90);
+    const boot = () => { if (!window.WF) { this.retry = setTimeout(boot, 250); return; } window.WF.getObserver((o) => this.setState({ obs: o })); }; boot();
+  }
+  componentWillUnmount() { clearTimeout(this.bgT); if (this.space) this.space.dispose(); clearTimeout(this.qT); clearTimeout(this.retry); clearTimeout(this.tabT); }
+  search(v) {
+    const q = (v || '').trim(); clearTimeout(this.qT); this.setState({ q: q, err: '' });
+    if (q.length < 2) { this.setState({ res: [], busy: false }); return; }
+    this.setState({ busy: true });
+    this.qT = setTimeout(() => {
+      fetch('https://geocoding-api.open-meteo.com/v1/search?count=6&language=en&name=' + encodeURIComponent(q))
+        .then((r) => r.json())
+        .then((j) => { if (this.state.q !== q) return; this.setState({ busy: false, res: (j.results || []).map((x) => ({ name: x.name, sub: [x.admin1, x.country].filter(Boolean).join(', '), lat: x.latitude, lon: x.longitude })) }); })
+        .catch(() => { this.setState({ busy: false, res: [], err: 'Search needs an internet connection.' }); });
+    }, 350);
+  }
+  renderVals() {
+    const WF = window.WF, W = window.WFUI, s = this.state, o = s.obs;
+    const fmt = (v, p, n) => Math.abs(v).toFixed(2) + '° ' + (v >= 0 ? p : n);
+    const p = s.prefs; const on = []; if (p.showers) on.push('showers'); if (p.moon) on.push('Moon'); 
+    return {
+      navDir: s.nav, tabAt: s.tabAt, onTab: () => { if (W) W.mark('tab', 'you'); }, toAlerts: () => { if (W) W.mark('fwd', 'you', 'You.dc.html'); },
+      place: o.name, coords: fmt(o.lat, 'N', 'S') + ', ' + fmt(o.lon, 'E', 'W') + (o.manual ? '' : (o.real ? ' · from your phone' : '')),
+      gpsLabel: s.locating ? 'Finding you…' : 'Use my phone\'s location',
+      useGps: () => { if (!WF) return; this.setState({ locating: true }); WF.useGps((n) => this.setState({ obs: n, locating: false, open: false }), () => this.setState({ locating: false, q: '', res: [], err: 'Could not get your location. Search for a place instead.' })); },
+      sheetOpen: s.open ? '1' : '0',
+      openEdit: () => { this.setState({ open: true, q: '', res: [], err: '' }); const e = document.getElementById('you_q'); if (e) e.value = ''; },
+      closeEdit: () => this.setState({ open: false }),
+      onQ: (e) => this.search(e.target.value),
+      results: s.res.map((r) => ({ name: r.name, sub: r.sub, pick: () => { const n = { lat: r.lat, lon: r.lon, name: r.name, manual: true }; if (WF) WF.setPlace(n); this.setState({ obs: n, open: false }); } })),
+      hasMsg: !!(s.err || s.busy || (s.q.length > 1 && !s.res.length)), msg: s.err || (s.busy ? 'Searching…' : 'No place found. Try another spelling.'),
+      alertSummary: (on.length ? 'On for ' + on.join(' and ') : 'All off') + (p.goOnly ? ', only when it is a Go' : '') + ' · ' + (W ? W.hourText(p.hour || 19) : '7 pm')
+    };
+  }
+}
+</script>
+</body>
+</html>

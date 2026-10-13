@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Wishfall</title>
+<link href="./outfit.css" rel="stylesheet">
+<style>
+html,body{margin:0;height:100%;background:#04060f;overflow:hidden;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+#stage{position:absolute;left:0;top:0;width:390px;height:844px;transform-origin:0 0;overflow:hidden;background:#04060f}
+#bg{position:absolute;left:0;top:0;width:390px;height:100%;display:block;opacity:0;transition:opacity .9s ease;z-index:0}
+#bg.on{opacity:1}
+iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;background:transparent;display:block}
+.tabf{opacity:0;visibility:hidden;transition:opacity .2s ease;z-index:1}
+.tabf.on{opacity:1;visibility:visible;z-index:2}
+.tabf.leave{opacity:0;visibility:visible;z-index:1}
+.tabf.hid{visibility:hidden!important}
+.ovw{position:absolute;left:0;top:0;width:390px;height:100%;transform:translateX(100%);transition:transform .34s cubic-bezier(.22,1,.36,1);box-shadow:-18px 0 40px rgba(0,0,0,.45);visibility:hidden;will-change:transform}
+.ovw.in{transform:none;visibility:visible}
+.ovw.hid{visibility:hidden!important}
+.ovb{position:absolute;left:0;top:0;width:100%;height:100%;background:#04060f;transition:opacity .3s ease}
+.under{transition:transform .34s cubic-bezier(.22,1,.36,1)!important;transform:translateX(-16%)!important}
+#dim{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;z-index:9;transition:opacity .34s ease}
+#cover{position:absolute;inset:0;z-index:60;background:radial-gradient(120% 80% at 50% 38%,#0a1026 0%,#04060f 62%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s ease;pointer-events:all;overflow:hidden}
+#cover.off{opacity:0;pointer-events:none}
+#cover .wm{font-family:'Outfit',sans-serif;font-weight:300;font-size:40px;letter-spacing:.34em;text-indent:.34em;color:#fff;opacity:0;filter:blur(8px);animation:wmIn 1.2s .25s cubic-bezier(.22,1,.36,1) forwards;text-shadow:0 0 28px rgba(160,190,255,.35)}
+#cover .tg{font-family:'Outfit',sans-serif;font-weight:300;font-size:13px;letter-spacing:.22em;text-indent:.22em;text-transform:uppercase;color:rgba(214,226,255,.62);margin-top:14px;opacity:0;animation:tgIn 1s .95s ease forwards}
+#cover .st{position:absolute;left:-10%;top:30%;width:120px;height:1.5px;border-radius:2px;background:linear-gradient(90deg,rgba(207,219,255,0),rgba(235,242,255,.95));transform:rotate(24deg);opacity:0;animation:fall 1.3s .15s cubic-bezier(.4,0,.2,1) forwards}
+#cover .ds{position:absolute;width:2px;height:2px;border-radius:1px;background:#cfdbff;opacity:0;animation:tw 2.4s ease-in-out infinite}
+#cover.off .wm{transform:scale(1.06);transition:transform .6s ease}
+@keyframes wmIn{to{opacity:1;filter:blur(0)}}
+@keyframes tgIn{to{opacity:1}}
+@keyframes fall{0%{opacity:0;transform:translate(0,0) rotate(24deg)}15%{opacity:1}100%{opacity:0;transform:translate(560px,250px) rotate(24deg)}}
+@keyframes tw{0%,100%{opacity:0}50%{opacity:.8}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <div id="dim"></div>
+  <div id="cover"><div class="st"></div><div class="wm">WISHFALL</div><div class="tg">The sky, tonight</div></div>
+</div>
+<script src="./a/three.min.js"></script>
+<script src="./a/wishfall-sky8.js"></script>
+<script>
+(function () {
+  (function(){var c=document.getElementById('cover');for(var i=0;i<26;i++){var d=document.createElement('i');d.className='ds';d.style.left=(Math.random()*100)+'%';d.style.top=(Math.random()*100)+'%';d.style.animationDelay=(Math.random()*2.4)+'s';c.appendChild(d);}})();
+  var TABS = ['Main', 'Events', 'Sky', 'You'], STALE = 30 * 60000;
+  var stage = document.getElementById('stage'), dim = document.getElementById('dim'), cover = document.getElementById('cover'), bgc = document.getElementById('bg');
+  function toRN(m) { try { if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify(m)); } catch (e) {} }
+
+  /* ---- memory tier: decides how many pages stay ready in the background ---- */
+  var GB = (+window.__WF_MEM || 0) / 1073741824;
+  var TIER = GB >= 5.5 ? 3 : (GB === 0 || GB >= 3.5) ? 2 : 1;
+  var MAXTABS = TIER === 3 ? 4 : TIER === 2 ? 3 : 2;
+  var WARM = TIER === 3 ? ['Sky', 'Events', 'You'] : TIER === 2 ? ['Sky', 'Events'] : ['Events'];
+
+  /* ---- fit: full width, the height follows the screen ---- */
+  function fit() {
+    var W = window.innerWidth || 390, H = window.innerHeight || 844, S = W / 390;
+    stage.style.transform = 'scale(' + S + ')';
+    stage.style.height = Math.round(H / S) + 'px';
+  }
+  fit(); window.addEventListener('resize', fit);
+
+  /* ---- ONE shared star background for every page ---- */
+  var bgApi = null;
+  function obs() { try { var o = JSON.parse(localStorage.getItem('wf_obs') || 'null'); if (o && isFinite(o.lat) && isFinite(o.lon)) return o; } catch (e) {} return { lat: 26.9124, lon: 75.7873 }; }
+  function startBG() {
+    if (bgApi) return;
+    if (!window.THREE || !window.WishfallSky) { setTimeout(startBG, 150); return; }
+    var o = obs();
+    bgc.style.height = stage.style.height || '844px';
+    try { bgApi = window.WishfallSky.create({ canvas: bgc, texUrl: './a/mw_eq_clean4.jpg', mode: 'bg', interactive: false, az: 150, alt: 55, fov: 70, sid: 140, gain: 1.7, starScale: 1.2, lat: o.lat, lon: o.lon }); } catch (e) { bgApi = null; }
+    if (!bgApi) { setTimeout(startBG, 400); return; }
+    setTimeout(function () { bgc.classList.add('on'); }, 120);
+  }
+  bgc.addEventListener('webglcontextlost', function (e) { e.preventDefault(); try { bgApi && bgApi.dispose && bgApi.dispose(); } catch (er) {} bgApi = null; bgc.classList.remove('on'); setTimeout(function () { var n = bgc.cloneNode(false); bgc.parentNode.replaceChild(n, bgc); bgc = n; bgc.addEventListener('webglcontextlost', arguments.callee); startBG(); }, 300); });
+  window.addEventListener('wf-obs', function () { var o = obs(); try { bgApi && bgApi.relocate(o.lat, o.lon); } catch (e) {} });
+  startBG();
+
+  var tabs = {}, cur = null, stack = [], lru = [];
+  window.__wfTabs = tabs;
+  function sigNow(n) {
+    if (n === 'Sky') return '';
+    try { return ['wf_prefs', 'wf_plans', 'wf_obs'].map(function (k) { return localStorage.getItem(k) || ''; }).join('|'); } catch (e) { return ''; }
+  }
+  function nm(h) { return String(h || '').split('?')[0].replace(/^.*\//, '').replace('.dc.html', ''); }
+  function mkFrame(name, cls) {
+    var f = document.createElement('iframe');
+    f.className = cls; f.setAttribute('allow', 'geolocation'); f.src = name + '.dc.html';
+    return f;
+  }
+  function send(rec, m) { try { m.wf = 1; rec.f.contentWindow.postMessage(m, '*'); } catch (e) {} }
+  function visibleRec() { return stack.length ? stack[stack.length - 1] : (cur ? tabs[cur] : null); }
+  function el(rec) { return rec.w || rec.f; }
+
+  var lastSens = false;
+  function refresh() {
+    var v = visibleRec(), all = Object.keys(tabs).map(function (k) { return tabs[k]; }).concat(stack);
+    all.forEach(function (r) { var p = r !== v; if (r.paused !== p && r.ready) { r.paused = p; send(r, { cmd: 'pause', on: p }); } });
+    var on = !!(v && v.want);
+    if (on !== lastSens) { lastSens = on; toRN({ t: 'sensors', on: on }); }
+  }
+  window.__ori = function (x, y, z) { var v = visibleRec(); if (v && v.ready) send(v, { ori: [x, y, z] }); };
+
+  function whenReady(rec, fn, max) {
+    if (rec.ready) return fn();
+    var done = false, go = function () { if (done) return; done = true; fn(); };
+    rec.cb = rec.cb || []; rec.cb.push(go); setTimeout(go, max || 1500);
+  }
+  function killFrame(f, ms) { setTimeout(function () { try { f.src = 'about:blank'; f.remove(); } catch (e) {} }, ms || 0); }
+
+  /* ---- tabs ---- */
+  function loadTab(name) {
+    var rec = { f: mkFrame(name, 'tabf'), ready: false, at: Date.now(), sig: sigNow(name), want: false, paused: false, name: name };
+    try { localStorage.removeItem('wf_nav'); } catch (e) {}
+    stage.insertBefore(rec.f, dim); tabs[name] = rec; return rec;
+  }
+  function dropTab(name) { var r = tabs[name]; if (!r) return; killFrame(r.f, 0); delete tabs[name]; lru = lru.filter(function (x) { return x !== name; }); }
+  function evict() {
+    var names = Object.keys(tabs);
+    while (names.length > MAXTABS) {
+      var victim = null;
+      for (var i = 0; i < lru.length; i++) { var n = lru[i]; if (n !== 'Main' && n !== cur && tabs[n]) { victim = n; break; } }
+      if (!victim) break; dropTab(victim); names = Object.keys(tabs);
+    }
+  }
+  function touch(n) { lru = lru.filter(function (x) { return x !== n; }); lru.push(n); }
+  function stale(rec) { return rec.ready && (Date.now() - rec.at > STALE || rec.sig !== sigNow(rec.name)); }
+
+  function showTab(name) {
+    var prev = cur ? tabs[cur] : null;
+    var rec = tabs[name], old = null;
+    if (rec && stale(rec)) { old = rec; delete tabs[name]; rec = null; }
+    if (!rec) rec = loadTab(name);
+    touch(name);
+    var token = {}; showTab.tok = token;
+    // instant feedback: the pill in the page you are leaving slides to the new tab right away
+    if (prev && prev !== rec && !rec.ready) send(prev, { cmd: 'pill', at: TABS.indexOf(name) });
+    whenReady(rec, function () {
+      if (showTab.tok !== token) { if (old) killFrame(old.f, 300); return; }
+      Object.keys(tabs).forEach(function (k) { var r = tabs[k]; if (r === rec) return; if (r === prev) { r.f.classList.remove('on'); r.f.classList.add('leave'); setTimeout(function () { r.f.classList.remove('leave'); send(r, { cmd: 'pill', at: TABS.indexOf(r.name), quiet: 1 }); }, 260); } else r.f.classList.remove('on', 'leave'); });
+      if (old) { old.f.classList.remove('on'); old.f.classList.add('leave'); killFrame(old.f, 300); }
+      send(rec, { cmd: 'pill', at: TABS.indexOf(name), quiet: 1 });
+      cur = name; rec.f.classList.remove('leave', 'hid'); rec.f.classList.add('on');
+      evict(); refresh();
+    }, name === 'Sky' ? 3000 : 2000);
+  }
+
+  /* ---- detail pages slide over the current page ---- */
+  function belowEl() { var r = stack.length > 1 ? stack[stack.length - 2] : (cur ? tabs[cur] : null); return r ? el(r) : null; }
+  function pushOv(name) {
+    try { if (!localStorage.getItem('wf_nav')) localStorage.setItem('wf_nav', JSON.stringify({ dir: 'fwd', from: '', t: Date.now() })); } catch (e) {}
+    var w = document.createElement('div'); w.className = 'ovw'; w.style.zIndex = String(10 + stack.length * 2);
+    var b = document.createElement('div'); b.className = 'ovb'; w.appendChild(b);
+    var rec = { f: mkFrame(name, ''), w: w, b: b, ready: false, want: false, paused: false, name: name };
+    w.appendChild(rec.f); stage.insertBefore(w, dim);
+    var below = belowEl(); stack.push(rec);
+    rec.f.style.opacity = '0'; rec.f.style.transition = 'opacity .28s ease';
+    clearUnder(); if (below) below.classList.add('under');
+    dim.style.zIndex = String(9 + stack.length * 2 - 1); dim.style.opacity = '.5';
+    void w.offsetWidth; w.classList.add('in');
+    var shown = false, show = function () { if (shown) return; shown = true; rec.f.style.opacity = '1'; };
+    whenReady(rec, show, 1800);
+    // once it has slid in, the page underneath is hidden and the shared stars show through
+    setTimeout(function () { if (stack.indexOf(rec) < 0) return; if (below) below.classList.add('hid'); dim.style.opacity = '0'; refresh(); whenReady(rec, function () { b.style.opacity = '0'; }, 1800); }, 380);
+    refresh();
+  }
+  function clearUnder() { Array.prototype.forEach.call(stage.querySelectorAll('.under'), function (e) { e.classList.remove('under'); }); }
+  function removeOv(rec) { killFrame(rec.f, 0); try { rec.w.remove(); } catch (e) {} var i = stack.indexOf(rec); if (i >= 0) stack.splice(i, 1); }
+  function popOv() {
+    var rec = stack[stack.length - 1]; if (!rec) return;
+    stack.pop();
+    var below = stack.length ? el(stack[stack.length - 1]) : (cur && tabs[cur] ? tabs[cur].f : null);
+    rec.b.style.transition = 'none'; rec.b.style.opacity = '1'; void rec.b.offsetWidth; rec.b.style.transition = '';
+    if (below) { below.classList.remove('hid'); void below.offsetWidth; below.classList.remove('under'); }
+    dim.style.opacity = '0'; if (stack.length) dim.style.zIndex = String(9 + stack.length * 2 - 1);
+    rec.w.classList.remove('in');
+    setTimeout(function () { killFrame(rec.f, 0); try { rec.w.remove(); } catch (e) {} }, 380);
+    refresh();
+  }
+
+  function nav(href, back) {
+    var n = nm(href); if (!n) return;
+    if (TABS.indexOf(n) >= 0) {
+      if (stack.length) { while (stack.length > 1) removeOv(stack[0]); popOv(); }
+      var t = tabs[n];
+      if (n !== cur) showTab(n); else if (t && stale(t)) showTab(n); else refresh();
+      return;
+    }
+    var idx = -1; stack.forEach(function (r, i) { if (r.name === n) idx = i; });
+    if (idx >= 0 && back) { while (stack.length - 1 > idx) { if (stack.length - 1 === idx + 1) popOv(); else removeOv(stack[stack.length - 1]); } return; }
+    if (idx >= 0) { while (stack.length > idx) removeOv(stack[stack.length - 1]); }
+    pushOv(n);
+  }
+  window.__shellGo = function (h) { nav(h, false); };
+
+  /* ---- Android back ---- */
+  var qid = 0, pend = {};
+  function askLocal(rec, cb) {
+    if (!rec || !rec.ready) return cb(false);
+    var id = ++qid, done = false;
+    pend[id] = function (ok) { if (done) return; done = true; delete pend[id]; cb(ok); };
+    send(rec, { cmd: 'local', id: id });
+    setTimeout(function () { if (pend[id]) pend[id](false); }, 140);
+  }
+  window.__shellBack = function () {
+    askLocal(visibleRec(), function (ok) {
+      if (ok) return;
+      if (stack.length) { popOv(); return; }
+      if (cur && cur !== 'Main') { showTab('Main'); return; }
+      toRN({ t: 'exit' });
+    });
+  };
+
+  /* ---- messages from pages ---- */
+  function recOf(src) {
+    for (var k in tabs) if (tabs[k].f.contentWindow === src) return tabs[k];
+    for (var i = 0; i < stack.length; i++) if (stack[i].f.contentWindow === src) return stack[i];
+    return null;
+  }
+  window.addEventListener('message', function (e) {
+    var d = e.data; if (!d || !d.wf || !d.m) return; var m = d.m, rec = recOf(e.source);
+    if (!rec) return;
+    if (m.t === 'ready') {
+      rec.ready = true; rec.sig = sigNow(rec.name); rec.at = Date.now(); var cbs = rec.cb || []; rec.cb = []; cbs.forEach(function (f) { f(); });
+      rec.paused = false; setTimeout(refresh, 60);
+    } else if (m.t === 'nav') nav(m.href, !!m.back);
+    else if (m.t === 'sensors') { rec.want = !!m.on; refresh(); }
+    else if (m.t === 'local') { if (pend[m.id]) pend[m.id](!!m.ok); }
+    else if (m.t === 'obs') { window.dispatchEvent(new Event('wf-obs')); }
+    else if (m.t === 'lost') {
+      // a page lost its graphics: rebuild it so it never stays blank
+      if (rec === visibleRec() && rec.name && tabs[rec.name] === rec) { rec.at = 0; showTab(rec.name); }
+      else if (tabs[rec.name] === rec && rec !== visibleRec()) dropTab(rec.name);
+    }
+    else if (m.t === 'alerts' || m.t === 'log') toRN(m);
+  });
+
+  /* ---- start: show Main, then quietly get the other tabs ready one by one ---- */
+  var T0 = Date.now();
+  showTab('Main');
+  var first = tabs.Main, pend2 = 1;
+  function reveal() { var wait = Math.max(0, 1900 - (Date.now() - T0)); setTimeout(function () { cover.classList.add('off'); }, wait); }
+  // while the splash plays, every tab loads quietly behind it, all at once
+  function warmAll() {
+    var todo = WARM.filter(function (n) { return !tabs[n]; }), left = todo.length;
+    if (!left) return reveal();
+    var done = false, fin = function () { if (done) return; done = true; reveal(); };
+    todo.forEach(function (n) { var r = loadTab(n); whenReady(r, function () { if (--left <= 0) fin(); }, 6000); });
+    setTimeout(fin, 5500);
+  }
+  whenReady(first, warmAll, 5000);
+  toRN({ t: 'shell' });
+})();
+</script>
+</body>
+</html>

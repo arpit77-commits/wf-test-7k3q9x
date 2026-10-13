@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Events</title>
+<style>html,body{margin:0;background:#04060f}</style>
+<script src="./bridge.js"></script>
+<script src="./support.js"></script>
+<script src="./a/wishfall-ui6.js"></script>
+<script src="./a/three.min.js"></script>
+<script src="./a/wishfall-moon4.js"></script>
+<script src="./a/astronomy.browser.min.js"></script>
+<script src="./a/wishfall-astro3.js"></script>
+<script src="./a/satellite.min.js"></script>
+<script src="./a/wishfall-events9.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="./outfit.css" rel="stylesheet">
+</helmet>
+<div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
+
+<canvas id="spacecv_events" class="bgfade" aria-hidden="true" style="position:absolute;left:0;top:0;width:390px;height:844px;display:block"></canvas>
+<div style="position:absolute;left:0;top:0;width:390px;height:844px;background:linear-gradient(180deg,rgba(3,4,11,.25) 0%,rgba(3,4,11,.35) 50%,rgba(3,4,11,.6) 100%)"></div>
+<div class="wf-body" style="position:absolute;left:0;top:0;width:390px;height:844px">
+<div class="noscroll" style="position:absolute;left:0;top:0;width:390px;height:844px;overflow-y:auto;overflow-x:hidden">
+<div style="padding:24px 24px 120px 24px;display:flex;flex-direction:column">
+
+<div class="rise" style="--i:0;display:flex;align-items:center;justify-content:space-between;gap:12px;height:48px">
+<div style="display:flex;flex-direction:column;min-width:0;flex:1"><span class="t-title nw">Events</span><span class="t-cap i2 el" style="font-weight:300">{{count}} coming up<span class="sep"></span>{{place}}</span></div>
+<a class="fg press btn-ic" href="Alerts.dc.html" onClick="{{toAlerts}}" aria-label="Alerts"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></a>
+</div>
+
+<div class="noscroll rise" style="--i:1;display:flex;gap:8px;margin:16px -24px 0;padding:0 24px;overflow-x:auto">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="3">
+<button class="fchip" aria-pressed="{{f.on}}" onClick="{{f.pick}}">{{f.label}}</button>
+</sc-for>
+</div>
+
+<sc-if value="{{hasPlans}}" hint-placeholder-val="{{false}}">
+<div class="t-h2 rise" style="--i:2;margin-top:24px">Your plans</div>
+<div class="fg card rise" style="--i:3;margin-top:12px;padding:0 16px">
+<sc-for list="{{plans}}" as="p" hint-placeholder-count="1">
+<a class="row press" href="{{p.href}}" onClick="{{p.open}}">
+<span class="i1" style="display:flex;flex:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></span>
+<span style="display:flex;flex-direction:column;min-width:0;flex:1"><span class="t-name el">{{p.name}}</span><span class="t-cap i2 el">{{p.when}} · alert at {{hour}}</span></span>
+<span class="i3" style="display:flex"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+</a>
+</sc-for>
+</div>
+</sc-if>
+
+<div class="t-h2 rise" style="--i:4;margin-top:24px">Coming up</div>
+<div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
+<sc-for list="{{items}}" as="e" hint-placeholder-count="4">
+<sc-if value="{{e.isShower}}" hint-placeholder-val="{{true}}"><a class="fg press rise" href="Event.dc.html" onClick="{{e.open}}" style="--i:{{e.i}};display:flex;align-items:center;gap:14px;height:96px;padding:0 16px 0 12px;border-radius:var(--wf-r-card);overflow:hidden">
+<span style="{{e.ring}}">{{e.score}}</span>
+<span style="display:flex;flex-direction:column;flex:1;min-width:0;gap:1px">
+<span style="display:flex;align-items:center;gap:8px;min-width:0"><span class="t-name el" style="min-width:0">{{e.name}}</span><span class="vp" style="color:{{e.tone}}"><span class="dot" style="color:{{e.tone}}"></span>{{e.verdict}}</span></span>
+<span class="t-cap i2 el">{{e.when}}</span>
+<span class="t-cap i3 el">{{e.detail}}</span>
+</span>
+<span class="i3" style="display:flex;flex:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+</a></sc-if>
+<sc-if value="{{e.isMoon}}" hint-placeholder-val="{{false}}"><a class="fg press rise" href="Moon.dc.html" onClick="{{e.open}}" style="--i:{{e.i}};display:flex;align-items:center;gap:14px;height:96px;padding:0 16px 0 12px;border-radius:var(--wf-r-card);overflow:hidden">
+<sc-if value="{{e.hasThumb}}" hint-placeholder-val="{{true}}"><img class="mthumb" src="{{e.thumb}}" width="48" height="48" alt="" style="width:48px;height:48px"></sc-if><sc-if value="{{e.noThumb}}" hint-placeholder-val="{{false}}"><span class="mthumb-ph" style="width:48px;height:48px"></span></sc-if>
+<span style="display:flex;flex-direction:column;flex:1;min-width:0;gap:1px">
+<span style="display:flex;align-items:center;gap:8px;min-width:0"><span class="t-name el" style="min-width:0">{{e.name}}</span><span class="vp" style="color:{{e.tone}}"><span class="dot" style="color:{{e.tone}}"></span>{{e.verdict}}</span></span>
+<span class="t-cap i2 el">{{e.when}}</span>
+<span class="t-cap i3 el">{{e.detail}}</span>
+</span>
+<span class="i3" style="display:flex;flex:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+</a></sc-if>
+<sc-if value="{{e.isOther}}" hint-placeholder-val="{{false}}"><a class="fg press rise" href="Sight.dc.html" onClick="{{e.open}}" style="--i:{{e.i}};display:flex;align-items:center;gap:14px;height:96px;padding:0 16px 0 12px;border-radius:var(--wf-r-card);overflow:hidden">
+<span style="position:relative;flex:none;width:48px;height:48px;display:block"><sc-for list="{{e.layers}}" as="ly" hint-placeholder-count="1"><img src="{{ly.src}}" alt="" style="position:absolute;left:{{ly.l}}%;top:{{ly.t}}%;width:{{ly.w}}%;display:block"></sc-for></span>
+<span style="display:flex;flex-direction:column;flex:1;min-width:0;gap:1px">
+<span style="display:flex;align-items:center;gap:8px;min-width:0"><span class="t-name el" style="min-width:0">{{e.name}}</span><span class="vp" style="color:{{e.tone}}"><span class="dot" style="color:{{e.tone}}"></span>{{e.verdict}}</span></span>
+<span class="t-cap i2 el">{{e.when}}</span>
+<span class="t-cap i3 el">{{e.detail}}</span>
+</span>
+<span class="i3" style="display:flex;flex:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+</a></sc-if>
+</sc-for>
+<sc-if value="{{noItems}}" hint-placeholder-val="{{false}}"><div class="t-small i2 rise" style="--i:5;padding:8px 4px">{{emptyMsg}}</div></sc-if>
+</div>
+
+</div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:150px;background:linear-gradient(180deg,rgba(3,4,11,0),rgba(3,4,11,.78));pointer-events:none"></div>
+<nav class="tabbar fgn" data-at="{{tabAt}}" aria-label="Main">
+<span class="tab-ind"></span>
+<a class="tab t-tab" href="Main.dc.html" aria-label="Tonight" onClick="{{onTab}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 5h4"/><path d="M20 3v4"/><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>Tonight</a>
+<button class="tab t-tab" aria-current="page" aria-label="Events"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>Events</button>
+<a class="tab t-tab" href="Sky.dc.html" aria-label="Sky" onClick="{{onTab}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m10.065 12.493-6.18 1.318a.934.934 0 0 1-1.108-.702l-.537-2.15a1.07 1.07 0 0 1 .691-1.265l13.504-4.44"/><path d="m13.56 11.747 4.332-.924"/><path d="m16 21-3.105-6.21"/><path d="M16.485 5.94a2 2 0 0 1 1.455-2.425l1.09-.272a1 1 0 0 1 1.212.727l1.515 6.06a1 1 0 0 1-.727 1.213l-1.09.272a2 2 0 0 1-2.425-1.455z"/><path d="m6.158 8.633 1.114 4.456"/><path d="m8 21 3.105-6.21"/><circle cx="12" cy="13" r="2"/></svg>Sky</a>
+<a class="tab t-tab" href="You.dc.html" aria-label="You" onClick="{{onTab}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>You</a>
+</nav>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { filter: (window.WFUI && window.WFUI.kept('ev_filter')) || 'all', obs: { lat: 26.9124, lon: 75.7873, name: 'Jaipur' }, nav: window.WFUI ? window.WFUI.nav() : 'cold', tabAt: window.WFUI ? window.WFUI.tabFrom('events') : 1, tick: 0, th: 0, iss: 0 };
+    this.issList = []; this.issFor = '';
+    this.thumb = null;
+  }
+  componentDidMount() {
+    const bgStart = () => {
+      const cv = document.getElementById('spacecv_events');
+      if (!window.THREE || !window.WishfallSky || !cv) { this.bgT = setTimeout(bgStart, 300); return; }
+      const o = (this.state && this.state.obs) || { lat: 26.9124, lon: 75.7873 };
+      this.space = window.WishfallSky.create({ canvas: cv, texUrl: './a/mw_eq_clean4.jpg', mode: 'bg', interactive: false, az: 150, alt: 55, fov: 70, sid: 140, gain: 1.7, starScale: 1.2, lat: o.lat, lon: o.lon });
+      setTimeout(() => cv.classList.add('on'), 120);
+      if (window.WF) window.WF.getObserver((ob) => { if (this.space) this.space.relocate(ob.lat, ob.lon); });
+    };
+    bgStart();
+    this.tabT = setTimeout(() => this.setState({ tabAt: 1 }), 90);
+    const boot = () => { if (!window.WF || !window.Astronomy) { this.retry = setTimeout(boot, 250); return; } window.WF.getObserver((o) => { this.setState({ obs: o }); this.loadIss(o); }); this.setState({ tick: 1 }); };
+    boot();
+    const tb = () => { if (!window.THREE || !window.WishfallMoon) { this.tbT = setTimeout(tb, 300); return; } this.thumb = window.WishfallMoon.thumb({ texUrl: './a/c_moon_disc.jpg', texW: 1536, size: 96 }); if (this.thumb) this.thumb.onReady(() => this.setState({ th: 1 })); };
+    tb();
+  }
+  componentWillUnmount() { clearTimeout(this.bgT); if (this.space) this.space.dispose(); clearTimeout(this.tbT); if (this.thumb) this.thumb.dispose(); clearTimeout(this.retry); clearTimeout(this.tabT); this.issFor = ''; }
+  loadIss(o) {
+    if (!window.WFE) return; const k = o.lat.toFixed(2) + ',' + o.lon.toFixed(2); if (this.issFor === k) return; this.issFor = k;
+    try { window.WFE.iss(o, new Date(), (r) => { this.issList = (r && r.list) || []; this.setState({ iss: 1 }); }); } catch (er) {}
+  }
+  renderVals() {
+    const WF = window.WF, A = window.Astronomy, s = this.state, W = window.WFUI;
+    const base = { navDir: s.nav, tabAt: s.tabAt, onTab: () => { if (W) W.mark('tab', 'events'); }, toAlerts: () => { if (W) W.mark('fwd', 'events', 'Events.dc.html'); }, place: s.obs.name };
+    const defs = [['all', 'All'], ['shower', 'Meteor showers'], ['moon', 'Moon'], ['eclipse', 'Eclipses'], ['planet', 'Planets'], ['iss', 'Space station'], ['more', 'More']];
+    const filters = defs.map((d) => ({ label: d[1], on: s.filter === d[0] ? 'true' : 'false', pick: () => { if (W) W.keep('ev_filter', d[0]); this.setState({ filter: d[0] }); } }));
+    if (!WF || !A) return Object.assign(base, { count: 0, filters, hasPlans: false, plans: [], items: [], noItems: false, emptyMsg: '', hour: '7 pm' });
+    const now = new Date(), o = s.obs;
+    const tone = { Go: '#7ee7c7', Maybe: '#ffc46b', Skip: '#ff8f9c', Info: '#cfdbff' };
+    const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], WK = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const rel = (d) => d <= 0 ? 'Tonight' : d === 1 ? 'Tomorrow' : 'in ' + d + ' days';
+    const today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const items = [];
+    WF.upcoming(o, now).forEach((e) => {
+      items.push({ key: e.days, kind: 'shower', isShower: true, isMoon: false, name: e.name, score: e.score, verdict: e.verdict, tone: tone[e.verdict],
+        when: e.label.replace('Night of ', '') + ' · ' + e.inTxt,
+        detail: 'Best ' + e.bestTime + ' · ' + (e.best.moonUp ? 'Moon ' + Math.round(e.best.ill * 100) + '% lit' : 'No Moon'),
+        ring: 'width:48px;height:48px;border-radius:24px;flex:none;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;color:' + tone[e.verdict] + ';border:2px solid ' + tone[e.verdict] + ';background:var(--wf-fill)',
+        href: 'Event.dc.html', open: () => { try { localStorage.setItem('wf_event', e.id); } catch (er) {} if (W) W.mark('fwd', 'events', 'Events.dc.html'); } });
+    });
+    const phaseIcon = (deg) => { const D = Math.PI / 180, r = 12, k = Math.cos(deg * D), rx = Math.max(0.01, Math.abs(k) * r).toFixed(2); const il = (1 - k) / 2; if (il < 0.02) return { path: '', tf: '' }; if (il > 0.98) return { path: 'M0 -12 A12 12 0 1 1 0 12 A12 12 0 1 1 0 -12Z', tf: '' }; return { path: 'M0 -12 A12 12 0 0 1 0 12 A' + rx + ' 12 0 0 ' + (k > 0 ? 0 : 1) + ' 0 -12Z', tf: deg < 180 ? '' : 'scale(-1 1)' }; };
+    const moonThumb = (d) => { const mm = (this.thumb && this.thumb.isReady()) ? WF.moonToday(o, d) : null; return mm ? this.thumb.url(mm.L, mm.rot) : ''; };
+    const dayOpen = (diff) => () => { try { localStorage.setItem('wf_moon_go', JSON.stringify({ off: diff, t: Date.now() })); } catch (er) {} if (W) W.mark('fwd', 'events', 'Events.dc.html'); };
+    let q0 = now;
+    for (let n = 0; n < 3; n++) {
+      let q; try { q = A.SearchMoonPhase(0, q0, 45); } catch (er) { q = null; }
+      if (!q) break; const d = q.date; q0 = new Date(d.getTime() + 86400000 * 5);
+      const dd = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const diff = Math.round((dd - today0) / 86400000);
+      if (diff > 75) break;
+      const turl = moonThumb(d);
+      items.push({ key: diff, kind: 'moon', isShower: false, isMoon: true, name: 'New moon', thumb: turl, hasThumb: !!turl, noThumb: !turl, verdict: 'Dark sky', tone: tone.Go,
+        when: WK[dd.getDay()] + ', ' + dd.getDate() + ' ' + MON[dd.getMonth()] + ' · ' + rel(diff), detail: 'The darkest nights of the month', href: 'Moon.dc.html', open: dayOpen(diff) });
+    }
+    let WE = null; if (window.WFE) { try { WE = window.WFE; WE.moonEvents(o, now, 75).forEach((e) => {
+      const turl = moonThumb(e.date);
+      items.push({ key: e.days, kind: 'moon', isShower: false, isMoon: true, name: e.name, thumb: turl, hasThumb: !!turl, noThumb: !turl, verdict: e.chip || 'Bright', tone: e.chip ? tone.Maybe : tone.Maybe,
+        when: e.whenTxt, detail: e.detail, href: 'Moon.dc.html', open: dayOpen(e.days) });
+    }); } catch (er) {} }
+    if (window.WFE) {
+      const openSight = (id) => () => { try { localStorage.setItem('wf_sight', id); } catch (er) {} if (W) W.mark('fwd', 'events', 'Events.dc.html'); };
+      let more = []; try { more = window.WFE.build(o, now); } catch (er) {}
+      more = more.concat(this.issList || []);
+      more.forEach((e) => items.push({ key: e.days, kind: e.cat, isShower: false, isMoon: false, isOther: true, name: e.name, layers: window.WFE.layers(e.icon), verdict: e.verdict, tone: tone[e.verdict] || tone.Info, when: e.whenTxt, detail: e.detail, href: 'Sight.dc.html', open: openSight(e.id) }));
+    }
+    items.sort((a, b) => a.key - b.key);
+    let issN = 0;
+    const pool = items.filter((x) => s.filter === 'all' ? (x.key <= 150 && (x.kind !== 'iss' || ++issN <= 3)) : x.kind === s.filter);
+    const list = pool.map((x, i) => Object.assign(x, { i: 5 + Math.min(i, 8) }));
+    const emptyMsg = s.filter === 'iss' ? (this.issFor ? 'No bright flyovers this week for where you are. The station is only seen just after dusk or before dawn, and passes come in runs.' : 'Looking up the station orbit…') : 'Nothing coming up here in the next year for where you are.';
+    const planIds = W ? W.plans() : [];
+    const plans = WF.SHOWERS.filter((x) => planIds.indexOf(x.id) >= 0).map((sh) => { const e = WF.evalShower(sh, o, now); return { name: e.name, when: e.label.replace('Night of ', ''), href: 'Event.dc.html', open: () => { try { localStorage.setItem('wf_event', sh.id); } catch (er) {} if (W) W.mark('fwd', 'events', 'Events.dc.html'); } }; });
+    let meta = {}; try { meta = JSON.parse(localStorage.getItem('wf_plan_meta') || '{}') || {}; } catch (er) {}
+    planIds.forEach((id) => { const m = meta[id]; if (m && m.t > now.getTime() - 86400000) plans.push({ name: m.name, when: m.when, href: 'Sight.dc.html', open: () => { try { localStorage.setItem('wf_sight', id); } catch (er) {} if (W) W.mark('fwd', 'events', 'Events.dc.html'); } }); });
+    return Object.assign(base, { emptyMsg: emptyMsg, noItems: list.length === 0, count: pool.length, filters, items: list, plans, hasPlans: plans.length > 0, hour: W ? W.hourText(W.prefs().hour) : '7 pm' });
+  }
+}
+</script>
+</body>
+</html>

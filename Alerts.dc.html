@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Alerts</title>
+<style>html,body{margin:0;background:#04060f}</style>
+<script src="./bridge.js"></script>
+<script src="./support.js"></script>
+<script src="./a/wishfall-ui6.js"></script>
+<script src="./a/three.min.js"></script>
+<script src="./a/astronomy.browser.min.js"></script>
+<script src="./a/wishfall-astro3.js"></script>
+<script src="./a/satellite.min.js"></script>
+<script src="./a/wishfall-events9.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="./outfit.css" rel="stylesheet">
+</helmet>
+<div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
+
+<canvas id="spacecv_alerts" class="bgfade" aria-hidden="true" style="position:absolute;left:0;top:0;width:390px;height:844px;display:block"></canvas>
+<div style="position:absolute;left:0;top:0;width:390px;height:844px;background:linear-gradient(180deg,rgba(3,4,11,.25) 0%,rgba(3,4,11,.35) 50%,rgba(3,4,11,.6) 100%)"></div>
+<div class="wf-body" style="position:absolute;left:0;top:0;width:390px;height:844px">
+<div class="noscroll" style="position:absolute;left:0;top:0;width:390px;height:844px;overflow-y:auto;overflow-x:hidden">
+<div style="padding:24px 24px 40px 24px;display:flex;flex-direction:column">
+
+<div class="rise" style="--i:0;display:flex;align-items:center;gap:12px;height:48px">
+<sc-if value="{{backMain}}" hint-placeholder-val="{{true}}"><a class="fg press btn-ic" href="Main.dc.html" onClick="{{goBack}}" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a></sc-if><sc-if value="{{backEvents}}" hint-placeholder-val="{{false}}"><a class="fg press btn-ic" href="Events.dc.html" onClick="{{goBack}}" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a></sc-if><sc-if value="{{backYou}}" hint-placeholder-val="{{false}}"><a class="fg press btn-ic" href="You.dc.html" onClick="{{goBack}}" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a></sc-if>
+<span class="t-title" style="flex:1;min-width:0">Alerts</span>
+</div>
+<div class="t-body i2 rise" style="--i:1;margin-top:12px">We tell you the evening before, at the time you pick. Everything is worked out on your phone for where you are.</div>
+
+<div class="t-h2 rise" style="--i:2;margin-top:24px">Planned nights</div>
+<div class="fg card rise" style="--i:3;margin-top:12px;padding:0 16px">
+<sc-for list="{{plans}}" as="p" hint-placeholder-count="1">
+<div class="row">
+<a href="{{p.href}}" onClick="{{p.open}}" class="press" style="display:flex;flex-direction:column;min-width:0;flex:1"><span class="t-name el">{{p.name}}</span><span class="t-cap i2 el">{{p.when}} · alert at {{hour}}</span></a>
+<button class="fg press btn-ic" aria-label="Remove alert" onClick="{{p.remove}}" style="width:40px;height:40px;border-radius:20px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+</div>
+</sc-for>
+<sc-if value="{{noPlans}}" hint-placeholder-val="{{true}}"><div class="t-small i2" style="padding:20px 0">No nights planned yet. Open an event and tap Plan this night.</div></sc-if>
+</div>
+
+<div class="t-h2 rise" style="--i:4;margin-top:32px">Tell me about</div>
+<div class="fg card rise" style="--i:5;margin-top:12px;padding:0 16px">
+<div class="row"><span style="flex:1;min-width:0"><div class="t-name">Meteor showers</div><div class="t-cap i2">The night before each one</div></span><button class="switch" role="switch" aria-checked="{{sShowers}}" aria-label="Meteor showers" onClick="{{tShowers}}"></button></div>
+<div class="row"><span style="flex:1;min-width:0"><div class="t-name">Full and new Moon</div><div class="t-cap i2">Darkest and brightest nights</div></span><button class="switch" role="switch" aria-checked="{{sMoon}}" aria-label="Full and new Moon" onClick="{{tMoon}}"></button></div>
+<div class="row"><span style="flex:1;min-width:0"><div class="t-name">Eclipses</div><div class="t-cap i2">Solar and lunar, only ones you can see</div></span><button class="switch" role="switch" aria-checked="{{sEcl}}" aria-label="Eclipses" onClick="{{tEcl}}"></button></div>
+<div class="row"><span style="flex:1;min-width:0"><div class="t-name">Planets and the Moon</div><div class="t-cap i2">Close pairs and the best nights for each planet</div></span><button class="switch" role="switch" aria-checked="{{sPlan}}" aria-label="Planets and the Moon" onClick="{{tPlan}}"></button></div>
+<div class="row"><span style="flex:1;min-width:0"><div class="t-name">Space station</div><div class="t-cap i2">Bright flyovers, shortly before they happen</div></span><button class="switch" role="switch" aria-checked="{{sIss}}" aria-label="Space station" onClick="{{tIss}}"></button></div>
+<div class="row"><span style="flex:1;min-width:0"><div class="t-name">Only when it is a Go</div><div class="t-cap i2">Skip the maybes</div></span><button class="switch" role="switch" aria-checked="{{sGo}}" aria-label="Only when it is a Go" onClick="{{tGo}}"></button></div>
+</div>
+
+<div class="t-h2 rise" style="--i:6;margin-top:32px">Alert time</div>
+<div class="rise" style="--i:7;display:flex;gap:8px;margin-top:12px">
+<sc-for list="{{hours}}" as="h" hint-placeholder-count="4">
+<button class="fchip" style="flex:1;padding:0" aria-pressed="{{h.on}}" onClick="{{h.pick}}">{{h.label}}</button>
+</sc-for>
+</div>
+<div class="t-cap i3 rise" style="--i:8;margin-top:12px">Clear-sky checks will use the local forecast in the real app.</div>
+
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const W = window.WFUI;
+    this.state = { nav: W ? W.nav() : 'cold', prefs: W ? W.prefs() : { showers: true, moon: true, goOnly: false, hour: 19 }, plans: W ? W.plans() : [], obs: { lat: 26.9124, lon: 75.7873, name: 'Jaipur' } };
+  }
+  componentDidMount() {
+    const bgStart = () => {
+      const cv = document.getElementById('spacecv_alerts');
+      if (!window.THREE || !window.WishfallSky || !cv) { this.bgT = setTimeout(bgStart, 300); return; }
+      const o = (this.state && this.state.obs) || { lat: 26.9124, lon: 75.7873 };
+      this.space = window.WishfallSky.create({ canvas: cv, texUrl: './a/mw_eq_clean4.jpg', mode: 'bg', interactive: false, az: 150, alt: 55, fov: 70, sid: 140, gain: 1.7, starScale: 1.2, lat: o.lat, lon: o.lon });
+      setTimeout(() => cv.classList.add('on'), 120);
+      if (window.WF) window.WF.getObserver((ob) => { if (this.space) this.space.relocate(ob.lat, ob.lon); });
+    };
+    bgStart(); const boot = () => { if (!window.WF) { this.retry = setTimeout(boot, 250); return; } window.WF.getObserver((o) => this.setState({ obs: o })); }; boot(); }
+  componentWillUnmount() { clearTimeout(this.bgT); if (this.space) this.space.dispose(); clearTimeout(this.retry); }
+  renderVals() {
+    const WF = window.WF, W = window.WFUI, s = this.state, p = s.prefs;
+    const bk = W ? W.back() : 'Main.dc.html';
+    const setD = (k, d) => () => { const cur = s.prefs[k] === undefined ? d : s.prefs[k]; this.setState({ prefs: W.setPref(k, !cur) }); };
+    const set = (k) => () => { const np = W.setPref(k, !s.prefs[k]); this.setState({ prefs: np }); };
+    const plans0 = (WF && window.Astronomy) ? WF.SHOWERS.filter((x) => s.plans.indexOf(x.id) >= 0).map((sh) => { const e = WF.evalShower(sh, s.obs, new Date()); return { name: e.name, when: e.label.replace('Night of ', ''), href: 'Event.dc.html', open: () => { try { localStorage.setItem('wf_event', sh.id); } catch (er) {} if (W) W.mark('fwd', 'alerts', 'Alerts.dc.html'); }, remove: () => { W.togglePlan(sh.id); this.setState({ plans: W.plans() }); } }; }) : [];
+    let meta = {}; try { meta = JSON.parse(localStorage.getItem('wf_plan_meta') || '{}') || {}; } catch (er) {}
+    const plans = plans0.concat(s.plans.filter((id) => meta[id]).map((id) => ({ name: meta[id].name, when: meta[id].when, href: 'Sight.dc.html', open: () => { try { localStorage.setItem('wf_sight', id); } catch (er) {} if (W) W.mark('fwd', 'alerts', 'Alerts.dc.html'); }, remove: () => { W.togglePlan(id); this.setState({ plans: W.plans() }); } })));
+    return {
+      navDir: s.nav, backMain: bk === 'Main.dc.html', backEvents: bk === 'Events.dc.html', backYou: bk === 'You.dc.html', goBack: () => { if (W) W.mark('back', 'alerts'); },
+      plans, noPlans: plans.length === 0, hour: W ? W.hourText(p.hour) : '7 pm',
+      sShowers: p.showers ? 'true' : 'false', sMoon: p.moon ? 'true' : 'false', sGo: p.goOnly ? 'true' : 'false',
+      tShowers: set('showers'), sEcl: p.eclipses !== false ? 'true' : 'false', sPlan: p.planets !== false ? 'true' : 'false', sIss: p.iss === true ? 'true' : 'false', tEcl: setD('eclipses', true), tPlan: setD('planets', true), tIss: setD('iss', false), tMoon: set('moon'), tGo: set('goOnly'),
+      hours: [18, 19, 20, 21].map((h) => ({ label: W ? W.hourText(h) : h, on: p.hour === h ? 'true' : 'false', pick: () => this.setState({ prefs: W.setPref('hour', h) }) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

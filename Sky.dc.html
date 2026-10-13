@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sky</title>
+<style>html,body{margin:0;background:#04060f}</style>
+<script src="./bridge.js"></script>
+<script src="./support.js"></script>
+<script src="./a/wishfall-ui6.js"></script>
+<script src="./a/three.min.js"></script>
+<script src="./a/astronomy.browser.min.js"></script>
+<script src="./a/wishfall-astro3.js"></script>
+<script src="./a/wishfall-deep3.js"></script><script src="./a/wishfall-sky19.js"></script>
+<script src="./a/wishfall-planet.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="./outfit.css" rel="stylesheet">
+</helmet><style>#lb_sirius,#lb_rigel,#lb_aldeb,#lb_procyon,#lb_capella{display:none!important}</style>
+<div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:#03040b;color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
+
+<!-- real 3D sky -->
+<div style="position:absolute;left:0;top:0;width:390px;height:844px;overflow:hidden;background:#03040b;cursor:grab">
+
+<canvas id="skycv" class="bgfade" role="img" aria-label="Live sky over Jaipur, drag to look around" style="position:absolute;left:0;top:0;width:390px;height:844px;display:block"></canvas>
+<div aria-hidden="true" style="position:absolute;left:0;top:0;width:390px;height:844px;pointer-events:none;overflow:hidden"><sc-for list="{{clItems}}" as="c" hint-placeholder-count="12"><div id="cl_{{c.i}}" class="t-eyebrow nw" style="position:absolute;left:0;top:0;display:none;opacity:0;padding:10px 8px;pointer-events:none;color:var(--wf-ink-2);text-shadow:0 0 10px rgba(3,4,11,.95),0 0 3px rgba(3,4,11,.9);will-change:transform,opacity">{{c.name}}</div></sc-for></div>
+<div aria-hidden="true" style="position:absolute;left:0;top:0;width:390px;height:844px;pointer-events:none;overflow:hidden"><div id="gl_0" class="t-eyebrow nw" style="position:absolute;left:0;top:0;opacity:0;font-size:10px;color:rgba(170,195,255,.85);text-shadow:0 0 8px rgba(3,4,11,.95);transition:opacity .4s var(--ease-out);will-change:transform,opacity">Celestial equator</div><div id="gl_1" class="t-eyebrow nw" style="position:absolute;left:0;top:0;opacity:0;font-size:10px;color:rgba(170,195,255,.85);text-shadow:0 0 8px rgba(3,4,11,.95);transition:opacity .4s var(--ease-out);will-change:transform,opacity">Celestial equator</div><div id="gl_2" class="t-eyebrow nw" style="position:absolute;left:0;top:0;opacity:0;font-size:10px;color:rgba(170,195,255,.85);text-shadow:0 0 8px rgba(3,4,11,.95);transition:opacity .4s var(--ease-out);will-change:transform,opacity">Celestial equator</div><div id="gl_3" class="t-eyebrow nw" style="position:absolute;left:0;top:0;opacity:0;font-size:10px;color:rgba(170,195,255,.85);text-shadow:0 0 8px rgba(3,4,11,.95);transition:opacity .4s var(--ease-out);will-change:transform,opacity">Celestial equator</div><div id="gl_4" class="t-eyebrow nw" style="position:absolute;left:0;top:0;opacity:0;font-size:10px;color:rgba(255,205,160,.85);text-shadow:0 0 8px rgba(3,4,11,.95);transition:opacity .4s var(--ease-out);will-change:transform,opacity">Ecliptic</div><div id="gl_5" class="t-eyebrow nw" style="position:absolute;left:0;top:0;opacity:0;font-size:10px;color:rgba(255,205,160,.85);text-shadow:0 0 8px rgba(3,4,11,.95);transition:opacity .4s var(--ease-out);will-change:transform,opacity">Ecliptic</div><div id="gl_6" class="t-eyebrow nw" style="position:absolute;left:0;top:0;opacity:0;font-size:10px;color:rgba(255,205,160,.85);text-shadow:0 0 8px rgba(3,4,11,.95);transition:opacity .4s var(--ease-out);will-change:transform,opacity">Ecliptic</div><div id="gl_7" class="t-eyebrow nw" style="position:absolute;left:0;top:0;opacity:0;font-size:10px;color:rgba(255,205,160,.85);text-shadow:0 0 8px rgba(3,4,11,.95);transition:opacity .4s var(--ease-out);will-change:transform,opacity">Ecliptic</div></div>
+<div style="position:absolute;left:0;top:0;width:390px;height:844px;pointer-events:none"><div id="ep_pin" aria-hidden="true" style="position:absolute;left:0;top:0;display:none;opacity:0;text-align:center;will-change:transform,opacity;transition:opacity .4s var(--ease-out)"><div class="t-name nw" style="font-size:15px;text-shadow:0 1px 8px rgba(0,0,0,.85)">{{obsName}}</div><div class="t-eyebrow nw" style="font-size:10px;color:rgba(190,210,255,.85);margin-top:2px;text-shadow:0 1px 6px rgba(0,0,0,.85)">You are here</div></div><div id="pl_0" style="position:absolute;left:0;top:0;display:none;will-change:transform"><span id="plh_0" role="button" aria-label="Open" style="position:absolute;left:-24px;top:-24px;width:48px;height:48px;border-radius:24px;pointer-events:none"></span><svg id="moonsvg" class="plp" viewBox="-12 -12 24 24" width="26" height="26" style="position:absolute;left:-13px;top:-13px;overflow:visible"><circle r="11" fill="rgba(255,244,220,.10)"/><circle r="9" fill="rgba(35,42,60,.62)"/><g id="moonlit"><path id="moonpath" d="M0 -9A9 9 0 0 1 0 9A9 9 0 0 1 0 -9Z" fill="#f4eee0"/></g><circle r="9.4" fill="none" stroke="rgba(255,255,255,.22)" stroke-width=".8"/></svg><span class="nw" style="position:absolute;left:17px;top:-8px;font-size:11px;line-height:16px;letter-spacing:.16em;color:rgba(255,190,170,.95);text-shadow:0 1px 6px rgba(0,0,0,.9)">MOON</span></div><div id="pl_1" style="position:absolute;left:0;top:0;display:none;will-change:transform"><span id="plh_1" role="button" aria-label="Open" style="position:absolute;left:-24px;top:-24px;width:48px;height:48px;border-radius:24px;pointer-events:none"></span><span id="pld_1" style="position:absolute;left:-2.0px;top:-2.0px;width:4px;height:4px;border-radius:50%;background:rgb(216,210,200)"></span><span style="position:absolute;left:-4.5px;top:-4.5px;width:9px;height:9px;border-radius:50%;background:rgba(216,210,200,.2);pointer-events:none"></span><img id="pli_1" alt="" draggable="false" style="position:absolute;left:-5.8px;top:-5.8px;width:11.5px;height:11.5px;opacity:0;transition:opacity .5s;pointer-events:none;mix-blend-mode:screen"><span class="nw" style="position:absolute;left:11px;top:-8px;font-size:11px;line-height:16px;letter-spacing:.16em;color:rgba(255,255,255,.88);text-shadow:0 1px 6px rgba(0,0,0,.9)">MERCURY</span></div><div id="pl_2" style="position:absolute;left:0;top:0;display:none;will-change:transform"><span id="plh_2" role="button" aria-label="Open" style="position:absolute;left:-24px;top:-24px;width:48px;height:48px;border-radius:24px;pointer-events:none"></span><span id="pld_2" style="position:absolute;left:-3.0px;top:-3.0px;width:6px;height:6px;border-radius:50%;background:rgb(255,242,210)"></span><span style="position:absolute;left:-7.0px;top:-7.0px;width:14px;height:14px;border-radius:50%;background:rgba(255,242,210,.2);pointer-events:none"></span><img id="pli_2" alt="" draggable="false" style="position:absolute;left:-9.0px;top:-9.0px;width:17.9px;height:17.9px;opacity:0;transition:opacity .5s;pointer-events:none;mix-blend-mode:screen"><span class="nw" style="position:absolute;left:12px;top:-8px;font-size:11px;line-height:16px;letter-spacing:.16em;color:rgba(255,255,255,.88);text-shadow:0 1px 6px rgba(0,0,0,.9)">VENUS</span></div><div id="pl_3" style="position:absolute;left:0;top:0;display:none;will-change:transform"><span id="plh_3" role="button" aria-label="Open" style="position:absolute;left:-24px;top:-24px;width:48px;height:48px;border-radius:24px;pointer-events:none"></span><span id="pld_3" style="position:absolute;left:-2.25px;top:-2.25px;width:4.5px;height:4.5px;border-radius:50%;background:rgb(255,176,140)"></span><span style="position:absolute;left:-5.0px;top:-5.0px;width:10px;height:10px;border-radius:50%;background:rgba(255,176,140,.2);pointer-events:none"></span><img id="pli_3" alt="" draggable="false" style="position:absolute;left:-6.4px;top:-6.4px;width:12.8px;height:12.8px;opacity:0;transition:opacity .5s;pointer-events:none;mix-blend-mode:screen"><span class="nw" style="position:absolute;left:12px;top:-8px;font-size:11px;line-height:16px;letter-spacing:.16em;color:rgba(255,255,255,.88);text-shadow:0 1px 6px rgba(0,0,0,.9)">MARS</span></div><div id="pl_4" style="position:absolute;left:0;top:0;display:none;will-change:transform"><span id="plh_4" role="button" aria-label="Open" style="position:absolute;left:-24px;top:-24px;width:48px;height:48px;border-radius:24px;pointer-events:none"></span><span id="pld_4" style="position:absolute;left:-3.0px;top:-3.0px;width:6px;height:6px;border-radius:50%;background:rgb(255,228,190)"></span><span style="position:absolute;left:-7.0px;top:-7.0px;width:14px;height:14px;border-radius:50%;background:rgba(255,228,190,.2);pointer-events:none"></span><img id="pli_4" alt="" draggable="false" style="position:absolute;left:-9.0px;top:-9.0px;width:17.9px;height:17.9px;opacity:0;transition:opacity .5s;pointer-events:none;mix-blend-mode:screen"><span class="nw" style="position:absolute;left:12px;top:-8px;font-size:11px;line-height:16px;letter-spacing:.16em;color:rgba(255,255,255,.88);text-shadow:0 1px 6px rgba(0,0,0,.9)">JUPITER</span></div><div id="pl_5" style="position:absolute;left:0;top:0;display:none;will-change:transform"><span id="plh_5" role="button" aria-label="Open" style="position:absolute;left:-24px;top:-24px;width:48px;height:48px;border-radius:24px;pointer-events:none"></span><span id="pld_5" style="position:absolute;left:-2.5px;top:-2.5px;width:5px;height:5px;border-radius:50%;background:rgb(244,220,164)"></span><span style="position:absolute;left:-6.0px;top:-6.0px;width:12px;height:12px;border-radius:50%;background:rgba(244,220,164,.2);pointer-events:none"></span><img id="pli_5" alt="" draggable="false" style="position:absolute;left:-15.3px;top:-15.3px;width:30.6px;height:30.6px;opacity:0;transition:opacity .5s;pointer-events:none;mix-blend-mode:screen"><span class="nw" style="position:absolute;left:12px;top:-8px;font-size:11px;line-height:16px;letter-spacing:.16em;color:rgba(255,255,255,.88);text-shadow:0 1px 6px rgba(0,0,0,.9)">SATURN</span></div><div id="lb_rigel" style="position:absolute;left:0;top:0;display:none;will-change:transform;white-space:nowrap;font-size:12px;line-height:16px;letter-spacing:.14em;color:rgba(255,255,255,.82);text-shadow:0 1px 6px rgba(0,0,0,.8)"><span style="position:absolute;left:8px;top:-8px">RIGEL</span></div><div id="lb_sirius" style="position:absolute;left:0;top:0;display:none;will-change:transform;white-space:nowrap;font-size:12px;line-height:16px;letter-spacing:.14em;color:rgba(255,255,255,.82);text-shadow:0 1px 6px rgba(0,0,0,.8)"><span style="position:absolute;left:8px;top:-8px">SIRIUS</span></div><div id="lb_aldeb" style="position:absolute;left:0;top:0;display:none;will-change:transform;white-space:nowrap;font-size:12px;line-height:16px;letter-spacing:.14em;color:rgba(255,255,255,.82);text-shadow:0 1px 6px rgba(0,0,0,.8)"><span style="position:absolute;left:8px;top:-8px">ALDEBARAN</span></div><div id="lb_procyon" style="position:absolute;left:0;top:0;display:none;will-change:transform;white-space:nowrap;font-size:12px;line-height:16px;letter-spacing:.14em;color:rgba(255,255,255,.82);text-shadow:0 1px 6px rgba(0,0,0,.8)"><span style="position:absolute;left:8px;top:-8px">PROCYON</span></div><div id="lb_capella" style="position:absolute;left:0;top:0;display:none;will-change:transform;white-space:nowrap;font-size:12px;line-height:16px;letter-spacing:.14em;color:rgba(255,255,255,.82);text-shadow:0 1px 6px rgba(0,0,0,.8)"><span style="position:absolute;left:8px;top:-8px">CAPELLA</span></div><div id="lb_orion" style="position:absolute;left:0;top:0;display:none;will-change:transform;white-space:nowrap;font-size:12px;letter-spacing:.4em;color:rgba(200,215,255,.6);text-shadow:0 1px 6px rgba(0,0,0,.8)"><span style="position:absolute;left:-30px;top:-8px">ORION</span></div><div id="mk_sel" style="position:absolute;left:0;top:0;display:none;will-change:transform"><span style="position:absolute;left:-13px;top:-13px;width:26px;height:26px;border-radius:13px;border:1.2px solid #fff;box-sizing:border-box"></span><span class="ringp" style="position:absolute;left:-13px;top:-13px;width:26px;height:26px;border-radius:13px;border:1.2px solid #fff;box-sizing:border-box"></span><span class="t-name nw" style="position:absolute;right:20px;top:-12px;font-size:15px;text-shadow:0 1px 6px rgba(0,0,0,.8)">{{selName}}</span></div><div id="lb_rad" style="position:absolute;left:0;top:0;display:none;will-change:transform"><span style="position:absolute;left:-17px;top:-17px;width:34px;height:34px;border-radius:17px;box-sizing:border-box;border:1px dashed rgba(190,205,255,.8);background:rgba(159,180,255,.12)"></span><svg width="14" height="14" viewBox="-7 -7 14 14" style="position:absolute;left:-7px;top:-7px" aria-hidden="true"><path d="M-6 0h12M0 -6v12M-4 -4l8 8M-4 4l8 -8" stroke="#cfdbff" stroke-width="1.1" fill="none"/></svg><span style="position:absolute;left:-60px;top:22px;width:120px;text-align:center;font-size:13px;line-height:16px;font-weight:500;color:#cfdbff;text-shadow:0 1px 6px rgba(0,0,0,.8)">Orionids start here</span></div><div id="cd_N" style="position:absolute;left:0;top:0;display:none;will-change:transform;font-size:13px;font-weight:500;letter-spacing:.16em;color:rgba(255,255,255,.85);text-shadow:0 1px 6px rgba(0,0,0,.9)"><span style="position:absolute;left:-12px;top:-8px;width:24px;text-align:center">N</span></div><div id="cd_NE" style="position:absolute;left:0;top:0;display:none;will-change:transform;font-size:13px;font-weight:500;letter-spacing:.16em;color:rgba(255,255,255,.85);text-shadow:0 1px 6px rgba(0,0,0,.9)"><span style="position:absolute;left:-12px;top:-8px;width:24px;text-align:center">NE</span></div><div id="cd_E" style="position:absolute;left:0;top:0;display:none;will-change:transform;font-size:13px;font-weight:500;letter-spacing:.16em;color:rgba(255,255,255,.85);text-shadow:0 1px 6px rgba(0,0,0,.9)"><span style="position:absolute;left:-12px;top:-8px;width:24px;text-align:center">E</span></div><div id="cd_SE" style="position:absolute;left:0;top:0;display:none;will-change:transform;font-size:13px;font-weight:500;letter-spacing:.16em;color:rgba(255,255,255,.85);text-shadow:0 1px 6px rgba(0,0,0,.9)"><span style="position:absolute;left:-12px;top:-8px;width:24px;text-align:center">SE</span></div><div id="cd_S" style="position:absolute;left:0;top:0;display:none;will-change:transform;font-size:13px;font-weight:500;letter-spacing:.16em;color:rgba(255,255,255,.85);text-shadow:0 1px 6px rgba(0,0,0,.9)"><span style="position:absolute;left:-12px;top:-8px;width:24px;text-align:center">S</span></div><div id="cd_SW" style="position:absolute;left:0;top:0;display:none;will-change:transform;font-size:13px;font-weight:500;letter-spacing:.16em;color:rgba(255,255,255,.85);text-shadow:0 1px 6px rgba(0,0,0,.9)"><span style="position:absolute;left:-12px;top:-8px;width:24px;text-align:center">SW</span></div><div id="cd_W" style="position:absolute;left:0;top:0;display:none;will-change:transform;font-size:13px;font-weight:500;letter-spacing:.16em;color:rgba(255,255,255,.85);text-shadow:0 1px 6px rgba(0,0,0,.9)"><span style="position:absolute;left:-12px;top:-8px;width:24px;text-align:center">W</span></div><div id="cd_NW" style="position:absolute;left:0;top:0;display:none;will-change:transform;font-size:13px;font-weight:500;letter-spacing:.16em;color:rgba(255,255,255,.85);text-shadow:0 1px 6px rgba(0,0,0,.9)"><span style="position:absolute;left:-12px;top:-8px;width:24px;text-align:center">NW</span></div></div>
+</div>
+
+<!-- shading -->
+<div style="position:absolute;left:0;top:0;width:390px;height:160px;background:linear-gradient(180deg,rgba(3,4,11,.65),rgba(3,4,11,0));pointer-events:none"></div>
+<div class="fade" style="position:absolute;left:0;bottom:0;width:390px;height:304px;background:linear-gradient(180deg,rgba(3,4,11,0),rgba(3,4,11,.7));pointer-events:none;opacity:{{exploreOn}}"></div>
+<div class="fade" style="position:absolute;left:0;top:0;width:390px;height:844px;background:radial-gradient(circle at 50% 50%,rgba(0,0,0,0) 38%,rgba(0,0,0,.62) 100%);pointer-events:none;opacity:{{threeOn}}"></div>
+
+<!-- explore: top bar (24 margin, 48 high) -->
+<div class="fade rise" style="--i:0;position:absolute;left:24px;right:24px;top:24px;display:flex;align-items:center;gap:12px;opacity:{{exploreOn}};pointer-events:{{exploreEvents}}">
+<button class="fg press" onClick="{{go3d}}" aria-pressed="{{followOn}}" aria-label="3D view: follow the compass" style="flex:none;white-space:nowrap;height:48px;padding:0 16px 0 14px;border-radius:24px;color:#fff;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:500;transition:background-color .35s var(--ease-out),color .35s var(--ease-out),box-shadow .35s var(--ease-out);{{followCss}}">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 7.5V6a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 6v12a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16.5"/><path d="M3.3 7 12 12l8.7-5"/><path d="M12 22V12"/></svg>3D view</button>
+<div class="fg" style="flex:1;min-width:0;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;white-space:nowrap">{{heading}}</div>
+<button class="fg press" aria-label="Search the sky" onClick="{{openSearch}}" style="flex:none;width:48px;height:48px;border-radius:24px;color:#fff;display:flex;align-items:center;justify-content:center;padding:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+</div>
+
+<!-- explore: live label (read only, the Sky is always now) -->
+<div class="fade rise" style="--i:1;position:absolute;left:0;right:0;top:84px;display:flex;justify-content:center;opacity:{{exploreOn}};pointer-events:none">
+<div class="fg chip t-small"><span class="dot" style="color:var(--wf-go);width:6px;height:6px"></span><span>Live · {{clock}} · {{place}}</span></div>
+</div>
+
+<!-- explore: object card -->
+<div class="fg fade" style="position:absolute;left:24px;right:24px;top:{{cardTop}}px;height:{{cardH}}px;padding:16px;border-radius:28px;display:flex;flex-direction:column;gap:8px;opacity:{{cardOpacity}};pointer-events:{{cardEvents}};transition:opacity .5s var(--ease-out),top .5s var(--ease-out),height .5s var(--ease-out)">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="t-title nw" style="flex:0 0 auto;max-width:72%">{{selName}}</span><span class="t-cap nw el" style="flex:1 1 0;min-width:0;text-align:right;font-weight:500;color:{{selTagColor}}">{{selTag}}</span>
+<button class="press" onClick="{{closeCard}}" aria-label="Close" style="flex:none;width:32px;height:32px;margin:-4px -6px -4px 0;border:0;background:none;color:var(--wf-ink-2);display:flex;align-items:center;justify-content:center;padding:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+<div class="t-small i2" style="font-weight:300">{{selDesc}}</div>
+<div style="display:flex;gap:8px;margin-top:auto"><span class="t-label nw" style="padding:6px 12px;border-radius:16px;background:var(--wf-fill);font-weight:500">{{selChip1}}</span><span class="t-label nw" style="padding:6px 12px;border-radius:16px;background:var(--wf-fill);font-weight:500">{{selChip2}}</span></div>
+<sc-if value="{{showLook}}" hint-placeholder-val="{{false}}"><button class="fg press btn-pill" onClick="{{openLens}}" style="width:100%;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:500">Closer look <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button></sc-if>
+<sc-if value="{{showMoon}}" hint-placeholder-val="{{false}}"><a class="fg press btn-pill" href="Moon.dc.html" onClick="{{toMoon}}" style="width:100%;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:500;color:inherit">Open the Moon <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></a></sc-if>
+</div>
+
+<!-- 3D mode -->
+<div class="fade" style="position:absolute;left:24px;right:24px;top:24px;display:flex;align-items:center;gap:12px;opacity:{{threeOn}};pointer-events:{{threeEvents}}">
+<button class="fg press" onClick="{{back}}" style="flex:none;height:48px;padding:0 16px 0 12px;border-radius:24px;color:#fff;display:flex;align-items:center;gap:6px;font-size:15px;font-weight:500"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Back</button>
+<div class="fg" style="flex:1;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:500;white-space:nowrap;min-width:0;padding:0 12px;box-sizing:border-box"><span style="flex:none;width:8px;height:8px;border-radius:4px;background:#7ee7c7;box-shadow:0 0 10px #7ee7c7"></span>Compass · {{heading}}</div>
+</div>
+<div class="fade" style="position:absolute;left:50%;top:50%;margin:-30px 0 0 -30px;width:60px;height:60px;border-radius:30px;border:1.5px solid rgba(255,255,255,.75);display:flex;align-items:center;justify-content:center;opacity:{{threeOn}};pointer-events:none"><span style="width:4px;height:4px;border-radius:2px;background:#fff"></span></div>
+<div class="fg fade" style="position:absolute;left:24px;right:24px;bottom:40px;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:14px;opacity:{{threeOn}};pointer-events:none">Move your phone to look around</div>
+
+<div class="fade" style="position:absolute;left:0;right:0;bottom:0;height:150px;background:linear-gradient(180deg,rgba(3,4,11,0),rgba(3,4,11,.6));pointer-events:none;opacity:{{exploreOn}}"></div>
+<nav class="tabbar fgn fade" data-at="{{tabAt}}" aria-label="Main" style="opacity:{{exploreOn}};pointer-events:{{exploreEvents}}">
+<span class="tab-ind"></span>
+<a class="tab t-tab" href="Main.dc.html" aria-label="Tonight" onClick="{{onTab}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 5h4"/><path d="M20 3v4"/><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>Tonight</a>
+<a class="tab t-tab" href="Events.dc.html" aria-label="Events" onClick="{{onTab}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>Events</a>
+<button class="tab t-tab" aria-current="page" aria-label="Sky"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m10.065 12.493-6.18 1.318a.934.934 0 0 1-1.108-.702l-.537-2.15a1.07 1.07 0 0 1 .691-1.265l13.504-4.44"/><path d="m13.56 11.747 4.332-.924"/><path d="m16 21-3.105-6.21"/><path d="M16.485 5.94a2 2 0 0 1 1.455-2.425l1.09-.272a1 1 0 0 1 1.212.727l1.515 6.06a1 1 0 0 1-.727 1.213l-1.09.272a2 2 0 0 1-2.425-1.455z"/><path d="m6.158 8.633 1.114 4.456"/><path d="m8 21 3.105-6.21"/><circle cx="12" cy="13" r="2"/></svg>Sky</button>
+<a class="tab t-tab" href="You.dc.html" aria-label="You" onClick="{{onTab}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>You</a>
+</nav>
+<!-- closer look -->
+<div style="position:absolute;left:0;top:0;width:390px;height:844px;background:rgba(3,4,11,.93);-webkit-backdrop-filter:blur(40px);backdrop-filter:blur(40px);opacity:{{lensO}};pointer-events:{{lensEv}};transition:opacity .55s var(--ease-out)">
+<div style="position:absolute;left:0;top:0;width:390px;height:844px;transform:translateY({{lensY}}px);transition:transform .7s var(--ease-out)">
+<button class="fg press btn-ic" onClick="{{closeLens}}" aria-label="Back" style="position:absolute;left:24px;top:24px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+<div style="position:absolute;left:84px;right:24px;top:24px;height:48px;display:flex;flex-direction:column;justify-content:center;min-width:0"><span class="t-title nw el">{{lensName}}</span><span class="t-cap i2 el" style="font-weight:300">{{lensSub}}</span></div>
+<div class="halo" style="position:absolute;left:35px;top:99px;width:320px;height:320px;border-radius:160px;opacity:.7"></div>
+<canvas id="lens_cv" aria-label="{{lensName}} as it looks in a telescope" class="bgfade" style="position:absolute;left:24px;top:88px;width:342px;height:342px;display:block"></canvas>
+<sc-if value="{{lensJup}}" hint-placeholder-val="{{false}}">
+<div style="position:absolute;left:24px;right:24px;top:404px;height:68px">
+<div class="t-eyebrow i3" style="position:absolute;left:0;top:0">Its four big moons now</div>
+<div style="position:absolute;left:0;right:0;top:44px;height:1px;background:var(--wf-line)"></div>
+<span style="position:absolute;left:163px;top:36px;width:16px;height:16px;border-radius:8px;background:#e9d3b0;box-shadow:0 0 12px rgba(255,224,170,.5)"></span>
+<sc-for list="{{moons}}" as="m" hint-placeholder-count="4">
+<span style="position:absolute;left:{{m.x}}px;top:{{m.dotY}}px;width:8px;height:8px;margin-left:-4px;border-radius:4px;background:#fff;box-shadow:0 0 10px rgba(255,255,255,.7)"></span>
+<span class="t-label nw" style="position:absolute;left:{{m.x}}px;top:{{m.lblY}}px;transform:translateX(-50%);color:var(--wf-ink-2)">{{m.name}}</span>
+</sc-for>
+</div>
+</sc-if>
+<div style="position:absolute;left:24px;right:24px;top:{{tilesTop}}px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:12px">
+<sc-for list="{{lensTiles}}" as="t" hint-placeholder-count="3"><div class="fg tile"><div class="t-label i3 nw">{{t.label}}</div><div class="t-value nw">{{t.value}}<span class="t-label i2" style="margin-left:2px">{{t.unit}}</span></div><div class="t-label i3 el">{{t.sub}}</div></div></sc-for>
+</div>
+<div class="fg card" style="position:absolute;left:24px;right:24px;top:{{lensCardTop}}px">
+<div class="t-eyebrow i2" style="letter-spacing:.14em">What to look for</div>
+<div class="t-small i1" style="margin-top:6px">{{lensText}}</div>
+<div style="display:flex;gap:8px;margin-top:12px"><span class="t-label nw" style="padding:6px 12px;border-radius:16px;background:var(--wf-fill);font-weight:500">{{lensChipA}}</span><span class="t-label nw" style="padding:6px 12px;border-radius:16px;background:var(--wf-fill);font-weight:500">{{lensChipB}}</span></div>
+</div>
+</div>
+</div>
+
+<!-- search sheet -->
+<div class="scrim" data-open="{{sheetOpen}}" onClick="{{closeSearch}}"></div>
+<div class="sheet fgn" data-open="{{sheetOpen}}" style="height:560px;border-radius:28px 28px 0 0;padding:10px 24px 24px;display:flex;flex-direction:column">
+<div style="align-self:center;width:40px;height:4px;border-radius:2px;background:var(--wf-ink-off);margin:2px 0 14px"></div>
+<div class="t-h2">Find in the sky</div>
+<div class="fg field" style="margin-top:12px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" style="flex:none;opacity:.7"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="sky_q" type="text" placeholder="Moon, Jupiter, Sirius" onInput="{{onQ}}" autocomplete="off"></div>
+<div class="noscroll" style="flex:1;min-height:0;overflow-y:auto;margin:8px -8px 0;padding:0 8px">
+<sc-for list="{{results}}" as="r" hint-placeholder-count="6">
+<button class="row press" onClick="{{r.pick}}" style="width:100%;border:0;background:none;color:inherit;text-align:left;padding:0">
+<span style="flex:none;width:10px;height:10px;border-radius:5px;background:{{r.color}};box-shadow:0 0 10px {{r.color}}"></span>
+<span style="flex:1;min-width:0;display:flex;flex-direction:column"><span class="t-name el">{{r.name}}</span><span class="t-cap i2 el">{{r.sub}}</span></span>
+<span class="t-label i3 nw">{{r.type}}</span>
+</button>
+</sc-for>
+<sc-if value="{{noResults}}" hint-placeholder-val="{{false}}"><div class="t-small i2" style="padding:24px 0;text-align:center">Nothing found. Try a planet or a bright star.</div></sc-if>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { sel: null, selCon: null, lens: null, lensD: null, search: false, q: '', mode: 'explore', follow: false, card: false, az: 110, obs: { lat: 26.9124, lon: 75.7873, name: 'Jaipur' }, tick: 0, nav: window.WFUI ? window.WFUI.nav() : 'cold', tabAt: window.WFUI ? window.WFUI.tabFrom('sky') : 2 };
+    this.lblO = 0; this.t0 = performance.now();
+    this.sky = null;
+  }
+  componentDidMount() {
+    const self = this;
+    const items = [
+      ['lb_rigel','eq',78.63,-8.2],['lb_sirius','eq',101.29,-16.72],['lb_aldeb','eq',68.98,16.51],['lb_procyon','eq',114.83,5.22],['lb_capella','eq',79.17,46.0],['lb_orion','eq',83.8,-3.5],['lb_rad','eq',95,16],
+      ['cd_N','az',0,6],['cd_NE','az',45,6],['cd_E','az',90,6],['cd_SE','az',135,6],['cd_S','az',180,6],['cd_SW','az',225,6],['cd_W','az',270,6],['cd_NW','az',315,6]
+    ];
+    this.refreshObjs();
+    this.objT = setInterval(() => this.refreshObjs(), 30000);
+    const pcol = ['#f2eee0', '#cfcfcf', '#fffbe8', '#ffb08a', '#ffe9c4', '#f3dca8'];
+    this.buildPlanetIcons();
+    const plEls = [0, 1, 2, 3, 4, 5].map((i) => document.getElementById('pl_' + i));
+    const selEl = () => document.getElementById('mk_sel');
+    const start = () => {
+      const cv = document.getElementById('skycv');
+      if (!cv || !window.THREE || !window.WishfallSky) { return false; }
+      if (self.kv === undefined) { try { self.kv = (window.WFUI && window.WFUI.kept('sky_view')) || null; } catch (er) { self.kv = null; } }
+      const els = items.map((it) => document.getElementById(it[0]));
+      let lastAz = -1;
+      this.sky = window.WishfallSky.create({
+        canvas: cv, texUrl: './a/mw_eq_clean4.jpg', mode: 'sky', interactive: true, az: (self.kv ? self.kv.az : 110), alt: (self.kv ? self.kv.alt : 12), fov: (self.kv ? self.kv.fov : 74), earthDay: './a/c_earth_day.jpg', earthSpec: './a/c_earth_spec.jpg', earthLights: './a/c_earth_lights.jpg', earthClouds: './a/c_earth_clouds.jpg', earthH: 140, lat: this.state.obs.lat, lon: this.state.obs.lon,
+        onFrame: (V, api) => {
+          const age = (performance.now() - self.t0) / 1000; const tgt = 1; self.lblO += (tgt - self.lblO) * 0.1;
+          const lo = (self.lblO * Math.max(0, Math.min(1, (age - 1.3) / 1.0))).toFixed(3);
+          for (let i = 0; i < items.length; i++) {
+            const el = els[i]; if (!el) continue;
+            const it = items[i];
+            if (it[0].indexOf('lb_') === 0) el.style.opacity = lo;
+            const p = it[1] === 'eq' ? api.projectEq(it[2], it[3]) : api.projectAz(it[2], it[3]);
+            if (p.vis) { el.style.display = 'block'; el.style.transform = 'translate3d(' + p.x.toFixed(1) + 'px,' + p.y.toFixed(1) + 'px,0)'; } else { el.style.display = 'none'; }
+          }
+          const objs = self.objs || [];
+          { const ep = document.getElementById('ep_pin'); if (ep) { const p = api.projectAz(0, -90); if (p.vis && p.y > 120 && p.y < 700 && self.lblO > 0.5) { ep.style.display = 'block'; ep.style.opacity = 1; ep.style.transform = 'translate3d(' + p.x.toFixed(1) + 'px,' + (p.y + 34).toFixed(1) + 'px,0) translate(-50%,0)'; } else { ep.style.opacity = 0; } } }
+          if (!self.gA) { const E = 0.40909; self.gA = []; [30, 120, 210, 300].forEach((r) => self.gA.push({ k: 'eq', ra: r, dec: 0 })); [75, 165, 255, 345].forEach((lam) => { const l = lam * Math.PI / 180; self.gA.push({ k: 'ec', ra: Math.atan2(Math.sin(l) * Math.cos(E), Math.cos(l)) * 180 / Math.PI, dec: Math.asin(Math.sin(l) * Math.sin(E)) * 180 / Math.PI, lam: lam }); }); }
+          self.gA.forEach((g, n) => { const el = document.getElementById('gl_' + n); if (!el) return; const p = api.projectEq(g.ra, g.dec); let on = p.vis && self.lblO > 0.5 && p.x > 40 && p.x < 350 && p.y > 130 && p.y < 520 && api.eqAz(g.ra, g.dec).alt > 5; if (!on) { el.style.opacity = 0; return; } let q; if (g.k === 'eq') q = api.projectEq(g.ra + 1.5, 0); else { const l = (g.lam + 1.5) * Math.PI / 180; q = api.projectEq(Math.atan2(Math.sin(l) * 0.91748, Math.cos(l)) * 180 / Math.PI, Math.asin(Math.sin(l) * 0.39777) * 180 / Math.PI); } let ang = q && q.vis ? Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI : 0; if (ang > 90) ang -= 180; if (ang < -90) ang += 180; el.style.transform = 'translate3d(' + p.x.toFixed(1) + 'px,' + p.y.toFixed(1) + 'px,0) rotate(' + ang.toFixed(1) + 'deg) translate(-50%,-135%)'; el.style.opacity = 1; });
+          for (let i = 0; i < 6; i++) { const el = plEls[i] || (plEls[i] = document.getElementById('pl_' + i)); const o = objs.filter((x) => x.pl === i)[0]; if (!el) continue; if (o && o.alt > 1) { const p = api.projectEq(o.ra, o.dec); if (p.vis) { if (i === 0) window.__moonPin && window.__moonPin(p, api, self); el.style.display = 'block'; el.style.opacity = lo; el.style.transform = 'translate3d(' + p.x.toFixed(1) + 'px,' + p.y.toFixed(1) + 'px,0)'; } else el.style.display = 'none'; } else el.style.display = 'none'; }
+          { const SL = self.sl || (self.sl = (function () { const h = document.createElement('div'); h.setAttribute('aria-hidden', 'true'); h.style.cssText = 'position:absolute;left:0;top:0;width:390px;height:var(--wf-h,844px);pointer-events:none;overflow:hidden'; document.getElementById('skycv').parentNode.appendChild(h); return { h: h, e: {}, a: {} }; })());
+            const MAJ = { sir: 1, can: 1, arc: 1, veg: 1, cap: 1, rig: 1, pro: 1, alt: 1, ald: 1, ant: 1, spi: 1, den: 1, fom: 1, pol: 1, bet: 1, reg: 1, pol2: 1, cas: 1, acr: 1, rig2: 1, ach: 1 };
+            const lim = (self.state.card && self.state.mode === 'explore' ? 540 : 690) + (window.__wfDH || 0);
+            objs.forEach((o) => { if (o.type !== 'Star') return; let el = SL.e[o.id];
+              if (!el) { el = SL.e[o.id] = document.createElement('div'); el.className = 't-eyebrow nw'; el.style.cssText = 'position:absolute;left:0;top:0;display:none;opacity:0;font-size:10px;letter-spacing:.14em;color:rgba(214,226,255,.78);text-shadow:0 0 8px rgba(3,4,11,.95),0 0 3px rgba(3,4,11,.9);will-change:transform,opacity'; el.textContent = o.name.toUpperCase(); SL.h.appendChild(el); SL.a[o.id] = 0; }
+              let want = 0, p = null; if (o.alt > 2 && self.lblO > 0.5 && (MAJ[o.id] || V.fov < 56)) { p = api.projectEq(o.ra, o.dec); if (p.vis && p.x > 24 && p.x < 390 - 14 - 8.4 * o.name.length && p.y > 130 && p.y < lim) { want = 0.85; const LB2 = api.labels || []; for (let q = 0; q < LB2.length; q++) { const l = LB2[q]; if (!l.show || l.a < 0.25) continue; const cw = l.w || 90; if (Math.abs(l.y - (p.y - 7)) < 15 && (p.x + 9) < l.x + cw / 2 + 4 && (p.x + 9 + 8.4 * o.name.length) > l.x - cw / 2 - 4) { want = 0; break; } } } }
+              const cur = SL.a[o.id] + (want - SL.a[o.id]) * 0.14; SL.a[o.id] = cur;
+              if (cur < 0.02) { if (el.style.display !== 'none') el.style.display = 'none'; return; }
+              if (p) { el.style.display = 'block'; el.style.opacity = cur.toFixed(3); el.style.transform = 'translate3d(' + (p.x + 9).toFixed(1) + 'px,' + (p.y - 7).toFixed(1) + 'px,0)'; } });
+          }
+          const mk = selEl(); const so = objs.filter((x) => x.id === self.state.sel)[0];
+          if (mk) { if (so && self.state.card && self.state.mode === 'explore' && so.alt > 0) { const p = api.projectEq(so.ra, so.dec); if (p.vis) { mk.style.display = 'block'; mk.style.transform = 'translate3d(' + p.x.toFixed(1) + 'px,' + p.y.toFixed(1) + 'px,0)'; } else mk.style.display = 'none'; } else mk.style.display = 'none'; }
+          const LB = api.labels; if (api.setLabelBottom) api.setLabelBottom((self.state.card && self.state.mode === 'explore' ? 556 : 714) + (window.__wfDH || 0));
+          if (LB) { const ca = self.clA || (self.clA = []); const ce = self.clE || (self.clE = []); for (let i = 0; i < LB.length; i++) { let el = ce[i]; if (!el || !el.isConnected) el = ce[i] = document.getElementById('cl_' + i); if (!el) continue; const l = LB[i]; const tg = l.show ? Math.min(0.9, l.a) * self.lblO * (self.state.selCon == null || self.state.selCon === i ? 1 : 0.28) : 0; const cur = (ca[i] || 0) + (tg - (ca[i] || 0)) * 0.14; ca[i] = cur; if (cur < 0.01) { if (el.style.display !== 'none') el.style.display = 'none'; continue; } el.style.display = 'block'; el.style.opacity = cur.toFixed(3); el.style.transform = 'translate3d(' + l.x.toFixed(1) + 'px,' + l.y.toFixed(1) + 'px,0) translate(-50%,-50%)'; } }
+          if (self.state.follow && self.cmp && performance.now() - self.cmp.t < 1500 && api.setView) {
+            const c = self.cmp; if (self.cv == null) { self.cv = { az: V.az, alt: V.alt }; self.sv = null; }
+            const R2 = Math.PI / 180, vec = (az, al) => { const k = Math.cos(al * R2); return [Math.sin(az * R2) * k, Math.cos(az * R2) * k, Math.sin(al * R2)]; };
+            if (!self.sv) self.sv = vec(self.cv.az, self.cv.alt);
+            { const tv = vec(c.az, c.alt), sv = self.sv, tnow = performance.now(), dt = Math.min(0.1, Math.max(0.001, (tnow - (self.lt || tnow)) / 1000)); self.lt = tnow;
+              const err = Math.acos(Math.max(-1, Math.min(1, sv[0] * tv[0] + sv[1] * tv[1] + sv[2] * tv[2]))) / R2;
+              self.tc = err > 3 ? (self.tc || 0) + 1 : 0; if (!self.trk && (self.tc >= 12 || err > 12)) self.trk = true; if (self.trk && err < 0.45) self.trk = false; if (self.trk) { const tau = Math.max(0.04, 0.8 / (1 + err / 3)), al = 1 - Math.exp(-dt / tau); let x = sv[0] + (tv[0] - sv[0]) * al, y = sv[1] + (tv[1] - sv[1]) * al, z = sv[2] + (tv[2] - sv[2]) * al; const l = Math.sqrt(x * x + y * y + z * z) || 1; self.sv = [x / l, y / l, z / l]; }
+              self.cv.az = (Math.atan2(self.sv[0], self.sv[1]) / R2 + 360) % 360; self.cv.alt = Math.asin(self.sv[2]) / R2; }
+            api.setView(self.cv.az, Math.max(-5, Math.min(85, self.cv.alt)));
+          }
+          const a = Math.round(V.az) % 360;
+          if (a !== lastAz) { lastAz = a; self.setState({ az: a }); }
+        }
+      });
+      if (this.sky) {
+        let dn = null, ptrs = 0, multi = false;
+        cv.addEventListener('wheel', () => self.setFollow(false), { passive: true });
+        cv.addEventListener('pointerdown', (e) => { if (self.state.follow) self.setFollow(false); if (e.isPrimary) { ptrs = 0; multi = false; } ptrs++; if (ptrs > 1) multi = true; dn = { x: e.clientX, y: e.clientY, t: performance.now() }; });
+        const endP = () => { ptrs = Math.max(0, ptrs - 1); if (ptrs === 0) setTimeout(() => { multi = false; }, 60); };
+        cv.addEventListener('pointercancel', () => { dn = null; endP(); });
+        cv.addEventListener('pointerup', (e) => {
+          const was = multi; endP();
+          if (!dn || was) { dn = null; return; } const mv = Math.hypot(e.clientX - dn.x, e.clientY - dn.y), dt = performance.now() - dn.t; dn = null;
+          if (mv < 8 && dt < 450 && self.state.mode === 'explore' && !self.state.lens && self.sky.pick) {
+            const r = cv.getBoundingClientRect(); const k = r.width / 390; const x = (e.clientX - r.left) / k, y = (e.clientY - r.top) / k;
+            let hit = null, hd = 30 * 30; (self.objs || []).forEach((o) => { if (o.pl < 0 || o.alt <= 1) return; const p = self.sky.projectEq(o.ra, o.dec); if (!p.vis) return; const d = (p.x - x) * (p.x - x) + (p.y - y) * (p.y - y); if (d < hd) { hd = d; hit = o; } });
+            if (hit) { self.pick(hit, true); return; }
+            let li = -1, ld = 1e9; self.sky.labels.forEach((L, i) => { if (!L.show || L.a < 0.3) return; const dx = Math.abs(x - L.x), dy = Math.abs(y - L.y); if (dx < L.w / 2 + 8 && dy < 18 && dx + dy < ld) { ld = dx + dy; li = i; } });
+            if (li < 0) li = self.sky.pick(x, y);
+            if (li >= 0) self.selectCon(li);
+          }
+        });
+      }
+      if (this.sky) setTimeout(() => cv.classList.add('on'), 120);
+      if (this.sky && self.kv && !self.kvDone) { self.kvDone = true; const kv = self.kv; self.prevFov = kv.prev || 0; setTimeout(() => { try { if (kv.selCon != null && this.sky.labels[kv.selCon]) { const L = this.sky.labels[kv.selCon]; this.sky.setSelect(L.q0, L.q1); this.setState({ sel: null, selCon: kv.selCon, card: true, search: false }); } else if (kv.sel) { this.setState({ sel: kv.sel, selCon: null, card: true, search: false }); } } catch (er) {} }, 1600); }
+      if (this.sky && window.WF) { window.WF.getObserver((o) => { this.setState({ obs: o }); if (this.sky) this.sky.relocate(o.lat, o.lon); setTimeout(() => this.refreshObjs(), 0); }); }
+      return !!this.sky;
+    };
+    if (!start()) { this.retry = setTimeout(function again() { if (!start()) self.retry = setTimeout(again, 400); }, 400); }
+    this.tabT = setTimeout(() => this.setState({ tabAt: 2 }), 90);
+    this.clockTimer = setInterval(() => this.setState({ tick: Date.now() }), 30000);
+  }
+  componentWillUnmount() { this.stopCompass(); clearTimeout(this.lensT); if (this.lp) this.lp.dispose(); clearTimeout(this.retry); clearTimeout(this.tabT); clearInterval(this.objT); clearTimeout(this.focT); clearInterval(this.clockTimer); if (this.sky) this.sky.dispose(); }
+  refreshObjs() {
+    const A = window.Astronomy, WF = window.WF; if (!A || !WF) return;
+    const now = new Date(), o = this.state.obs, ob = new A.Observer(o.lat, o.lon, 0);
+    const STARS = [
+      ['bet', 'Betelgeuse', 88.793, 7.407, 550, 'Red supergiant', '#ffb98a', "Orion's shoulder. If it sat where our Sun is, it would swallow Mars. Its orange colour shows even to the naked eye."],
+      ['sir', 'Sirius', 101.287, -16.716, 8.6, 'Brightest star', '#cfe0ff', 'Brighter than any other star in the night sky, and only 8.6 light-years away.'],
+      ['can', 'Canopus', 95.988, -52.696, 310, 'Bright giant', '#fff2d1', 'The second brightest star. Far in the south, so it stays low or hidden from most of India.'],
+      ['arc', 'Arcturus', 213.915, 19.182, 37, 'Orange giant', '#ffc99a', 'A glowing orange giant. Follow the curve of the Plough handle to find it.'],
+      ['veg', 'Vega', 279.235, 38.784, 25, 'Blue-white star', '#cfe0ff', 'It was the North Star 12,000 years ago and will be again.'],
+      ['cap', 'Capella', 79.172, 45.998, 43, 'Yellow giants', '#fff2d1', 'Looks like one star but is two pairs of stars circling each other.'],
+      ['rig', 'Rigel', 78.634, -8.202, 860, 'Blue supergiant', '#b3ccff', "Orion's bright blue foot, tens of thousands of times brighter than our Sun."],
+      ['pro', 'Procyon', 114.825, 5.225, 11.5, 'Close neighbour', '#fff8e0', 'Forms the Winter Triangle with Sirius and Betelgeuse.'],
+      ['alt', 'Altair', 297.696, 8.868, 17, 'Fast spinner', '#f2f5ff', 'Spins so fast it bulges at the middle. A corner of the Summer Triangle.'],
+      ['ald', 'Aldebaran', 68.98, 16.509, 65, 'Orange giant', '#ffb98a', 'The glowing orange eye of Taurus the Bull.'],
+      ['ant', 'Antares', 247.352, -26.432, 550, 'Red supergiant', '#ff9d85', 'The red heart of Scorpius. Its name means rival of Mars.'],
+      ['spi', 'Spica', 201.298, -11.161, 250, 'Blue-white star', '#cfe0ff', 'Hot and bluish. It marks the ear of wheat in Virgo.'],
+      ['den', 'Deneb', 310.358, 45.28, 2600, 'Distant supergiant', '#f2f5ff', 'One of the farthest stars you can see by eye, and one of the most luminous.'],
+      ['fom', 'Fomalhaut', 344.413, -29.622, 25, 'Dusty star', '#f2f5ff', 'A lonely bright star low in the south, circled by a ring of dust.'],
+      ['pol', 'Polaris', 37.955, 89.264, 430, 'North Star', '#fff2d1', 'It hardly moves, so it always shows you north.'],
+      ["aln", "Alnilam", 84.053, -1.202, 2000, "Blue supergiant", "#cfe0ff", "The middle star of Orion's belt, far brighter than it looks."],
+      ["alk", "Alnitak", 85.19, -1.943, 1260, "Triple star", "#cfe0ff", "The belt star nearest the Horsehead Nebula."],
+      ["min", "Mintaka", 83.002, -0.299, 1200, "Double star", "#cfe0ff", "The western end of Orion's belt, almost exactly on the celestial equator."],
+      ["bel", "Bellatrix", 81.283, 6.35, 250, "Blue giant", "#cfe0ff", "Orion's other shoulder. Its name means the female warrior."],
+      ["sai", "Saiph", 86.939, -9.67, 650, "Blue supergiant", "#cfe0ff", "Marks Orion's knee, opposite Rigel."],
+      ["cas", "Castor", 113.65, 31.888, 51, "Six stars in one", "#f2f5ff", "The twin of Pollux. This one is really six stars bound together."],
+      ["pol2", "Pollux", 116.329, 28.026, 34, "Orange giant", "#ffb98a", "The brighter Gemini twin, with a planet orbiting it."],
+      ["reg", "Regulus", 152.093, 11.967, 79, "Blue-white star", "#cfe0ff", "The heart of Leo, sitting almost on the Sun's yearly path."],
+      ["dnb", "Denebola", 177.265, 14.572, 36, "White star", "#f2f5ff", "The tail of the lion."],
+      ["alg", "Algol", 47.042, 40.956, 90, "The Demon Star", "#f2f5ff", "It dims for a few hours every 2.9 days as a partner star passes in front."],
+      ["mir", "Mirfak", 51.081, 49.861, 590, "Yellow supergiant", "#fff2d1", "The brightest star of Perseus, inside a loose cluster."],
+      ["ham", "Hamal", 31.793, 23.462, 66, "Orange giant", "#ffb98a", "The brightest star in Aries, the Ram."],
+      ["alp", "Alpheratz", 2.097, 29.09, 97, "Blue-white star", "#cfe0ff", "The corner of the Great Square of Pegasus that is also the head of Andromeda."],
+      ["mrk", "Markab", 346.19, 15.205, 133, "White star", "#f2f5ff", "A corner of the Great Square of Pegasus."],
+      ["sch", "Scheat", 345.944, 28.083, 196, "Red giant", "#ff9d85", "A pulsing red giant in the Great Square."],
+      ["eni", "Enif", 326.046, 9.875, 670, "Orange supergiant", "#ffb98a", "The nose of Pegasus, the winged horse."],
+      ["dip", "Diphda", 10.897, -17.987, 96, "Orange giant", "#ffb98a", "The brightest star in Cetus, the Sea Monster."],
+      ["mnk", "Menkar", 45.57, 4.09, 250, "Red giant", "#ff9d85", "The nose of Cetus."],
+      ["sdr", "Schedar", 10.127, 56.537, 228, "Orange giant", "#ffb98a", "The brightest star of the W of Cassiopeia."],
+      ["cph", "Caph", 2.295, 59.15, 54, "Yellow-white star", "#fff2d1", "The edge of Cassiopeia's W."],
+      ["dub", "Dubhe", 165.932, 61.751, 123, "Orange giant", "#ffb98a", "One of the two Pointer stars of the Plough that lead you to Polaris."],
+      ["mrc", "Merak", 165.46, 56.382, 79, "White star", "#f2f5ff", "The other Pointer. Draw a line through Merak and Dubhe to find Polaris."],
+      ["ali", "Alioth", 193.507, 55.96, 83, "White star", "#f2f5ff", "The brightest star in the Plough."],
+      ["miz", "Mizar", 200.981, 54.925, 83, "Double star", "#f2f5ff", "A famous pair with Alcor. A sharp eye can split them."],
+      ["alc", "Alkaid", 206.886, 49.313, 104, "Blue-white star", "#cfe0ff", "The end of the Plough's handle."],
+      ["kch", "Kochab", 222.676, 74.156, 131, "Orange giant", "#ffb98a", "Guards the pole in the Little Bear, and was the pole star 3,000 years ago."],
+      ["thu", "Thuban", 211.097, 64.376, 303, "White star", "#f2f5ff", "The pole star of the ancient Egyptians, 4,700 years ago."],
+      ["elt", "Eltanin", 269.151, 51.489, 154, "Orange giant", "#ffb98a", "The eye of Draco, the Dragon."],
+      ["rsl", "Rasalhague", 263.734, 12.56, 49, "White star", "#f2f5ff", "The head of the Serpent Bearer."],
+      ["alb", "Albireo", 292.68, 27.96, 430, "Gold and blue pair", "#fff2d1", "Through a small telescope it splits into a gold star and a blue one."],
+      ["sad", "Sadr", 305.557, 40.257, 1800, "Yellow supergiant", "#fff2d1", "The heart of the Northern Cross, in Cygnus."],
+      ["alf", "Alphecca", 233.672, 26.715, 75, "White star", "#f2f5ff", "The jewel of the Northern Crown."],
+      ["zub", "Zubenelgenubi", 222.72, -16.042, 77, "Double star", "#f2f5ff", "The southern claw of the Scorpion, now in Libra."],
+      ["dsc", "Dschubba", 240.083, -22.622, 400, "Blue giant", "#cfe0ff", "The forehead of Scorpius."],
+      ["sha", "Shaula", 263.402, -37.104, 570, "Blue giant", "#cfe0ff", "The stinger of Scorpius."],
+      ["srg", "Sargas", 264.33, -42.998, 270, "Yellow giant", "#fff2d1", "Low in the south, part of the Scorpion's tail."],
+      ["kau", "Kaus Australis", 276.043, -34.385, 143, "Blue-white giant", "#cfe0ff", "The brightest star of Sagittarius, the Archer's bow."],
+      ["nun", "Nunki", 283.816, -26.297, 228, "Blue star", "#cfe0ff", "Part of the Teapot shape of Sagittarius."],
+      ["aph", "Alphard", 141.897, -8.659, 177, "Orange giant", "#ffb98a", "The lonely heart of Hydra, the water snake."],
+      ["elh", "Elnath", 81.573, 28.608, 131, "Blue-white star", "#cfe0ff", "The tip of the Bull's horn, shared with Auriga."],
+      ["alh", "Alhena", 99.428, 16.399, 105, "White star", "#f2f5ff", "The foot of Pollux in Gemini."],
+      ["adh", "Adhara", 104.656, -28.972, 430, "Blue giant", "#cfe0ff", "The brightest extreme-ultraviolet star in our sky."],
+      ["wez", "Wezen", 107.098, -26.393, 1600, "Yellow supergiant", "#fff2d1", "A huge, bright star in Canis Major."],
+      ["mrz", "Mirzam", 95.675, -17.956, 500, "Blue giant", "#cfe0ff", "The herald that rises just before Sirius."],
+      ["alc2", "Alcyone", 56.871, 24.105, 440, "Pleiades", "#cfe0ff", "The brightest of the Seven Sisters."],
+      ["acr", "Acrux", 186.65, -63.099, 320, "Southern Cross", "#cfe0ff", "The foot of the Southern Cross. Too far south for most of India."],
+      ["had", "Hadar", 210.956, -60.373, 390, "Blue giant", "#cfe0ff", "One of the Pointers to the Southern Cross."],
+      ["rig2", "Rigil Kentaurus", 219.902, -60.834, 4.4, "Nearest star system", "#fff2d1", "The closest bright star to us, 4.4 light-years away. Hidden from most of India."],
+      ["ach", "Achernar", 24.429, -57.237, 139, "Blue star", "#cfe0ff", "The flattest star we know, squashed by its fast spin."],
+      ["anr", "Alnair", 332.058, -46.961, 101, "Blue-white star", "#cfe0ff", "A low southern star in the Crane."],
+      ["ank", "Ankaa", 6.571, -42.306, 77, "Orange giant", "#ffb98a", "The brightest star in Phoenix."],
+      ["pea", "Peacock", 306.412, -56.735, 183, "Blue-white star", "#cfe0ff", "The brightest star in the Peacock, deep in the south."],
+      ["gie", "Gienah", 183.952, -17.542, 165, "Blue-white star", "#cfe0ff", "The brightest star in Corvus, the Crow."],
+      ["vin", "Vindemiatrix", 195.544, 10.959, 110, "Yellow giant", "#fff2d1", "The grape-picker of Virgo."],
+      ["dga", "Deneb Algedi", 326.76, -16.127, 39, "Double star", "#f2f5ff", "The tail of the sea-goat Capricornus."],
+      ["sds", "Sadalsuud", 322.89, -5.571, 540, "Yellow supergiant", "#fff2d1", "The luckiest of the lucky, in Aquarius."],
+      ["sdm", "Sadalmelik", 331.446, -0.32, 760, "Yellow supergiant", "#fff2d1", "The lucky star of the king, in Aquarius."],
+      ["alm", "Almach", 30.975, 42.33, 350, "Gold and blue pair", "#fff2d1", "A beautiful double in Andromeda."],
+      ["mch", "Mirach", 17.433, 35.621, 197, "Red giant", "#ff9d85", "Points the way to the Andromeda Galaxy."]
+    ];
+    const BODIES = [['moon', 'Moon', 'Moon', 0, "Our nearest neighbour, about 384,000 km away. Its shape changes every night."], ['mer', 'Mercury', 'Planet', 1, 'The smallest planet, closest to the Sun. Hard to catch, only low near dusk or dawn.'], ['ven', 'Venus', 'Planet', 2, 'The brightest planet. The evening or morning star, too bright to miss.'], ['mar', 'Mars', 'Planet', 3, 'The red planet. Its colour is rusty iron dust.'], ['jup', 'Jupiter', 'Planet', 4, 'The biggest planet. Binoculars show its four largest moons as tiny dots.'], ['sat', 'Saturn', 'Planet', 5, 'The ringed planet. A small telescope is enough to see the rings.']];
+    const list = [];
+    BODIES.forEach((b) => {
+      try {
+        const eq = A.Equator(A.Body[b[1]], now, ob, true, true); const h = A.Horizon(now, ob, eq.ra, eq.dec, 'normal');
+        let chip1;
+        if (b[0] === 'moon') chip1 = Math.round(A.Illumination(A.Body.Moon, now).phase_fraction * 100) + '% lit';
+        else { const lm = eq.dist * 8.317; chip1 = Math.round(lm) + ' light-minutes away'; }
+        list.push({ id: b[0], name: b[1], type: b[2], pl: b[3], ra: eq.ra * 15, dec: eq.dec, alt: h.altitude, az: h.azimuth, tag: b[2], tagColor: b[0] === 'moon' ? '#e8e2d0' : '#ffd9a8', desc: b[4], chip1: chip1, color: b[0] === 'moon' ? '#e8e2d0' : '#ffd9a8' });
+      } catch (e) {}
+    });
+    STARS.forEach((st) => {
+      const h = A.Horizon(now, ob, st[2] / 15, st[3], 'normal');
+      list.push({ id: st[0], name: st[1], type: 'Star', pl: -1, ra: st[2], dec: st[3], alt: h.altitude, az: h.azimuth, tag: st[5], tagColor: st[6], desc: st[7], chip1: (st[4] >= 1000 ? (st[4] / 1000).toFixed(1) + 'k' : st[4]) + ' light-years', color: st[6] });
+    });
+    this.objs = list; this.setState({ objTick: now.getTime() });
+  }
+  setFollow(on) {
+    if (on) { this.startCompass(); if (!this.state.follow) this.setState({ follow: true }); }
+    else { this.stopCompass(); if (this.state.follow) this.setState({ follow: false }); }
+  }
+  startCompass() {
+    if (this.cmpOn) return; this.cmpOn = true; this.cv = null; this.cmp = null;
+    const R = Math.PI / 180;
+    this.cmpFn = (e) => {
+      if (e.v) { const L = Math.sqrt(e.v[0]*e.v[0]+e.v[1]*e.v[1]+e.v[2]*e.v[2]) || 1; this.cmp = { az: (Math.atan2(e.v[0], e.v[1]) * 180 / Math.PI + 360) % 360, alt: Math.asin(Math.max(-1, Math.min(1, e.v[2] / L))) * 180 / Math.PI, t: performance.now() }; return; }
+      if (e.alpha == null || e.beta == null || e.gamma == null) return;
+      if (e.type === 'deviceorientation' && this.cmpAbs) return;
+      if (e.type === 'deviceorientationabsolute') this.cmpAbs = true;
+      const a = (e.webkitCompassHeading != null ? 360 - e.webkitCompassHeading : e.alpha) * R, b = e.beta * R, g = e.gamma * R;
+      const ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(b), sb = Math.sin(b), cg = Math.cos(g), sg = Math.sin(g);
+      const x = -(ca * sg + sa * sb * cg), y = -(sa * sg - ca * sb * cg), z = -(cb * cg);
+      this.cmp = { az: (Math.atan2(x, y) / R + 360) % 360, alt: Math.asin(Math.max(-1, Math.min(1, z))) / R, t: performance.now() };
+    };
+    try { const D = window.DeviceOrientationEvent; if (D && typeof D.requestPermission === 'function') D.requestPermission().catch(() => {}); } catch (er) {}
+    window.addEventListener('deviceorientationabsolute', this.cmpFn, true); window.addEventListener('deviceorientation', this.cmpFn, true);
+  }
+  stopCompass() {
+    if (!this.cmpOn) return; this.cmpOn = false; this.cmp = null; this.cv = null; this.cmpAbs = false;
+    window.removeEventListener('deviceorientationabsolute', this.cmpFn, true); window.removeEventListener('deviceorientation', this.cmpFn, true);
+  }
+  pick(o, zoom) {
+    this.setFollow(false);
+    if (this.sky && this.state.selCon == null && !this.prevFov) this.prevFov = this.sky.V.fov;
+    this.setState({ sel: o.id, selCon: null, card: true, search: false });
+    if (this.sky) { this.sky.clearSelect(); this.sky.flyTo(o.az, o.alt > 6 ? o.alt : 14, zoom && o.pl >= 0 ? 46 : this.sky.V.fov); }
+  }
+  selectCon(i) {
+    this.setFollow(false);
+    if (!this.sky || !this.sky.labels[i]) return; const L = this.sky.labels[i]; const a = this.sky.eqAz(L.ra, L.dec);
+    if (!this.prevFov) this.prevFov = this.sky.V.fov;
+    const hf = Math.max(24, L.rad * 2 * 1.45); const vf = Math.max(34, Math.min(92, 2 * Math.atan(Math.tan(hf * Math.PI / 360) / 0.462) * 180 / Math.PI));
+    this.sky.setSelect(L.q0, L.q1); this.sky.flyTo(a.az, Math.max(14, Math.min(70, a.alt)), vf);
+    this.setState({ sel: null, selCon: i, card: true, search: false });
+  }
+  closeSel() {
+    if (this.sky) { this.sky.clearSelect(); if (this.prevFov) this.sky.flyTo(this.sky.V.az, this.sky.V.alt, this.prevFov); }
+    this.prevFov = 0; this.setState({ card: false, selCon: null });
+  }
+  lensInfo(id) {
+    const A = window.Astronomy, now = new Date(), t = new A.AstroTime(now), o = this.state.obs, ob = new A.Observer(o.lat, o.lon, 0);
+    const R = Math.PI / 180, body = { mer: 'Mercury', ven: 'Venus', mar: 'Mars', jup: 'Jupiter', sat: 'Saturn' }[id]; if (!body) return null;
+    const pe = A.Equator(A.Body[body], t, ob, false, true), se = A.Equator(A.Body.Sun, t, ob, false, true);
+    const pa = (a1, d1, a2, d2) => { const da = (a2 - a1) * 15 * R, p1 = d1 * R, p2 = d2 * R; return Math.atan2(Math.sin(da) * Math.cos(p2), Math.cos(p1) * Math.sin(p2) - Math.sin(p1) * Math.cos(p2) * Math.cos(da)); };
+    const il = A.Illumination(A.Body[body], t), ia = il.phase_angle * R, psun = pa(pe.ra, pe.dec, se.ra, se.dec);
+    const L = [-Math.sin(psun) * Math.sin(ia), Math.cos(psun) * Math.sin(ia), Math.cos(ia)];
+    const ax = A.RotationAxis(A.Body[body], t), ppole = pa(pe.ra, pe.dec, ax.ra, ax.dec);
+    const gv = A.GeoVector(A.Body[body], t, true), gn = Math.hypot(gv.x, gv.y, gv.z), B = Math.asin(Math.max(-1, Math.min(1, -(ax.north.x * gv.x + ax.north.y * gv.y + ax.north.z * gv.z) / gn)));
+    const km = { Mercury: 4879, Venus: 12104, Mars: 6779, Jupiter: 139820, Saturn: 116460 }[body];
+    const dist = pe.dist, arc = km / (dist * 149597870.7) * 206265, lm = dist * 8.317, lit = Math.round(il.phase_fraction * 100);
+    const h = A.Horizon(now, ob, pe.ra, pe.dec, 'normal'); const ABB = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+    const sub = h.altitude > 0 ? 'Up now · ' + Math.round(h.altitude) + '° high · ' + ABB[Math.round(h.azimuth / 22.5) % 16] : 'Below the horizon now';
+    const magTxt = il.mag.toFixed(1).replace('-', '\u2212');
+    const phase = lit >= 97 ? 'Full' : lit >= 55 ? 'Gibbous' : lit >= 45 ? 'Half' : lit >= 5 ? 'Crescent' : 'Dark';
+    const tiles = [{ label: 'Distance', value: dist < 10 ? dist.toFixed(1) : Math.round(dist), unit: 'AU', sub: lm < 60 ? Math.round(lm) + ' light-min' : (lm / 60).toFixed(1) + ' light-hrs' }, { label: 'Size in sky', value: arc >= 10 ? Math.round(arc) : arc.toFixed(1), unit: '\u2033', sub: '1/' + Math.round(1865 / arc) + ' of the Moon' }, { label: 'Lit', value: lit, unit: '%', sub: phase + ' \u00b7 mag ' + magTxt }];
+    const tilt = Math.abs(B / R);
+    const TXT = {
+      mer: 'The smallest planet and the hardest to catch. Look low in the twilight sky, within an hour of sunset or sunrise. Through a small telescope it shows phases like the Moon.',
+      ven: 'Brighter than any star. A small telescope shows Venus going through phases like the Moon, now ' + lit + '% lit. Its thick clouds hide the surface completely.',
+      mar: 'Looks like a bright orange star. A telescope shows its dark patches and white polar cap. It comes closest to Earth about every 26 months.',
+      jup: 'Binoculars show its four biggest moons as dots in a line, and they shift every night. A small telescope shows its dark cloud bands and the Great Red Spot.',
+      sat: 'A small telescope shows the rings clearly. They are tilted ' + Math.round(tilt) + '\u00b0 towards us now, so they look ' + (tilt < 3 ? 'almost edge-on and very thin' : tilt < 12 ? 'narrow' : 'wide open') + '. Without a telescope it is a steady golden star.'
+    }[id];
+    const FACT = { mer: ['Day: 59 Earth days', 'Year: 88 days'], ven: ['Day: 243 Earth days', 'Year: 225 days'], mar: ['Day: 24.6 hours', 'Year: 687 days'], jup: ['Day: 10 hours', 'Year: 12 Earth years'], sat: ['Day: 10.7 hours', 'Year: 29 Earth years'] }[id];
+    let moons = [];
+    if (id === 'jup') {
+      try {
+        const jm = A.JupiterMoons(t), g = { x: gv.x / gn, y: gv.y / gn, z: gv.z / gn };
+        let ex = -g.y, ey = g.x, ez = 0; const en = Math.hypot(ex, ey, ez) || 1; ex /= en; ey /= en;
+        const nx = g.y * ez - g.z * ey, ny = g.z * ex - g.x * ez, nz = g.x * ey - g.y * ex;
+        const RJ = 4.7789e-4; const NM = { io: 'Io', europa: 'Europa', ganymede: 'Ganymede', callisto: 'Callisto' };
+        ['io', 'europa', 'ganymede', 'callisto'].forEach((k, i) => { const v = jm[k]; const east = (v.x * ex + v.y * ey + v.z * ez) / RJ; const sx = -east; moons.push({ name: NM[k], x: Math.round(171 + Math.max(-26, Math.min(26, sx)) * 5.9), dotY: 40, lblY: i % 2 === 0 ? 10 + 14 : 52, ord: sx }); });
+        moons.forEach((m, i) => { m.lblY = i % 2 === 0 ? 20 : 50; });
+      } catch (e) { moons = []; }
+    }
+    return { id, name: body, sub, L, pa: ppole, b: B, tiles, text: TXT, chipA: FACT[0], chipB: FACT[1], moons, jup: id === 'jup', ring: id === 'sat' };
+  }
+  buildPlanetIcons() {
+    if (this.piT) return; const self = this;
+    const ids = { 1: 'mer', 2: 'ven', 3: 'mar', 4: 'jup', 5: 'sat' };
+    const TX = { mer: './a/c_pl_mercury.jpg', ven: './a/c_pl_venus.jpg', mar: './a/c_pl_mars.jpg', jup: './a/c_pl_jupiter.jpg', sat: './a/c_pl_saturn.jpg' };
+    const AT = { mer: 0, ven: 0.5, mar: 0.12, jup: 0.25, sat: 0.2 };
+    this.piT = setTimeout(() => {
+      if (!window.WishfallPlanet) return;
+      [1, 2, 3, 4, 5].forEach((n, k) => setTimeout(() => {
+        try {
+          const id = ids[n], d = self.lensInfo(id); if (!d) return;
+          const cv = document.createElement('canvas'); const opt = { canvas: cv, tex: TX[id], atmo: AT[id] };
+          if (id === 'sat') { opt.ring = './a/c_pl_ring.jpg'; opt.ringAlpha = './a/c_pl_ringa.png'; }
+          const p = window.WishfallPlanet.create(opt); if (!p) return;
+          p.set({ L: d.L, pa: d.pa, b: d.b });
+          const grab = () => { try { p.set({ L: d.L, pa: d.pa, b: d.b }); const o = document.createElement('canvas'); o.width = o.height = 128; const x = o.getContext('2d'); x.imageSmoothingQuality = 'high'; x.drawImage(cv, 0, 0, 128, 128); const im = document.getElementById('pli_' + n), dt = document.getElementById('pld_' + n); if (im) { im.src = o.toDataURL('image/png'); im.style.opacity = 1; } if (dt) dt.style.opacity = 0; } catch (e) {} };
+          setTimeout(grab, 1200); setTimeout(() => { grab(); try { p.dispose(); } catch (e) {} }, 3000);
+        } catch (e) {}
+      }, k * 250));
+    }, 600);
+  }
+  openLens(id) {
+    const d = this.lensInfo(id); if (!d) return; this.setState({ lens: id, lensD: d });
+    clearTimeout(this.lensT);
+    this.lensT = setTimeout(() => {
+      const cv = document.getElementById('lens_cv'); if (!cv || !window.WishfallPlanet) return; if (this.lp) { this.lp.dispose(); this.lp = null; }
+      const TX = { mer: './a/c_pl_mercury.jpg', ven: './a/c_pl_venus.jpg', mar: './a/c_pl_mars.jpg', jup: './a/c_pl_jupiter.jpg', sat: './a/c_pl_saturn.jpg' };
+      const opt = { canvas: cv, tex: TX[id], atmo: { mer: 0, ven: 0.5, mar: 0.12, jup: 0.25, sat: 0.2 }[id], spin: id === 'jup' ? 0.1 : 0.05 };
+      if (id === 'sat') { opt.ring = './a/c_pl_ring.jpg'; opt.ringAlpha = './a/c_pl_ringa.png'; }
+      this.lp = window.WishfallPlanet.create(opt);
+      if (this.lp) { this.lp.set({ L: d.L, pa: d.pa, b: d.b }); this.lp.start(); setTimeout(() => cv.classList.add('on'), 80); }
+    }, 90);
+  }
+  closeLens() {
+    const cv = document.getElementById('lens_cv'); if (cv) cv.classList.remove('on');
+    this.setState({ lens: null }); clearTimeout(this.lensT);
+    this.lensT = setTimeout(() => { if (this.lp) { this.lp.dispose(); this.lp = null; } }, 700);
+  }
+  renderVals() {
+    const clItems = ["Andromeda", "Antlia", "Apus", "Aquarius", "Aquila", "Ara", "Aries", "Auriga", "Bo\u00f6tes", "Caelum", "Camelopardalis", "Cancer", "Canes Venatici", "Canis Major", "Canis Minor", "Capricornus", "Carina", "Cassiopeia", "Centaurus", "Cepheus", "Cetus", "Chamaeleon", "Circinus", "Columba", "Coma Berenices", "Corona Austrina", "Corona Borealis", "Corvus", "Crater", "Crux", "Cygnus", "Delphinus", "Dorado", "Draco", "Equuleus", "Eridanus", "Fornax", "Gemini", "Grus", "Hercules", "Horologium", "Hydra", "Hydrus", "Indus", "Lacerta", "Leo", "Leo Minor", "Lepus", "Libra", "Lupus", "Lynx", "Lyra", "Mensa", "Microscopium", "Monoceros", "Musca", "Norma", "Octans", "Ophiuchus", "Orion", "Pavo", "Pegasus", "Perseus", "Phoenix", "Pictor", "Pisces", "Piscis Austrinus", "Puppis", "Pyxis", "Reticulum", "Sagitta", "Sagittarius", "Scorpius", "Sculptor", "Scutum", "Serpens Cauda", "Sextans", "Taurus", "Telescopium", "Triangulum", "Triangulum Australe", "Tucana", "Ursa Major", "Ursa Minor", "Vela", "Virgo", "Volans", "Vulpecula"].map((n, i) => ({ i: i, name: n, pick: () => this.selectCon(i) }));
+    const s = this.state;
+    const short = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+    const ABB = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW']; const abbr = (az) => ABB[Math.round((((az % 360) + 360) % 360) / 22.5) % 16];
+    const CINFO = {"Andromeda":["The Chained Princess","Home of the Andromeda Galaxy, 2.5 million light-years away and faintly visible to the naked eye in a dark sky."],"Antlia":["The Air Pump","A faint southern constellation named for an air pump. Dim, so it needs a dark sky."],"Apus":["The Bird of Paradise","A small, faint constellation near the south celestial pole, named for the bird of paradise."],"Aquarius":["The Water Bearer","Kumbha in Indian astronomy. A faint zodiac constellation, home of the Helix Nebula."],"Aquila":["The Eagle","Led by bright Altair, a corner of the Summer Triangle. The Milky Way runs through it."],"Ara":["The Altar","A small southern constellation sitting in the Milky Way."],"Aries":["The Ram","Mesha in Indian astronomy. Small and faint, but the first sign of the zodiac."],"Auriga":["The Charioteer","Shines with bright Capella. Look for its pentagon shape high in winter skies."],"Boötes":["The Herdsman","Has orange Arcturus, the fourth brightest star. Follow the curve of the Plough handle to find it."],"Caelum":["The Chisel","A tiny, faint southern constellation with no bright stars."],"Camelopardalis":["The Giraffe","A long, faint constellation near the North Star. Dark skies are needed."],"Cancer":["The Crab","Karka in Indian astronomy. Faint, but holds the Beehive Cluster, visible as a fuzzy patch."],"Canes Venatici":["The Hunting Dogs","Has the Whirlpool Galaxy, one of the first spiral galaxies ever spotted."],"Canis Major":["The Great Dog","Holds Sirius, the brightest star in the night sky, only 8.6 light-years away."],"Canis Minor":["The Little Dog","A tiny pair of stars led by Procyon, a close neighbour at 11.5 light-years."],"Capricornus":["The Sea Goat","Makara in Indian astronomy. A faint, triangle-shaped zodiac constellation."],"Carina":["The Keel","Part of the old ship Argo. Holds Canopus, the second brightest star."],"Cassiopeia":["The Queen","A bright W or M shape that circles the North Star. Easy to find, and a good guide to other stars."],"Centaurus":["The Centaur","Holds Alpha Centauri, our nearest star system, and a huge globular cluster."],"Cepheus":["The King","A house-shaped constellation near the North Star, home of the famous pulsating star Delta Cephei."],"Cetus":["The Whale","A large, faint sea monster. Holds Mira, a star that slowly fades and brightens."],"Chamaeleon":["The Chameleon","A small, faint constellation deep in the southern sky near the pole."],"Circinus":["The Compass","A tiny southern constellation squeezed beside Centaurus. Faint and low."],"Columba":["The Dove","A small southern constellation below Canis Major, named for the dove sent from Noah’s ark."],"Coma Berenices":["Berenice’s Hair","A faint, sparkling hair-like cluster of stars, with many distant galaxies behind it."],"Corona Austrina":["The Southern Crown","A small, delicate arc of faint stars just south of Sagittarius."],"Corona Borealis":["The Northern Crown","A neat half-circle of stars next to Boötes. Easy to spot once you know it."],"Corvus":["The Crow","A small, easy-to-find four-star shape. Look for it low in spring evenings."],"Crater":["The Cup","A faint cup shape sitting on the back of Hydra. Needs a dark sky."],"Crux":["The Southern Cross","The smallest constellation, but famous. Only seen low in the south, from southern latitudes."],"Cygnus":["The Swan","Also called the Northern Cross. Deneb at its tail is one of the most luminous stars you can see."],"Delphinus":["The Dolphin","A small, bright diamond of stars. It looks like a tiny kite leaping."],"Dorado":["The Dolphinfish","Holds most of the Large Magellanic Cloud, a small galaxy beside ours."],"Draco":["The Dragon","A long winding trail of stars between the Plough and the Little Dipper. Thuban was once the North Star."],"Equuleus":["The Little Horse","The second smallest constellation, a small, faint kite next to Delphinus."],"Eridanus":["The River","A long, winding river of stars. It ends at bright Achernar in the far south."],"Fornax":["The Furnace","A faint southern constellation with a dense cluster of galaxies behind it."],"Gemini":["The Twins","Mithuna in Indian astronomy. Its twin stars Castor and Pollux sit side by side."],"Grus":["The Crane","A long-necked bird shape in the southern sky."],"Hercules":["The Strongman","Has a keystone-shaped box and a great globular cluster of 300,000 stars."],"Horologium":["The Pendulum Clock","A faint, long southern constellation. Needs a very dark and clear sky."],"Hydra":["The Water Snake","The longest constellation. Its head is a small circle and its tail trails far south."],"Hydrus":["The Male Water Snake","A faint snake near the south celestial pole."],"Indus":["The Indian","A faint southern constellation, named by explorers for the people they met."],"Lacerta":["The Lizard","A small, faint zigzag between Cygnus and Andromeda."],"Leo":["The Lion","Simha in Indian astronomy. Has a backward question mark shape, called the Sickle, with bright Regulus."],"Leo Minor":["The Lesser Lion","A small, faint patch of sky above Leo. Needs a dark night."],"Lepus":["The Hare","A neat constellation under Orion’s feet, as if the hare is hiding from the hunter."],"Libra":["The Scales","Tula in Indian astronomy. A faint zodiac constellation of balance."],"Lupus":["The Wolf","A faint southern constellation next to Scorpius and Centaurus."],"Lynx":["The Lynx","So faint that it was named for needing the eyes of a lynx to see it."],"Lyra":["The Lyre","A small harp shape with brilliant Vega, which was the North Star 12,000 years ago."],"Mensa":["The Table Mountain","The faintest constellation. Holds part of the Large Magellanic Cloud."],"Microscopium":["The Microscope","A faint southern constellation with no bright stars."],"Monoceros":["The Unicorn","A faint constellation in the Winter Triangle, packed with star clusters and the Rosette Nebula."],"Musca":["The Fly","A small southern constellation near the Southern Cross."],"Norma":["The Set Square","A faint southern constellation in the Milky Way."],"Octans":["The Octant","Holds the south celestial pole, so it sits far in the south."],"Ophiuchus":["The Serpent Bearer","A large constellation holding the snake Serpens. The Sun passes through it every December."],"Orion":["The Hunter","The most famous constellation. Look for the three stars of his belt, and red Betelgeuse and blue Rigel."],"Pavo":["The Peacock","A southern constellation named for the peacock, India’s national bird."],"Pegasus":["The Winged Horse","Look for the Great Square of Pegasus, a huge box of four stars high in autumn."],"Perseus":["The Hero","Has the Double Cluster and Algol, the demon star that blinks. Source of the August Perseid meteors."],"Phoenix":["The Phoenix","A faint southern constellation with the bright orange star Ankaa."],"Pictor":["The Painter’s Easel","A faint southern constellation, with no bright stars."],"Pisces":["The Fishes","Meena in Indian astronomy. Two faint fish tied together by a long cord."],"Piscis Austrinus":["The Southern Fish","Has lonely Fomalhaut, a bright star low in the south, circled by a ring of dust."],"Puppis":["The Stern","The back of the great ship Argo. Rich with star clusters in the Milky Way."],"Pyxis":["The Compass","A small, faint constellation next to Vela and Puppis."],"Reticulum":["The Net","A small, faint diamond far in the south."],"Sagitta":["The Arrow","One of the smallest constellations, a neat tiny arrow in the Milky Way."],"Sagittarius":["The Archer","Dhanu in Indian astronomy. Look south for its teapot shape. The centre of our galaxy lies behind it."],"Scorpius":["The Scorpion","Vrishchika in Indian astronomy. A curved tail with red Antares, its heart. Easy to spot in summer."],"Sculptor":["The Sculptor","A faint southern constellation that points to the South Galactic Pole, full of distant galaxies."],"Scutum":["The Shield","A small constellation inside the Milky Way, with a bright star cloud."],"Serpens Cauda":["The Serpent’s Tail","The tail of the snake held by Ophiuchus. It holds the Eagle Nebula."],"Sextans":["The Sextant","A faint constellation in the zodiac, near Leo and Hydra."],"Taurus":["The Bull","Vrishabha in Indian astronomy. Has orange Aldebaran and the Pleiades, a cluster of seven sisters."],"Telescopium":["The Telescope","A faint southern constellation named for the telescope."],"Triangulum":["The Triangle","A small triangle next to Andromeda, with the Triangulum Galaxy nearby."],"Triangulum Australe":["The Southern Triangle","A bright little triangle in the far south."],"Tucana":["The Toucan","Holds the Small Magellanic Cloud and a dazzling globular cluster."],"Ursa Major":["The Great Bear","Saptarishi in Indian astronomy. Its seven bright stars are also called the Plough or Big Dipper."],"Ursa Minor":["The Little Bear","Ends in Polaris, the North Star (Dhruva), which always points you north."],"Vela":["The Sails","The sails of the great ship Argo. Lies in the Milky Way, far in the south."],"Virgo":["The Maiden","Kanya in Indian astronomy. Has blue-white Spica, which marks an ear of wheat."],"Volans":["The Flying Fish","A small, faint southern constellation shaped like a fish with wings."],"Vulpecula":["The Little Fox","A faint constellation in the Milky Way. It holds the Dumbbell Nebula."]};
+    const MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const bestMonth = (ra) => { const sunH = (((ra / 15) - 9) % 24 + 24) % 24; const d = ((sunH - 6 + 24) % 24) / 24 * 365.25; const dt = new Date(Date.UTC(2026, 5, 21) + d * 86400000); return MN[dt.getUTCMonth()]; };
+    const con = s.selCon != null && this.sky && this.sky.labels ? this.sky.labels[s.selCon] : null;
+    const ci = con ? CINFO[con.name] : null; const caa = con ? this.sky.eqAz(con.ra, con.dec) : null;
+    const objs = this.objs || []; const sel0 = objs.filter((x) => x.id === s.sel)[0]; const sel = con ? null : sel0;
+    const isPl = !!sel && sel.pl >= 1; const isMoon = !!sel && sel.id === 'moon'; const btn = isPl || isMoon;
+    const ld = s.lensD || { tiles: [], moons: [], name: '', sub: '', text: '', chipA: '', chipB: '' };
+    const q = (s.q || '').trim().toLowerCase();
+    const res = objs.filter((o) => !q || o.name.toLowerCase().indexOf(q) >= 0).sort((a, b) => (b.alt > 0) - (a.alt > 0) || (a.pl >= 0 ? 0 : 1) - (b.pl >= 0 ? 0 : 1) || b.alt - a.alt);
+    const idx = Math.round(s.az / 45) % 8;
+    const explore = s.mode === 'explore';
+    return { clItems: clItems,
+      navDir: s.nav, tabAt: s.tabAt,
+      heading: short[idx] + ' · ' + s.az + '°',
+      onTab: () => { if (window.WFUI) window.WFUI.mark('tab', 'sky'); },
+      sheetOpen: s.search ? '1' : '0',
+      openSearch: () => { this.setState({ search: true, q: '' }); const el = document.getElementById('sky_q'); if (el) el.value = ''; clearTimeout(this.focT); this.focT = setTimeout(() => { const e2 = document.getElementById('sky_q'); if (e2 && e2.focus) e2.focus(); }, 450); },
+      closeSearch: () => this.setState({ search: false }),
+      onQ: (e) => this.setState({ q: (e && e.target && e.target.value) || '' }),
+      closeCard: () => this.closeSel(),
+      selName: con ? con.name : (sel ? sel.name : ''), selTag: con ? ci[0] : (sel ? sel.tag : ''), selTagColor: con ? '#cfe0ff' : (sel ? sel.tagColor : '#fff'), selDesc: con ? ci[1] : (sel ? sel.desc : ''),
+      selChip1: con ? 'Best in ' + bestMonth(con.ra) : (sel ? sel.chip1 : ''), selChip2: con ? (caa.alt > 0 ? Math.round(caa.alt) + '° high · ' + abbr(caa.az) : 'Below the horizon') : (sel ? (sel.alt > 0 ? Math.round(sel.alt) + '° high · ' + abbr(sel.az) : 'Below the horizon') : ''),
+      cardTop: btn ? 516 : 568, cardH: btn ? 228 : 176, showLook: isPl, showMoon: isMoon,
+      openLens: () => { if (sel && sel.pl >= 1) this.openLens(sel.id); },
+      toMoon: () => { try { localStorage.setItem('wf_moon_go', JSON.stringify({ off: 0, t: Date.now() })); } catch (er) {} try { const V = this.sky && this.sky.V; if (V && window.WFUI) window.WFUI.keep('sky_view', { az: V.az, alt: V.alt, fov: V.fov, sel: this.state.sel, selCon: this.state.selCon, prev: this.prevFov || 0 }); } catch (er) {} if (window.WFUI) window.WFUI.mark('fwd', 'sky', 'Sky.dc.html'); },
+      closeLens: () => this.closeLens(),
+      lensO: s.lens ? 1 : 0, lensEv: s.lens ? 'auto' : 'none', lensY: s.lens ? 0 : 24,
+      lensName: ld.name, lensSub: ld.sub, lensText: ld.text, lensChipA: ld.chipA, lensChipB: ld.chipB, lensTiles: ld.tiles, moons: ld.moons, lensJup: !!ld.jup,
+      tilesTop: ld.jup ? 482 : 440, lensCardTop: ld.jup ? 584 : 542,
+      results: res.map((o) => ({ name: o.name, type: o.pl >= 0 ? (o.id === 'moon' ? 'Moon' : 'Planet') : 'Star', color: o.color, sub: o.alt > 0 ? Math.round(o.alt) + '° high · ' + abbr(o.az) : 'Below the horizon now', pick: () => this.pick(o) })), noResults: res.length === 0,
+      clock: window.WF ? window.WF.fmtTime(new Date()) : '',
+      place: s.obs.name, obsName: s.obs.name,
+      exploreOn: explore ? 1 : 0, threeOn: explore ? 0 : 1,
+      exploreEvents: explore ? 'auto' : 'none', threeEvents: explore ? 'none' : 'auto',
+      cardOpacity: explore && s.card ? 1 : 0, cardEvents: explore && s.card ? 'auto' : 'none',
+      go3d: () => this.setFollow(!this.state.follow),
+      followCss: s.follow ? 'background:var(--wf-select);color:var(--wf-select-ink);border-color:transparent;box-shadow:0 0 28px rgba(190,205,255,.3);' : '',
+      followOn: s.follow ? 'true' : 'false',
+      back: () => { if (this.sky) { this.sky.setAuto(0); this.sky.setLines(true); } this.stopCompass(); this.setState({ mode: 'explore' }); }
+    };
+  }
+}
+</script>
+<script>(function(){var T=0,sun=null,ph=null,R=Math.PI/180;window.__moonPin=function(p,api,self){try{var A=window.Astronomy;if(!A)return;var now=Date.now();if(now-T>4000||!sun){T=now;var o=(self&&self.state&&self.state.obs)||{lat:20,lon:78},ob=new A.Observer(o.lat,o.lon,0),t=new A.AstroTime(new Date(now));var se=A.Equator(A.Body.Sun,t,ob,true,true);sun={ra:se.ra*15,dec:se.dec};var il=A.Illumination(A.Body.Moon,t);ph=il.phase_angle*R;var r=9,rx=Math.abs(Math.cos(ph))*r,d='M0 -9A9 9 0 0 1 0 9A'+rx.toFixed(2)+' 9 0 0 '+(Math.cos(ph)>0?1:0)+' 0 -9Z';var e=document.getElementById('moonpath');if(e)e.setAttribute('d',d);}var s=api.projectEq(sun.ra,sun.dec);var g=document.getElementById('moonlit');if(g&&s){var a=Math.atan2(s.y-p.y,s.x-p.x)/R;g.setAttribute('transform','rotate('+a.toFixed(1)+')');}}catch(e){}};})();</script></body>
+</html>

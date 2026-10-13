@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tonight</title>
+<style>html,body{margin:0;background:#04060f}</style>
+<script src="./bridge.js"></script>
+<script src="./support.js"></script>
+<script src="./a/wishfall-ui6.js"></script>
+<script src="./a/three.min.js"></script>
+<script src="./a/astronomy.browser.min.js"></script>
+<script src="./a/wishfall-astro3.js"></script>
+<script src="./a/wishfall-moon4.js"></script>
+<script src="./a/wishfall-events9.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="./outfit.css" rel="stylesheet">
+</helmet>
+<div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
+
+
+<canvas id="spacecv_main" class="bgfade" aria-hidden="true" style="position:absolute;left:0;top:0;width:390px;height:844px;display:block"></canvas>
+<div style="position:absolute;left:0;top:0;width:390px;height:844px;background:linear-gradient(180deg,rgba(3,4,11,.2) 0%,rgba(3,4,11,0) 30%,rgba(3,4,11,.3) 100%);pointer-events:none"></div>
+
+<div class="wf-body" style="position:absolute;left:0;top:0;width:390px;height:844px">
+<div class="noscroll" style="position:absolute;left:0;top:0;width:390px;height:844px;overflow-y:auto;overflow-x:hidden">
+<div style="padding:24px 24px 120px 24px;display:flex;flex-direction:column">
+
+<!-- header -->
+<div class="rise" style="--i:0;display:flex;align-items:center;justify-content:space-between;gap:12px;height:48px">
+<div style="display:flex;flex-direction:column;min-width:0;flex:1">
+<span class="t-title nw">{{greeting}}</span>
+<span class="t-cap i2 el" style="font-weight:300">{{dateLine}}<span class="sep"></span>{{place}}</span>
+</div>
+<a class="fg press btn-ic" href="Alerts.dc.html" onClick="{{toAlerts}}" aria-label="Alerts"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></a>
+</div>
+
+<!-- moon -->
+<div style="position:relative;height:244px;margin-top:8px">
+<div class="halo halo-pulse" style="position:absolute;left:11px;top:-14px;width:320px;height:320px;border-radius:160px"></div>
+<a href="Moon.dc.html" onClick="{{toMoon}}" aria-label="Open the Moon: phases, other days, rise and set" class="floaty press" style="position:absolute;left:61px;top:8px;width:220px;height:220px;display:block;border-radius:110px"><span class="moon-in" style="display:block;width:220px;height:220px"><canvas id="mooncv_main" class="bgfade" style="width:220px;height:220px;display:block"></canvas></span></a>
+<div class="t-eyebrow nw rise" style="--i:2;position:absolute;left:0;right:0;top:228px;text-align:center;color:var(--wf-ink-3)">{{moonCap}}</div>
+</div>
+
+<!-- phase -->
+<div class="rise" style="--i:3;display:flex;flex-direction:column;align-items:center;text-align:center">
+<span class="t-display">{{phase}}</span>
+<span class="t-body i2" style="margin-top:8px;max-width:320px">{{note}}</span>
+
+</div>
+
+<!-- moon today -->
+<div class="rise" style="--i:4;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:12px;margin-top:24px">
+<div class="fg tile"><div class="t-label i3 nw">Lit</div><div class="t-value nw">{{lit}}%</div><div class="t-label i3 el">of the Moon</div></div>
+<div class="fg tile"><div class="t-label i3 nw">Where</div><div class="t-value nw">{{where}}</div><div class="t-label i3 el">{{whereSub}}</div></div>
+<div class="fg tile"><div class="t-label i3 nw">{{evLabel}}</div><div class="t-value nw">{{evTime}}<span class="t-label i2" style="margin-left:2px">{{evAp}}</span></div><div class="t-label i3 el">{{evSub}}</div></div>
+</div>
+<div class="fg rise t-small" style="--i:5;display:flex;justify-content:space-between;align-items:center;height:56px;padding:0 16px;border-radius:var(--wf-r-tile);margin-top:12px">
+<span class="el"><span class="i3">{{ev2Label}}</span> <span style="font-weight:500">{{ev2Time}}</span></span>
+<span class="nw" style="font-weight:500;flex:none;margin-left:12px">{{next}}</span>
+</div>
+
+<!-- upcoming events -->
+<div class="rise" style="--i:6;display:flex;align-items:center;justify-content:space-between;min-height:44px;margin-top:24px">
+<span class="t-h2">Upcoming events</span>
+<a class="press t-small i2" href="Events.dc.html" onClick="{{onTab}}" style="min-height:44px;padding:0 0 0 16px;display:flex;align-items:center">See all</a>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
+<sc-for list="{{events}}" as="e" hint-placeholder-count="3">
+<a class="fg press rise" href="Event.dc.html" onClick="{{e.open}}" style="--i:{{e.i}};display:flex;align-items:center;gap:14px;height:96px;padding:0 16px 0 12px;border-radius:var(--wf-r-card);overflow:hidden">
+<span style="{{e.ring}}">{{e.score}}</span>
+<span style="display:flex;flex-direction:column;flex:1;min-width:0;gap:1px">
+<span style="display:flex;align-items:center;gap:8px;min-width:0"><span class="t-name el" style="min-width:0">{{e.name}}</span><span class="vp" style="color:{{e.tone}}"><span class="dot" style="color:{{e.tone}}"></span>{{e.verdict}}</span></span>
+<span class="t-cap i2 el">{{e.when}}</span>
+<span class="t-cap i3 el">{{e.detail}}</span>
+</span>
+<span class="i3" style="display:flex;flex:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+</a>
+</sc-for>
+</div>
+
+</div>
+</div>
+
+<div style="position:absolute;left:0;right:0;bottom:0;height:150px;background:linear-gradient(180deg,rgba(3,4,11,0),rgba(3,4,11,.78));pointer-events:none"></div>
+<!-- tab bar -->
+<nav class="tabbar fgn" data-at="{{tabAt}}" aria-label="Main">
+<span class="tab-ind"></span>
+<button class="tab t-tab" aria-current="page" aria-label="Tonight"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 5h4"/><path d="M20 3v4"/><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>Tonight</button>
+<a class="tab t-tab" href="Events.dc.html" aria-label="Events" onClick="{{onTab}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>Events</a>
+<a class="tab t-tab" href="Sky.dc.html" aria-label="Sky" onClick="{{onTab}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m10.065 12.493-6.18 1.318a.934.934 0 0 1-1.108-.702l-.537-2.15a1.07 1.07 0 0 1 .691-1.265l13.504-4.44"/><path d="m13.56 11.747 4.332-.924"/><path d="m16 21-3.105-6.21"/><path d="M16.485 5.94a2 2 0 0 1 1.455-2.425l1.09-.272a1 1 0 0 1 1.212.727l1.515 6.06a1 1 0 0 1-.727 1.213l-1.09.272a2 2 0 0 1-2.425-1.455z"/><path d="m6.158 8.633 1.114 4.456"/><path d="m8 21 3.105-6.21"/><circle cx="12" cy="13" r="2"/></svg>Sky</a>
+<a class="tab t-tab" href="You.dc.html" aria-label="You" onClick="{{onTab}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>You</a>
+</nav>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { off: 0, tick: 0, obs: { lat: 26.9124, lon: 75.7873, name: 'Jaipur' }, nav: window.WFUI ? window.WFUI.nav() : 'cold', tabAt: window.WFUI ? window.WFUI.tabFrom('tonight') : 0 };
+    this.space = null; this.moonR = null;
+  }
+  componentDidMount() {
+    const tryStart = () => {
+      if (this.space && this.moonR) return true;
+      if (!window.THREE || !window.WishfallSky || !window.WishfallMoon || !window.WF || !window.Astronomy) return false;
+      const cv = document.getElementById('spacecv_main'); const mc = document.getElementById('mooncv_main');
+      if (!cv || !mc) return false;
+      const o = this.state.obs;
+      this.space = window.WishfallSky.create({ canvas: cv, texUrl: './a/mw_eq_clean4.jpg', mode: 'bg', interactive: false, az: 150, alt: 55, fov: 70, sid: 140, gain: 1.7, starScale: 1.2, lat: o.lat, lon: o.lon });
+      this.moonR = window.WishfallMoon.create({ canvas: mc, texUrl: './a/c_moon_disc.jpg', texW: 1536 });
+      this.pushMoon();
+      setTimeout(() => { cv.classList.add('on'); mc.classList.add('on'); }, 120);
+      return true;
+    };
+    const boot = () => {
+      if (!tryStart()) { this.retry = setTimeout(boot, 300); return; }
+      if (window.WF) window.WF.getObserver((o) => { this.setState({ obs: o }); if (this.space) this.space.relocate(o.lat, o.lon); setTimeout(() => this.pushMoon(), 0); });
+    };
+    boot();
+    this.tabT = setTimeout(() => this.setState({ tabAt: 0 }), 90);
+    this.timer = setInterval(() => { this.setState({ tick: Date.now() }); this.pushMoon(); }, 60000);
+  }
+  componentWillUnmount() { clearTimeout(this.retry); clearTimeout(this.tabT); clearInterval(this.timer); if (this.space) this.space.dispose(); }
+  nowDate() { return new Date(Date.now() + this.state.off * 86400000); }
+  pushMoon() {
+    if (!window.WF || !this.moonR) return;
+    const m = window.WF.moonToday(this.state.obs, this.nowDate());
+    this.moonR.set(m.L, m.rot);
+  }
+  renderVals() {
+    const WF = window.WF; const s = this.state;
+    const now = this.nowDate();
+    const abbr = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+    const ab = (az) => abbr[Math.round((((az % 360) + 360) % 360) / 22.5) % 16];
+    const dayLbl = (d) => { if (!d) return ''; const t = new Date(now); const same = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); if (same(d, t)) return 'Today'; if (same(d, new Date(t.getTime() + 86400000))) return 'Tomorrow'; return d.getDate() + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]; };
+    if (!WF || !window.Astronomy) {
+      return { navDir: s.nav, tabAt: s.tabAt, toMoon: () => {}, toAlerts: () => {}, onTab: () => {}, greeting: 'Good evening', dateLine: 'Today', place: 'Jaipur', phase: 'Moon', note: '', lit: '–', where: '–', whereSub: '', evLabel: 'Sets', evTime: '–', evAp: '', evSub: '', ev2Label: '', ev2Time: '', next: '', moonCap: '', events: [], };
+    }
+    const m = WF.moonToday(s.obs, now);
+    let dn = null; try { dn = window.WFE ? window.WFE.dayNote(s.obs, now) : null; } catch (er) {}
+    const tp = (d) => { const t = WF.fmtTime(d); const i = t.lastIndexOf(' '); return i < 0 ? [t, ''] : [t.slice(0, i), t.slice(i + 1)]; };
+    const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], WK = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const shortDate = WK[now.getDay()] + ', ' + now.getDate() + ' ' + MON[now.getMonth()];
+    const evs = WF.upcoming(s.obs, now).slice(0, 3);
+    const tone = { Go: '#7ee7c7', Maybe: '#ffc46b', Skip: '#ff8f9c' };
+    const primary = m.up ? { label: 'Sets', d: m.set } : { label: 'Rises', d: m.rise };
+    const other = m.up ? { label: 'Rises', d: m.rise } : { label: 'Sets', d: m.set };
+    return {
+      navDir: s.nav, tabAt: s.tabAt,
+      toMoon: () => { try { localStorage.setItem('wf_moon_go', JSON.stringify({ off: 0, t: Date.now() })); } catch (er) {} if (window.WFUI) window.WFUI.mark('fwd', 'tonight', 'Main.dc.html'); },
+      toAlerts: () => { if (window.WFUI) window.WFUI.mark('fwd', 'tonight', 'Main.dc.html'); },
+      onTab: () => { if (window.WFUI) window.WFUI.mark('tab', 'tonight'); },
+      greeting: WF.greeting(now),
+      dateLine: shortDate,
+      place: s.obs.name,
+      phase: dn ? dn.title : m.phase, note: dn ? dn.note : m.note, lit: m.illum,
+      where: m.up ? ab(m.az) : 'Down',
+      whereSub: m.up ? Math.round(m.alt) + '° high' : 'Not up now',
+      evLabel: primary.label, evTime: tp(primary.d)[0], evAp: tp(primary.d)[1], evSub: dayLbl(primary.d),
+      ev2Label: other.label, ev2Time: WF.fmtTime(other.d) + (other.d && dayLbl(other.d) !== 'Today' ? ' ' + dayLbl(other.d).toLowerCase() : ''),
+      next: m.next.replace(' moon', ''),
+      moonCap: m.up ? 'In the sky now' : 'Not up yet',
+      events: evs.map((e, i) => ({ i: 7 + i,
+        name: e.name, score: e.score, verdict: e.verdict, tone: tone[e.verdict],
+        when: e.label.replace('Night of ', '') + ' · ' + e.inTxt,
+        detail: 'Best ' + e.bestTime + ' · ' + (e.best.moonUp ? 'Moon ' + Math.round(e.best.ill * 100) + '% lit' : 'No Moon'),
+        ring: 'width:48px;height:48px;border-radius:24px;flex:none;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;color:' + tone[e.verdict] + ';border:2px solid ' + tone[e.verdict] + ';background:var(--wf-fill)',
+        open: () => { try { localStorage.setItem('wf_event', e.id); } catch (err) {} if (window.WFUI) window.WFUI.mark('fwd', 'tonight', 'Main.dc.html'); }
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

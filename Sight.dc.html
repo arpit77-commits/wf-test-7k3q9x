@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sky event detail</title>
+<style>html,body{margin:0;background:#04060f}</style>
+<script src="./bridge.js"></script>
+<script src="./support.js"></script>
+<script src="./a/wishfall-ui6.js"></script>
+<script src="./a/three.min.js"></script>
+<script src="./a/astronomy.browser.min.js"></script>
+<script src="./a/wishfall-astro3.js"></script>
+<script src="./a/satellite.min.js"></script>
+<script src="./a/wishfall-events9.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="./outfit.css" rel="stylesheet">
+</helmet>
+<div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
+
+<canvas id="spacecv_sight" class="bgfade" aria-hidden="true" style="position:absolute;left:0;top:0;width:390px;height:844px;display:block"></canvas>
+<div style="position:absolute;left:0;top:0;width:390px;height:844px;background:linear-gradient(180deg,rgba(3,4,11,.2) 0%,rgba(3,4,11,.45) 60%,rgba(3,4,11,.72) 100%)"></div>
+<div class="wf-body" style="position:absolute;left:0;top:0;width:390px;height:844px">
+<div class="noscroll" style="position:absolute;left:0;top:0;width:390px;height:844px;overflow-y:auto;overflow-x:hidden">
+<div style="padding:24px 24px 120px 24px;display:flex;flex-direction:column">
+
+<div class="rise" style="--i:0;display:flex;align-items:center;height:48px">
+<sc-if value="{{backMain}}" hint-placeholder-val="{{true}}"><a class="fg press btn-ic" href="Main.dc.html" onClick="{{goBack}}" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a></sc-if><sc-if value="{{backEvents}}" hint-placeholder-val="{{false}}"><a class="fg press btn-ic" href="Events.dc.html" onClick="{{goBack}}" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a></sc-if><sc-if value="{{backAlerts}}" hint-placeholder-val="{{false}}"><a class="fg press btn-ic" href="Alerts.dc.html" onClick="{{goBack}}" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a></sc-if>
+</div>
+
+<div class="rise" style="--i:1;display:flex;align-items:center;gap:8px;margin-top:16px">
+<div style="display:flex;flex-direction:column;align-items:flex-start;min-width:0;flex:1">
+<span class="t-eyebrow i2">{{kicker}}</span>
+<span class="t-hero" style="margin-top:8px">{{name}}</span>
+<span class="t-body i2" style="margin-top:4px">{{when}}</span>
+</div>
+<sc-if value="{{hasEv}}" hint-placeholder-val="{{true}}"><div class="floaty" style="position:relative;flex:none;width:96px;height:96px"><sc-for list="{{layers}}" as="ly" hint-placeholder-count="1"><img src="{{ly.src}}" alt="" style="position:absolute;left:{{ly.l}}%;top:{{ly.t}}%;width:{{ly.w}}%;display:block"></sc-for></div></sc-if>
+</div>
+
+<div class="fg chip rise" style="--i:2;margin-top:16px;align-self:flex-start;max-width:342px">
+<span class="dot" style="color:{{tone}}"></span>
+<span>{{verdictLine}}</span>
+</div>
+
+<sc-if value="{{hasEv}}" hint-placeholder-val="{{true}}"><div class="t-h2 rise" style="--i:3;margin-top:24px">{{rowsTitle}}</div>
+<div class="fg card rise" style="--i:4;margin-top:12px;padding:0 16px">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="3">
+<div class="row">
+<span class="t-name nw" style="flex:none;min-width:84px">{{r.time}}</span>
+<span style="display:flex;flex-direction:column;min-width:0;flex:1"><span class="t-small i1">{{r.label}}</span><span class="t-cap i3">{{r.where}}</span></span>
+</div>
+</sc-for>
+</div>
+
+<div class="rise" style="--i:5;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:12px;margin-top:16px">
+<sc-for list="{{tiles}}" as="t" hint-placeholder-count="3">
+<div class="fg tile" style="height:72px"><div class="t-label i3 nw">{{t.l}}</div><div class="t-value nw">{{t.v}}</div></div>
+</sc-for>
+</div>
+
+<div class="fg rise" style="--i:6;margin-top:16px;padding:14px 16px;border-radius:var(--wf-r-card)">
+<div class="t-eyebrow i2" style="letter-spacing:.14em">About this</div>
+<div class="t-small i1" style="margin-top:4px">{{blurb}}</div>
+<div class="t-small i2" style="margin-top:8px">{{tip}}</div>
+</div></sc-if>
+
+<sc-if value="{{hasSafety}}" hint-placeholder-val="{{false}}">
+<div class="fg rise" style="--i:7;margin-top:12px;padding:14px 16px;border-radius:var(--wf-r-card);border:1px solid rgba(255,196,107,.45)">
+<div class="t-eyebrow" style="letter-spacing:.14em;color:#ffc46b">Eye safety</div>
+<div class="t-small i1" style="margin-top:4px">{{safety}}</div>
+</div>
+</sc-if>
+
+</div>
+</div>
+
+<div style="position:absolute;left:0;right:0;bottom:0;height:130px;background:linear-gradient(180deg,rgba(3,4,11,0),rgba(3,4,11,.85));pointer-events:none"></div>
+<sc-if value="{{hasEv}}" hint-placeholder-val="{{true}}"><button class="press cta rise" onClick="{{togglePlan}}" style="{{planStyle}}">
+<sc-if value="{{planned}}" hint-placeholder-val="{{false}}">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+<span>Alert set for {{alertDay}}, {{hourTxt}}</span>
+</sc-if>
+<sc-if value="{{notPlanned}}" hint-placeholder-val="{{true}}">
+<span>Plan this one</span>
+</sc-if>
+</button></sc-if>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    let id = '';
+    try { const v = localStorage.getItem('wf_sight'); if (v) id = v; } catch (e) {}
+    this.state = { id: id, nav: window.WFUI ? window.WFUI.nav() : 'cold', ev: null, planned: (window.WFUI ? window.WFUI.hasPlan(id) : false), obs: { lat: 26.9124, lon: 75.7873, name: 'Jaipur' }, ready: 0 };
+  }
+  componentDidMount() {
+    const bgStart = () => {
+      const cv = document.getElementById('spacecv_sight');
+      if (!window.THREE || !window.WishfallSky || !cv) { this.bgT = setTimeout(bgStart, 300); return; }
+      const o = this.state.obs;
+      this.space = window.WishfallSky.create({ canvas: cv, texUrl: './a/mw_eq_clean4.jpg', mode: 'bg', interactive: false, az: 150, alt: 55, fov: 70, sid: 140, gain: 1.7, starScale: 1.2, lat: o.lat, lon: o.lon });
+      setTimeout(() => cv.classList.add('on'), 120);
+    };
+    bgStart();
+    const boot = () => {
+      if (!window.WF || !window.Astronomy || !window.WFE) { this.retry = setTimeout(boot, 250); return; }
+      window.WF.getObserver((o) => {
+        if (this.space) this.space.relocate(o.lat, o.lon);
+        const now = new Date(), id = this.state.id;
+        const set = (ev) => this.setState({ obs: o, ev: ev, ready: 1 });
+        let ev = null; try { ev = window.WFE.find(id, o, now); } catch (e) {}
+        if (ev) { set(ev); return; }
+        if (id.indexOf('iss-') === 0) { window.WFE.iss(o, now, () => { let e2 = null; try { e2 = window.WFE.find(id, o, now); } catch (e) {} set(e2); }); } else set(null);
+      });
+    };
+    boot();
+  }
+  componentWillUnmount() { clearTimeout(this.bgT); clearTimeout(this.retry); if (this.space) this.space.dispose(); }
+  renderVals() {
+    const W = window.WFUI, s = this.state, e = s.ev, p = s.planned;
+    const bk = W ? W.back() : 'Main.dc.html';
+    const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const toggle = () => {
+      if (!W) return;
+      const on = W.togglePlan(s.id);
+      try { const m = JSON.parse(localStorage.getItem('wf_plan_meta') || '{}'); if (on && e) m[s.id] = { name: e.name, when: e.dateTxt, t: e.date.getTime(), page: 'Sight.dc.html', key: 'wf_sight' }; else delete m[s.id]; localStorage.setItem('wf_plan_meta', JSON.stringify(m)); } catch (er) {}
+      this.setState({ planned: on });
+    };
+    const base = { hasEv: !!e, navDir: s.nav, goBack: () => { if (W) W.mark('back', 'sight'); }, backMain: bk === 'Main.dc.html', backEvents: bk === 'Events.dc.html', backAlerts: bk === 'Alerts.dc.html',
+      hourTxt: W ? W.hourText(W.prefs().hour) : '7 pm', togglePlan: toggle, planned: p, notPlanned: !p,
+      planStyle: '--i:8;box-sizing:border-box;position:absolute;left:24px;right:24px;bottom:24px;transition:all .45s var(--ease-out), transform .25s var(--ease-spring);' + (p ? 'color:var(--wf-ink-1);border:1px solid rgba(255,255,255,.3);background:rgba(18,20,30,.5);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)' : 'color:var(--wf-select-ink);border:0;background:var(--wf-select);box-shadow:0 0 36px rgba(190,205,255,.3)') };
+    if (!e) {
+      const miss = s.ready;
+      return Object.assign(base, { kicker: 'Sky event', name: miss ? 'Not available' : 'Loading', when: miss ? 'This one has passed or needs a fresh orbit file. Open the list again.' : 'Working it out for where you are', layers: [], tone: '#cfdbff', verdictLine: miss ? 'Nothing to show' : 'One moment', rowsTitle: 'When to look', rows: [], tiles: [], blurb: '', tip: '', hasSafety: false, safety: '', alertDay: '' });
+    }
+    const tone = { Go: '#7ee7c7', Maybe: '#ffc46b', Skip: '#ff8f9c', Info: '#cfdbff' }[e.verdict] || '#cfdbff';
+    const dir = (r) => { const a = window.WFE; return (r.alt != null && r.az != null) ? (r.alt <= 0 ? 'Below your horizon' : Math.round(r.alt) + '° up in the ' + a.dw(r.az)) : ''; };
+    return Object.assign(base, {
+      kicker: e.kicker, name: e.name, when: e.whenTxt, layers: window.WFE.layers(e.icon), tone: tone,
+      verdictLine: e.verdict === 'Info' ? e.verdictWords : e.verdict + ' · ' + e.verdictWords,
+      rowsTitle: e.cat === 'iss' ? 'Your flyover' : e.cat === 'eclipse' ? 'How it unfolds' : 'When to look',
+      rows: (e.rows || []).map((r) => ({ time: r.time, label: r.label, where: r.label.indexOf('°') >= 0 ? '' : dir(r) })),
+      tiles: (e.tiles || []).slice(0, 3), blurb: e.blurb || '', tip: e.tip || '',
+      hasSafety: !!e.safety, safety: e.safety || '',
+      alertDay: e.dateTxt.replace(/^\w+, /, '')
+    });
+  }
+}
+</script>
+</body>
+</html>
