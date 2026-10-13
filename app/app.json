@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Wishfall",
+    "slug": "wishfall-test",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#04060f",
+    "android": {
+      "package": "app.wishfall.test",
+      "adaptiveIcon": {
+        "backgroundColor": "#04060f",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": ["android.permission.POST_NOTIFICATIONS", "android.permission.SCHEDULE_EXACT_ALARM", "android.permission.RECEIVE_BOOT_COMPLETED", "android.permission.HIGH_SAMPLING_RATE_SENSORS", "android.permission.WAKE_LOCK", "android.permission.VIBRATE"]
+    },
+    "plugins": [
+      "./plugins/withWww.js",
+      ["expo-notifications", { "color": "#cfdbff" }],
+      ["expo-location", { "locationAlwaysAndWhenInUsePermission": "Wishfall uses your location to work out your sky.", "isAndroidBackgroundLocationEnabled": false }]
+    ]
+  }
+}
