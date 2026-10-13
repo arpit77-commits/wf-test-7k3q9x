@@ -14,6 +14,7 @@ import { startCompass } from './src/compass';
 // TEST MODE: load the pages from the web so changes show up without a new APK.
 // Set to '' for the real release (pages then load from inside the app).
 const TEST_URL = 'https://arpit77-commits.github.io/wf-test-7k3q9x/shell.html';
+const LAUNCH = Date.now();
 const HOME = TEST_URL || 'file:///android_asset/www/shell.html';
 const CHANNEL = 'sky-alerts';
 const PKG = 'package:app.wishfall.test';
@@ -160,9 +161,9 @@ function Shell() {
           <WebView
             ref={web}
             style={{ flex: 1, backgroundColor: SPACE }}
-            source={{ uri: HOME }}
+            source={{ uri: TEST_URL ? HOME + '?t=' + LAUNCH : HOME }}
             originWhitelist={['*']}
-            cacheMode={TEST_URL ? 'LOAD_NO_CACHE' : 'LOAD_DEFAULT'}
+            cacheMode="LOAD_DEFAULT"
             javaScriptEnabled
             domStorageEnabled
             allowFileAccess
