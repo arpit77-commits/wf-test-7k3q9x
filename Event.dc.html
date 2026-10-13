@@ -4,18 +4,18 @@
 <meta charset="utf-8">
 <title>Event detail</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1791898411"></script>
-<script src="./support.js?v=1791898411"></script>
-<script src="./a/wishfall-ui6.js?v=1791898411"></script>
-<script src="./a/three.min.js?v=1791898411"></script>
-<script src="./a/astronomy.browser.min.js?v=1791898411"></script>
-<script src="./a/wishfall-astro3.js?v=1791898411"></script>
-<script src="./a/wishfall-moon4.js?v=1791898411"></script>
+<script src="./bridge.js?v=1791898891"></script>
+<script src="./support.js?v=1791898891"></script>
+<script src="./a/wishfall-ui6.js?v=1791898891"></script>
+<script src="./a/three.min.js?v=1791898891"></script>
+<script src="./a/astronomy.browser.min.js?v=1791898891"></script>
+<script src="./a/wishfall-astro3.js?v=1791898891"></script>
+<script src="./a/wishfall-moon4.js?v=1791898891"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1791898411" rel="stylesheet">
+<link href="./outfit.css?v=1791898891" rel="stylesheet">
 </helmet>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -24,8 +24,6 @@
 <div style="position:absolute;left:0;top:0;width:390px;height:844px;background:linear-gradient(180deg,rgba(3,4,11,.2) 0%,rgba(3,4,11,.45) 60%,rgba(3,4,11,.72) 100%)"></div>
 
 <div class="wf-body" style="position:absolute;left:0;top:0;width:390px;height:844px">
-
-<sc-if value="{{backMain}}" hint-placeholder-val="{{true}}"><a class="fg press btn-ic rise" href="Main.dc.html" onClick="{{goBack}}" aria-label="Back" style="--i:0;position:absolute;left:24px;top:24px;z-index:5"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a></sc-if><sc-if value="{{backEvents}}" hint-placeholder-val="{{false}}"><a class="fg press btn-ic rise" href="Events.dc.html" onClick="{{goBack}}" aria-label="Back" style="--i:0;position:absolute;left:24px;top:24px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a></sc-if><sc-if value="{{backAlerts}}" hint-placeholder-val="{{false}}"><a class="fg press btn-ic rise" href="Alerts.dc.html" onClick="{{goBack}}" aria-label="Back" style="--i:0;position:absolute;left:24px;top:24px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a></sc-if>
 
 <div class="noscroll" style="position:absolute;left:0;top:0;width:390px;height:844px;overflow-y:auto;overflow-x:hidden"><div style="position:absolute;left:0;top:790px;width:1px;height:90px"></div>
 <div class="floaty" style="position:absolute;left:270px;top:24px;width:96px;height:96px">
@@ -79,6 +77,7 @@
 </div>
 
 </div>
+<a class="fg press btn-ic wfback" href="Main.dc.html" onClick="{{goBack}}" aria-label="Back" style="position:absolute;left:24px;top:24px;z-index:6"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
 <!-- plan -->
 <button class="press cta rise" onClick="{{togglePlan}}" style="{{planStyle}}">
 <sc-if value="{{planned}}" hint-placeholder-val="{{false}}">
@@ -137,7 +136,7 @@ class Component extends DCLogic {
     const abbr = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
     const ab = (az) => abbr[Math.round((((az % 360) + 360) % 360) / 22.5) % 16];
     const base = { navDir: this.state.nav, goBack: () => { if (window.WFUI) window.WFUI.mark('back', 'event'); }, backMain: this.bk() === 'Main.dc.html', backEvents: this.bk() === 'Events.dc.html', backAlerts: this.bk() === 'Alerts.dc.html', hourTxt: window.WFUI ? window.WFUI.hourText(window.WFUI.prefs().hour) : '7 pm', togglePlan: () => { if (window.WFUI) window.WFUI.togglePlan(this.state.id); this.setState({ planned: !p }); }, planned: p, notPlanned: !p,
-      planStyle: '--i:6;box-sizing:border-box;position:absolute;left:24px;right:24px;bottom:24px;transition:all .45s var(--ease-out), transform .25s var(--ease-spring);' + (p ? 'color:var(--wf-ink-1);border:1px solid rgba(255,255,255,.3);background:rgba(18,20,30,.5);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)' : 'color:var(--wf-select-ink);border:0;background:var(--wf-select);box-shadow:0 0 36px rgba(190,205,255,.3)') };
+      planStyle: '--i:6;box-sizing:border-box;position:absolute;left:24px;right:24px;bottom:24px;transition:all .45s var(--ease-out), transform .25s var(--ease-spring);' + (p ? 'color:var(--wf-ink-1);border:1px solid rgba(255,255,255,.3);background:#151927' : 'color:var(--wf-select-ink);border:0;background:var(--wf-select);box-shadow:0 0 36px rgba(190,205,255,.3)') };
     if (!d) return Object.assign(base, { name: 'Meteor shower', when: '', verdict: '', score: '', verdictWords: '', tone: '#fff', timeLabel: labels[t], rate: 0, arcPath: '', areaPath: '', dotG: '', dotLine: '', dotC: '', pillStyle: '', hours: [], hourTxt: '7 pm', backMain: true, backEvents: false, backAlerts: false, t1l: 'Moon', t1v: '', t2v: '', t3v: '', why: '', alertDay: '' });
     const t = this.tIdx(d);
     const idx = (i) => Math.min(20, i * 4);

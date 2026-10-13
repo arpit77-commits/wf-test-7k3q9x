@@ -4,31 +4,31 @@
 <meta charset="utf-8">
 <title>Alerts</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1791898411"></script>
-<script src="./support.js?v=1791898411"></script>
-<script src="./a/wishfall-ui6.js?v=1791898411"></script>
-<script src="./a/three.min.js?v=1791898411"></script>
-<script src="./a/astronomy.browser.min.js?v=1791898411"></script>
-<script src="./a/wishfall-astro3.js?v=1791898411"></script>
-<script src="./a/satellite.min.js?v=1791898411"></script>
-<script src="./a/wishfall-events9.js?v=1791898411"></script>
+<script src="./bridge.js?v=1791898891"></script>
+<script src="./support.js?v=1791898891"></script>
+<script src="./a/wishfall-ui6.js?v=1791898891"></script>
+<script src="./a/three.min.js?v=1791898891"></script>
+<script src="./a/astronomy.browser.min.js?v=1791898891"></script>
+<script src="./a/wishfall-astro3.js?v=1791898891"></script>
+<script src="./a/satellite.min.js?v=1791898891"></script>
+<script src="./a/wishfall-events9.js?v=1791898891"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1791898411" rel="stylesheet">
+<link href="./outfit.css?v=1791898891" rel="stylesheet">
 </helmet>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
 <canvas id="spacecv_alerts" class="bgfade" aria-hidden="true" style="position:absolute;left:0;top:0;width:390px;height:844px;display:block"></canvas>
 <div style="position:absolute;left:0;top:0;width:390px;height:844px;background:linear-gradient(180deg,rgba(3,4,11,.25) 0%,rgba(3,4,11,.35) 50%,rgba(3,4,11,.6) 100%)"></div>
 <div class="wf-body" style="position:absolute;left:0;top:0;width:390px;height:844px">
+<a class="fg press btn-ic wfback" href="Main.dc.html" onClick="{{goBack}}" aria-label="Back" style="position:absolute;left:24px;top:24px;z-index:6"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
 <div class="noscroll" style="position:absolute;left:0;top:0;width:390px;height:844px;overflow-y:auto;overflow-x:hidden">
 <div style="padding:24px 24px 40px 24px;display:flex;flex-direction:column">
 
 <div class="rise" style="--i:0;display:flex;align-items:center;gap:12px;height:48px">
-<sc-if value="{{backMain}}" hint-placeholder-val="{{true}}"><a class="fg press btn-ic" href="Main.dc.html" onClick="{{goBack}}" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a></sc-if><sc-if value="{{backEvents}}" hint-placeholder-val="{{false}}"><a class="fg press btn-ic" href="Events.dc.html" onClick="{{goBack}}" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a></sc-if><sc-if value="{{backYou}}" hint-placeholder-val="{{false}}"><a class="fg press btn-ic" href="You.dc.html" onClick="{{goBack}}" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a></sc-if>
-<span class="t-title" style="flex:1;min-width:0">Alerts</span>
+<span style="flex:none;width:48px;height:48px"></span><span class="t-title" style="flex:1;min-width:0">Alerts</span>
 </div>
 <div class="t-body i2 rise" style="--i:1;margin-top:12px">We tell you the evening before, at the time you pick. Everything is worked out on your phone for where you are.</div>
 

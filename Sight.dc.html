@@ -4,31 +4,31 @@
 <meta charset="utf-8">
 <title>Sky event detail</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1791898411"></script>
-<script src="./support.js?v=1791898411"></script>
-<script src="./a/wishfall-ui6.js?v=1791898411"></script>
-<script src="./a/three.min.js?v=1791898411"></script>
-<script src="./a/astronomy.browser.min.js?v=1791898411"></script>
-<script src="./a/wishfall-astro3.js?v=1791898411"></script>
-<script src="./a/satellite.min.js?v=1791898411"></script>
-<script src="./a/wishfall-events9.js?v=1791898411"></script>
+<script src="./bridge.js?v=1791898891"></script>
+<script src="./support.js?v=1791898891"></script>
+<script src="./a/wishfall-ui6.js?v=1791898891"></script>
+<script src="./a/three.min.js?v=1791898891"></script>
+<script src="./a/astronomy.browser.min.js?v=1791898891"></script>
+<script src="./a/wishfall-astro3.js?v=1791898891"></script>
+<script src="./a/satellite.min.js?v=1791898891"></script>
+<script src="./a/wishfall-events9.js?v=1791898891"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1791898411" rel="stylesheet">
+<link href="./outfit.css?v=1791898891" rel="stylesheet">
 </helmet>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
 <canvas id="spacecv_sight" class="bgfade" aria-hidden="true" style="position:absolute;left:0;top:0;width:390px;height:844px;display:block"></canvas>
 <div style="position:absolute;left:0;top:0;width:390px;height:844px;background:linear-gradient(180deg,rgba(3,4,11,.2) 0%,rgba(3,4,11,.45) 60%,rgba(3,4,11,.72) 100%)"></div>
 <div class="wf-body" style="position:absolute;left:0;top:0;width:390px;height:844px">
+<a class="fg press btn-ic wfback" href="Main.dc.html" onClick="{{goBack}}" aria-label="Back" style="position:absolute;left:24px;top:24px;z-index:6"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
 <div class="noscroll" style="position:absolute;left:0;top:0;width:390px;height:844px;overflow-y:auto;overflow-x:hidden">
 <div style="padding:24px 24px 120px 24px;display:flex;flex-direction:column">
 
 <div class="rise" style="--i:0;display:flex;align-items:center;height:48px">
-<sc-if value="{{backMain}}" hint-placeholder-val="{{true}}"><a class="fg press btn-ic" href="Main.dc.html" onClick="{{goBack}}" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a></sc-if><sc-if value="{{backEvents}}" hint-placeholder-val="{{false}}"><a class="fg press btn-ic" href="Events.dc.html" onClick="{{goBack}}" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a></sc-if><sc-if value="{{backAlerts}}" hint-placeholder-val="{{false}}"><a class="fg press btn-ic" href="Alerts.dc.html" onClick="{{goBack}}" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a></sc-if>
-</div>
+<span style="flex:none;width:48px;height:48px"></span></div>
 
 <div class="rise" style="--i:1;display:flex;align-items:center;gap:8px;margin-top:16px">
 <div style="display:flex;flex-direction:column;align-items:flex-start;min-width:0;flex:1">
@@ -132,7 +132,7 @@ class Component extends DCLogic {
     };
     const base = { hasEv: !!e, navDir: s.nav, goBack: () => { if (W) W.mark('back', 'sight'); }, backMain: bk === 'Main.dc.html', backEvents: bk === 'Events.dc.html', backAlerts: bk === 'Alerts.dc.html',
       hourTxt: W ? W.hourText(W.prefs().hour) : '7 pm', togglePlan: toggle, planned: p, notPlanned: !p,
-      planStyle: '--i:8;box-sizing:border-box;position:absolute;left:24px;right:24px;bottom:24px;transition:all .45s var(--ease-out), transform .25s var(--ease-spring);' + (p ? 'color:var(--wf-ink-1);border:1px solid rgba(255,255,255,.3);background:rgba(18,20,30,.5);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)' : 'color:var(--wf-select-ink);border:0;background:var(--wf-select);box-shadow:0 0 36px rgba(190,205,255,.3)') };
+      planStyle: '--i:8;box-sizing:border-box;position:absolute;left:24px;right:24px;bottom:24px;transition:all .45s var(--ease-out), transform .25s var(--ease-spring);' + (p ? 'color:var(--wf-ink-1);border:1px solid rgba(255,255,255,.3);background:#151927' : 'color:var(--wf-select-ink);border:0;background:var(--wf-select);box-shadow:0 0 36px rgba(190,205,255,.3)') };
     if (!e) {
       const miss = s.ready;
       return Object.assign(base, { kicker: 'Sky event', name: miss ? 'Not available' : 'Loading', when: miss ? 'This one has passed or needs a fresh orbit file. Open the list again.' : 'Working it out for where you are', layers: [], tone: '#cfdbff', verdictLine: miss ? 'Nothing to show' : 'One moment', rowsTitle: 'When to look', rows: [], tiles: [], blurb: '', tip: '', hasSafety: false, safety: '', alertDay: '' });

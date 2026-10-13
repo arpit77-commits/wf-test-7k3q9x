@@ -19,6 +19,7 @@
   try {
     var lq = document.createElement('style');
     lq.textContent = '.fg,.fgn,[style*="backdrop-filter"]{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}' +
+      '.btn-ic.fg,.wfback{background-color:#151927!important}.cta{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}' +
       (Q === 1 ? '.fg{background-color:rgba(14,18,30,.82)!important}.fgn{background-color:rgba(12,15,26,.92)!important}' : '.fg{background-color:rgba(13,17,29,.68)!important}.fgn{background-color:rgba(11,14,25,.84)!important}') +
       (Q < 3 ? '.halo-pulse{animation:none!important}' + (Q === 1 ? '.floaty{animation:none!important}' : '') : '');
     document.documentElement.appendChild(lq);
