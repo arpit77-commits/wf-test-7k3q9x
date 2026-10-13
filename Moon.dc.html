@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <title>Moon</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1791896021"></script>
-<script src="./support.js?v=1791896021"></script>
-<script src="./a/wishfall-ui6.js?v=1791896021"></script>
-<script src="./a/three.min.js?v=1791896021"></script>
-<script src="./a/astronomy.browser.min.js?v=1791896021"></script>
-<script src="./a/wishfall-astro3.js?v=1791896021"></script>
-<script src="./a/wishfall-moon4.js?v=1791896021"></script>
-<script src="./a/wishfall-events9.js?v=1791896021"></script>
+<script src="./bridge.js?v=1791898200"></script>
+<script src="./support.js?v=1791898200"></script>
+<script src="./a/wishfall-ui6.js?v=1791898200"></script>
+<script src="./a/three.min.js?v=1791898200"></script>
+<script src="./a/astronomy.browser.min.js?v=1791898200"></script>
+<script src="./a/wishfall-astro3.js?v=1791898200"></script>
+<script src="./a/wishfall-moon4.js?v=1791898200"></script>
+<script src="./a/wishfall-events9.js?v=1791898200"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1791896021" rel="stylesheet">
+<link href="./outfit.css?v=1791898200" rel="stylesheet">
 </helmet>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -72,11 +72,11 @@
 </div>
 
 <div class="t-h2 rise" style="--i:7;margin-top:32px">Nearby days</div>
-<div class="fg rise swap" data-s="{{sw}}" style="--i:8;margin-top:12px;border-radius:var(--wf-r-card);padding:10px 8px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));column-gap:2px">
+<div class="fg rise swap" data-s="{{sw}}" style="--i:8;margin-top:12px;border-radius:var(--wf-r-card);padding:6px 6px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));column-gap:2px">
 <sc-for list="{{week}}" as="w" hint-placeholder-count="7">
 <button class="press" onClick="{{w.pick}}" aria-label="{{w.aria}}" style="{{w.style}}">
 <span class="t-tab nw">{{w.wd}}</span>
-<img class="mthumb" src="{{w.thumb}}" alt="" width="28" height="28" style="width:28px;height:28px;background:var(--wf-fill)">
+<img class="mthumb" src="{{w.thumb}}" alt="" width="22" height="22" style="width:22px;height:22px;background:var(--wf-fill)">
 <span class="t-tab i2 nw" style="font-weight:400">{{w.pct}}</span>
 </button>
 </sc-for>
@@ -202,7 +202,7 @@ class Component extends DCLogic {
       const pp = { path: '', tf: '' }, on = i === 0; const mw = WF.moonToday(o, sd); const wth = (this.thumb && this.thumb.isReady()) ? this.thumb.url(mw.L, mw.rot) : BLANK;
       week.push({ wd: o2 === 0 ? 'Today' : WK[dd.getDay()], thumb: wth, pct: il + '%', aria: WK[dd.getDay()] + ' ' + dd.getDate() + ' ' + MON[dd.getMonth()] + ', ' + il + '% lit',
         pick: () => this.go(o2),
-        style: 'border:1px solid ' + (on ? 'rgba(255,255,255,.4)' : 'transparent') + ';background:' + (on ? 'var(--wf-fill-2)' : 'none') + ';color:' + (on ? 'var(--wf-ink-1)' : 'var(--wf-ink-2)') + ';border-radius:16px;min-height:76px;padding:6px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-weight:' + (on ? 500 : 400) });
+        style: 'border:1px solid ' + (on ? 'rgba(255,255,255,.4)' : 'transparent') + ';background:' + (on ? 'var(--wf-fill-2)' : 'none') + ';color:' + (on ? 'var(--wf-ink-1)' : 'var(--wf-ink-2)') + ';border-radius:16px;min-height:58px;padding:4px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-weight:' + (on ? 500 : 400) });
     }
     // phases
     const names = { 0: 'New moon', 90: 'First quarter', 180: 'Full moon', 270: 'Last quarter' };

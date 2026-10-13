@@ -16,14 +16,13 @@
   /* quality level: 3 = full, 2 = lighter, 1 = lightest (set by the shell from the phone's memory) */
   var Q = 3; try { Q = (framed && +window.parent.__WF_Q) || +window.__WF_Q || 3; } catch (e) {}
   window.__WF_Q = Q;
-  if (Q < 3) {
-    try {
-      var lq = document.createElement('style');
-      lq.textContent = '.fg,.fgn{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}.halo-pulse{animation:none!important}' +
-        (Q === 1 ? '.fg{background-color:rgba(14,18,30,.82)!important}.fgn{background-color:rgba(12,15,26,.92)!important}.floaty{animation:none!important}' : '.fg{background-color:rgba(13,17,29,.68)!important}.fgn{background-color:rgba(11,14,25,.84)!important}');
-      document.documentElement.appendChild(lq);
-    } catch (e) {}
-  }
+  try {
+    var lq = document.createElement('style');
+    lq.textContent = '.fg,.fgn,[style*="backdrop-filter"]{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}' +
+      (Q === 1 ? '.fg{background-color:rgba(14,18,30,.82)!important}.fgn{background-color:rgba(12,15,26,.92)!important}' : '.fg{background-color:rgba(13,17,29,.68)!important}.fgn{background-color:rgba(11,14,25,.84)!important}') +
+      (Q < 3 ? '.halo-pulse{animation:none!important}' + (Q === 1 ? '.floaty{animation:none!important}' : '') : '');
+    document.documentElement.appendChild(lq);
+  } catch (e) {}
   var rafRaw = window.requestAnimationFrame.bind(window), paused = false, held = [];
   window.requestAnimationFrame = function (cb) { if (paused) { held.push(cb); return 0; } return rafRaw(cb); };
   function setPaused(on) { paused = !!on; if (!paused) { var h = held; held = []; h.forEach(function (cb) { rafRaw(cb); }); } }
