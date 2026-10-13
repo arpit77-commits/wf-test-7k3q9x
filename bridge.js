@@ -216,6 +216,39 @@
       } catch (e) { post({ t: 'log', m: 'sync failed: ' + e.message }); }
     });
   }
+
+  /* test alert: asks the app to fire one notification in 2 minutes; the app answers through window.parent.__wfTest */
+  window.WFTestAlert = function (cb) {
+    var t0 = Date.now(), tries = 0;
+    try { post({ t: 'testAlert' }); } catch (e) {}
+    var iv = setInterval(function () {
+      tries++;
+      var r = null; try { r = (framed ? window.parent : window).__wfTest; } catch (e) {}
+      if (r && r.t >= t0) {
+        clearInterval(iv);
+        if (r.ok) { var d = new Date(r.at), h = d.getHours(), m = d.getMinutes(); cb('Alert set for ' + (h % 12 || 12) + ':' + (m < 10 ? '0' : '') + m + ' ' + (h >= 12 ? 'pm' : 'am') + '. Tap to send another'); }
+        else cb(r.err === 'perm' ? 'Allow notifications for Wishfall in phone settings first' : 'Could not set the alert');
+      } else if (tries > 24) { clearInterval(iv); cb('Update to the newest app version to use this test'); }
+    }, 150);
+  };
+  /* long values on small tiles shrink to fit instead of being cut off */
+  (function () {
+    var tm = 0;
+    function fit() {
+      try {
+        var els = document.querySelectorAll('.tile .t-value');
+        for (var i = 0; i < els.length; i++) {
+          var e = els[i]; e.style.fontSize = '';
+          var fs = parseFloat(getComputedStyle(e).fontSize), cw = e.clientWidth, sw = e.scrollWidth;
+          if (cw > 0 && sw > cw + 1) e.style.fontSize = Math.max(12, Math.floor(fs * cw / sw * 0.97)) + 'px';
+        }
+      } catch (er) {}
+    }
+    function later() { clearTimeout(tm); tm = setTimeout(fit, 120); }
+    document.addEventListener('DOMContentLoaded', function () {
+      later(); try { new MutationObserver(later).observe(document.body, { childList: true, subtree: true, characterData: true }); } catch (er) {}
+    });
+  })();
   var KEYS = { wf_prefs: 1, wf_plans: 1, wf_plan_meta: 1 };
   try {
     var sp = Storage.prototype.setItem;

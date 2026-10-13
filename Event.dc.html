@@ -4,18 +4,18 @@
 <meta charset="utf-8">
 <title>Event detail</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1791898891"></script>
-<script src="./support.js?v=1791898891"></script>
-<script src="./a/wishfall-ui6.js?v=1791898891"></script>
-<script src="./a/three.min.js?v=1791898891"></script>
-<script src="./a/astronomy.browser.min.js?v=1791898891"></script>
-<script src="./a/wishfall-astro3.js?v=1791898891"></script>
-<script src="./a/wishfall-moon4.js?v=1791898891"></script>
+<script src="./bridge.js?v=1791899538"></script>
+<script src="./support.js?v=1791899538"></script>
+<script src="./a/wishfall-ui6.js?v=1791899538"></script>
+<script src="./a/three.min.js?v=1791899538"></script>
+<script src="./a/astronomy.browser.min.js?v=1791899538"></script>
+<script src="./a/wishfall-astro3.js?v=1791899538"></script>
+<script src="./a/wishfall-moon4.js?v=1791899538"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1791898891" rel="stylesheet">
+<link href="./outfit.css?v=1791899538" rel="stylesheet">
 </helmet>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -82,7 +82,7 @@
 <button class="press cta rise" onClick="{{togglePlan}}" style="{{planStyle}}">
 <sc-if value="{{planned}}" hint-placeholder-val="{{false}}">
 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-<span>Alert set for {{alertDay}}, {{hourTxt}}</span>
+<span>Alert set for {{alertDay}}</span>
 </sc-if>
 <sc-if value="{{notPlanned}}" hint-placeholder-val="{{true}}">
 <span>Plan this night</span>
@@ -166,7 +166,7 @@ class Component extends DCLogic {
       t1l: cur.moonUp ? 'Moon lit' : 'Moon', t1v: cur.moonUp ? Math.round(cur.ill * 100) + '%' : 'Down',
       t2v: cur.radAlt > 70 ? 'Up' : ab(cur.radAz), t3v: Math.max(0, Math.round(cur.radAlt)) + '°',
       why: moonPart + ' ' + radPart,
-      alertDay: nd[2] + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][nd[1] - 1]
+      alertDay: (window.WFAlertFmt && window.WFUI ? window.WFAlertFmt(new Date(nd[0], nd[1] - 1, nd[2], window.WFUI.prefs().hour).getTime()) : nd[2] + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][nd[1] - 1])
     });
   }
 }

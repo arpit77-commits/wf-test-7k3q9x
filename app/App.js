@@ -17,6 +17,8 @@ const TEST_URL = 'https://arpit77-commits.github.io/wf-test-7k3q9x/shell.html';
 const LAUNCH = Date.now();
 const HOME = TEST_URL || 'file:///android_asset/www/shell.html';
 const CHANNEL = 'sky-alerts';
+const TEST_CH = 'wf-test';
+const TEST_ID = 'wf-test-alert';
 const PKG = 'package:app.wishfall.test';
 const SPACE = '#04060f';
 
@@ -119,7 +121,7 @@ function Shell() {
     try {
       const p = await Notifications.getPermissionsAsync(); if (p.status !== 'granted') return;
       const sig = list.map((a) => a.id + ':' + a.at).join('|'); if (sig === lastSig.current) return; lastSig.current = sig;
-      await Notifications.cancelAllScheduledNotificationsAsync();
+      try { const cur = await Notifications.getAllScheduledNotificationsAsync(); for (const c of cur) { if (c.identifier !== TEST_ID) await Notifications.cancelScheduledNotificationAsync(c.identifier); } } catch (e) {}
       for (const a of list) {
         if (a.at < Date.now() + 30000) continue;
         try {
@@ -131,6 +133,24 @@ function Shell() {
       }
     } catch (e) {}
   }, []);
+
+  const testAlert = useCallback(async () => {
+    const reply = (o) => run('window.__wfTest=' + JSON.stringify(Object.assign({ t: Date.now() }, o)) + ';true;');
+    try {
+      let p = await Notifications.getPermissionsAsync();
+      if (p.status !== 'granted') p = await Notifications.requestPermissionsAsync();
+      if (p.status !== 'granted') return reply({ ok: false, err: 'perm' });
+      if (Platform.OS === 'android') await Notifications.setNotificationChannelAsync(TEST_CH, { name: 'Test alert', importance: Notifications.AndroidImportance.MAX, vibrationPattern: [0, 250, 150, 250], lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC, enableVibrate: true, showBadge: false });
+      try { await Notifications.cancelScheduledNotificationAsync(TEST_ID); } catch (e) {}
+      const at = Date.now() + 120000;
+      await Notifications.scheduleNotificationAsync({
+        identifier: TEST_ID,
+        content: { title: 'Wishfall test alert', body: 'This is your 2-minute test. Alerts are working on this phone.', sound: true, priority: Notifications.AndroidNotificationPriority.MAX, data: { js: "(window.__shellGo||function(){})('Alerts.dc.html');true;" } },
+        trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: new Date(at), channelId: TEST_CH },
+      });
+      reply({ ok: true, at: at });
+    } catch (e) { reply({ ok: false, err: String(e && e.message || e) }); }
+  }, [run]);
 
   const onTap = useCallback((resp) => {
     const js = resp && resp.notification && resp.notification.request.content.data && resp.notification.request.content.data.js;
@@ -150,6 +170,7 @@ function Shell() {
     let m; try { m = JSON.parse(e.nativeEvent.data); } catch (er) { return; }
     if (m.t === 'sensors') sensors(!!m.on);
     else if (m.t === 'alerts') schedule(m.list || []);
+    else if (m.t === 'testAlert') testAlert();
     else if (m.t === 'exit') BackHandler.exitApp();
   };
 
