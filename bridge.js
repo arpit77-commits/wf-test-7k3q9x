@@ -13,6 +13,17 @@
     } catch (e) {}
   }
   var S = +window.__WF_S || 1;
+  /* quality level: 3 = full, 2 = lighter, 1 = lightest (set by the shell from the phone's memory) */
+  var Q = 3; try { Q = (framed && +window.parent.__WF_Q) || +window.__WF_Q || 3; } catch (e) {}
+  window.__WF_Q = Q;
+  if (Q < 3) {
+    try {
+      var lq = document.createElement('style');
+      lq.textContent = '.fg,.fgn{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}.halo-pulse{animation:none!important}' +
+        (Q === 1 ? '.fg{background-color:rgba(14,18,30,.82)!important}.fgn{background-color:rgba(12,15,26,.92)!important}.floaty{animation:none!important}' : '.fg{background-color:rgba(13,17,29,.68)!important}.fgn{background-color:rgba(11,14,25,.84)!important}');
+      document.documentElement.appendChild(lq);
+    } catch (e) {}
+  }
   var rafRaw = window.requestAnimationFrame.bind(window), paused = false, held = [];
   window.requestAnimationFrame = function (cb) { if (paused) { held.push(cb); return 0; } return rafRaw(cb); };
   function setPaused(on) { paused = !!on; if (!paused) { var h = held; held = []; h.forEach(function (cb) { rafRaw(cb); }); } }
@@ -115,6 +126,18 @@
   }
 
   /* 4. alerts: work out what to tell the person, and when */
+  /* the real time an alert will fire, written for people (used by the Event, Sight and Events pages) */
+  var _MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], _WK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  function alertFmt(ms) {
+    var d = new Date(ms), h = d.getHours(), m = d.getMinutes(), ap = h >= 12 ? 'pm' : 'am', h12 = h % 12 || 12;
+    return _WK[d.getDay()] + ' ' + d.getDate() + ' ' + _MON[d.getMonth()] + ', ' + h12 + (m ? ':' + (m < 10 ? '0' : '') + m : '') + ' ' + ap;
+  }
+  window.WFAlertFmt = alertFmt;
+  window.WFAlertText = function (id, eventMs) {
+    var P = {}; try { P = window.WFUI.prefs(); } catch (e) {}
+    var at = String(id).indexOf('iss-') === 0 ? eventMs - 20 * 60000 : eveAt(eventMs, P.hour == null ? 19 : P.hour);
+    return alertFmt(at);
+  };
   function eveAt(date, hour) {
     var d = new Date(date), at = new Date(d.getFullYear(), d.getMonth(), d.getDate(), hour, 0, 0);
     if (at.getTime() >= d.getTime() - 90 * 60000) at = new Date(at.getTime() - 86400000);
