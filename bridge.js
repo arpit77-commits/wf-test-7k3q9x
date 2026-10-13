@@ -199,8 +199,11 @@
     Storage.prototype.setItem = function (k) { var r = sp.apply(this, arguments); if (KEYS[k]) sync(); if (k === 'wf_obs') post({ t: 'obs' }); return r; };
   } catch (e) {}
   window.WFNative = { post: post, sync: sync, back: window.__wfBack, go: go };
-  window.addEventListener('load', function () { setTimeout(sync, 3500); });
-  document.addEventListener('visibilitychange', function () { if (!document.hidden) sync(); });
+  // the automatic checks run at most once every 10 minutes across all pages (changes to prefs/plans still sync at once)
+  function autoSync() { try { var t = +localStorage.getItem('wf_sync_at') || 0; if (Date.now() - t < 600000) return; sp0.call(localStorage, 'wf_sync_at', String(Date.now())); } catch (e) {} sync(); }
+  var sp0 = Storage.prototype.setItem;
+  window.addEventListener('load', function () { setTimeout(autoSync, 3500); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) autoSync(); });
 
   post({ t: 'page', path: location.pathname.split('/').pop() });
 })();

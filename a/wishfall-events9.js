@@ -361,7 +361,18 @@
   }
 
   /* ---------- everything, in date order ---------- */
+  var _evm = {};
   function build(o, now, opts) {
+    now = now || new Date();
+    var k = o.lat.toFixed(1) + ',' + o.lon.toFixed(1) + ':' + now.getFullYear() + '-' + now.getMonth() + '-' + now.getDate();
+    if (_evm[k]) return _evm[k].slice();
+    var store = {};
+    try { var raw = localStorage.getItem('wf_evc'); if (raw) { store = JSON.parse(raw, function (kk, v) { return v && typeof v === 'object' && v.$d !== undefined ? new Date(v.$d) : v; }) || {}; if (store[k]) { _evm[k] = store[k]; return store[k].slice(); } } } catch (e) { store = {}; }
+    var v = build0(o, now, opts); _evm[k] = v;
+    try { var keys = Object.keys(store); while (keys.length > 2) { delete store[keys.shift()]; } store[k] = v; localStorage.setItem('wf_evc', JSON.stringify(store, function (kk, val) { var x = this[kk]; return x instanceof Date ? { $d: x.getTime() } : val; })); } catch (e) { }
+    return v.slice();
+  }
+  function build0(o, now, opts) {
     now = now || new Date(); opts = opts || {};
     var all = [];
     try { all = all.concat(lunarEclipses(o, now, 430)); } catch (e) { }
