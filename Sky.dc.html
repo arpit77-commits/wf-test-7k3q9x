@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <title>Sky</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1791899538"></script>
-<script src="./support.js?v=1791899538"></script>
-<script src="./a/wishfall-ui6.js?v=1791899538"></script>
-<script src="./a/three.min.js?v=1791899538"></script>
-<script src="./a/astronomy.browser.min.js?v=1791899538"></script>
-<script src="./a/wishfall-astro3.js?v=1791899538"></script>
-<script src="./a/wishfall-deep3.js?v=1791899538"></script><script src="./a/wishfall-sky19.js?v=1791899538"></script>
-<script src="./a/wishfall-planet.js?v=1791899538"></script>
+<script src="./bridge.js?v=1791956815"></script>
+<script src="./support.js?v=1791956815"></script>
+<script src="./a/wishfall-ui6.js?v=1791956815"></script>
+<script src="./a/three.min.js?v=1791956815"></script>
+<script src="./a/astronomy.browser.min.js?v=1791956815"></script>
+<script src="./a/wishfall-astro3.js?v=1791956815"></script>
+<script src="./a/wishfall-deep3.js?v=1791956815"></script><script src="./a/wishfall-sky19.js?v=1791956815"></script>
+<script src="./a/wishfall-planet.js?v=1791956815"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1791899538" rel="stylesheet">
+<link href="./outfit.css?v=1791956815" rel="stylesheet">
 </helmet><style>#lb_sirius,#lb_rigel,#lb_aldeb,#lb_procyon,#lb_capella{display:none!important}</style>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:#03040b;color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -48,7 +48,7 @@
 </div>
 
 <!-- explore: object card -->
-<div class="fg fade" style="position:absolute;left:24px;right:24px;top:{{cardTop}}px;height:{{cardH}}px;padding:16px;border-radius:28px;display:flex;flex-direction:column;gap:8px;opacity:{{cardOpacity}};pointer-events:{{cardEvents}};transition:opacity .5s var(--ease-out),top .5s var(--ease-out),height .5s var(--ease-out)">
+<div class="fg fade" style="position:absolute;left:24px;right:24px;bottom:100px;height:{{cardH}}px;padding:16px;border-radius:28px;display:flex;flex-direction:column;gap:8px;opacity:{{cardOpacity}};pointer-events:{{cardEvents}};transition:opacity .5s var(--ease-out),height .5s var(--ease-out)">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="t-title nw" style="flex:0 0 auto;max-width:72%">{{selName}}</span><span class="t-cap nw el" style="flex:1 1 0;min-width:0;text-align:right;font-weight:500;color:{{selTagColor}}">{{selTag}}</span>
 <button class="press" onClick="{{closeCard}}" aria-label="Close" style="flex:none;width:32px;height:32px;margin:-4px -6px -4px 0;border:0;background:none;color:var(--wf-ink-2);display:flex;align-items:center;justify-content:center;padding:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
 <div class="t-small i2" style="font-weight:300">{{selDesc}}</div>
