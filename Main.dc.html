@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <title>Tonight</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1791999438"></script>
-<script src="./support.js?v=1791999438"></script>
-<script src="./a/wishfall-ui6.js?v=1791999438"></script>
-<script src="./a/three.min.js?v=1791999438"></script>
-<script src="./a/astronomy.browser.min.js?v=1791999438"></script>
-<script src="./a/wishfall-astro3.js?v=1791999438"></script>
-<script src="./a/wishfall-moon4.js?v=1791999438"></script>
-<script src="./a/wishfall-events9.js?v=1791999438"></script>
+<script src="./bridge.js?v=1792000713"></script>
+<script src="./support.js?v=1792000713"></script>
+<script src="./a/wishfall-ui6.js?v=1792000713"></script>
+<script src="./a/three.min.js?v=1792000713"></script>
+<script src="./a/astronomy.browser.min.js?v=1792000713"></script>
+<script src="./a/wishfall-astro3.js?v=1792000713"></script>
+<script src="./a/wishfall-moon4.js?v=1792000713"></script>
+<script src="./a/wishfall-events9.js?v=1792000713"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1791999438" rel="stylesheet">
+<link href="./outfit.css?v=1792000713" rel="stylesheet">
 </helmet>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -152,13 +152,14 @@ class Component extends DCLogic {
     let mwo = null;
     try {
       if (window.WFUI && window.WFUI.prefs().darkSite && window.WFMW) {
-        const r = window.WFMW(s.obs, now);
+        let r = window.WFMW(s.obs, now); let when = 'TONIGHT';
+          if (r && r.ok && r.end.getTime() < now.getTime()) { const r2 = window.WFMW(s.obs, now, 1); if (r2) { r = r2; when = 'TOMORROW NIGHT'; } }
         if (r) {
           const ds = (b) => ab(b) === 'N' ? 'north' : ({ NNE: 'north-north-east', NE: 'north-east', ENE: 'east-north-east', E: 'east', ESE: 'east-south-east', SE: 'south-east', SSE: 'south-south-east', S: 'south', SSW: 'south-south-west', SW: 'south-west', WSW: 'west-south-west', W: 'west', WNW: 'west-north-west', NW: 'north-west', NNW: 'north-north-west' })[ab(b)];
           const hm = (d) => WF.fmtTime(d).toLowerCase();
-          if (r.ok) mwo = { when: 'TONIGHT', tone: '#7ee7c7', verdict: 'Good tonight', time: hm(r.start) + ' to ' + hm(r.end), text: 'The bright middle of the Milky Way is above the horizon and the sky is dark. The Moon stays out of the way.', sub: 'Highest around ' + hm(r.best) + ', ' + Math.round(r.bestAlt) + '° up in the ' + ds(r.bestAz) + '. Give your eyes 15 minutes in the dark.' };
-          else if (r.moon) mwo = { when: 'TONIGHT', tone: '#ffc46b', verdict: 'Moon in the way', time: 'Not a good night', text: 'The bright middle is up, but the Moon is too bright and washes it out. Try a night closer to the new Moon.', sub: '' };
-          else mwo = { when: 'TONIGHT', tone: '#ff8f9c', verdict: 'Not tonight', time: 'Not visible tonight', text: 'The bright middle of the Milky Way does not rise high enough in a dark sky tonight.', sub: 'It is easiest to see from about March to October.' };
+          if (r.ok) mwo = { when: when, tone: '#7ee7c7', verdict: when === 'TONIGHT' ? 'Good tonight' : 'Good tomorrow', time: hm(r.start) + ' to ' + hm(r.end), text: 'The bright middle of the Milky Way is above the horizon and the sky is dark. The Moon stays out of the way.', sub: 'Highest around ' + hm(r.best) + ', ' + Math.round(r.bestAlt) + '° up in the ' + ds(r.bestAz) + '. Give your eyes 15 minutes in the dark.' };
+          else if (r.moon) mwo = { when: when, tone: '#ffc46b', verdict: 'Moon in the way', time: 'Not a good night', text: 'The bright middle is up, but the Moon is too bright and washes it out. Try a night closer to the new Moon.', sub: '' };
+          else mwo = { when: when, tone: '#ff8f9c', verdict: 'Not tonight', time: 'Not visible tonight', text: 'The bright middle of the Milky Way does not rise high enough in a dark sky tonight.', sub: 'It is easiest to see from about March to October.' };
         }
       }
     } catch (er) {}

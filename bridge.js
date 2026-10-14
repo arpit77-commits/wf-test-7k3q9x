@@ -17,14 +17,17 @@
   /* quality level: 3 = full, 2 = lighter, 1 = lightest (set by the shell from the phone's memory) */
   var Q = 3; try { Q = (framed && +window.parent.__WF_Q) || +window.__WF_Q || 3; } catch (e) {}
   window.__WF_Q = Q;
-  try {
-    var lq = document.createElement('style');
-    lq.textContent = '.fg,.fgn,[style*="backdrop-filter"]{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}' +
-      '.tabbar{z-index:30}.scrim{z-index:40}.sheet,#wfplan .wfsh{z-index:41}'+'.sheet.fgn{background-color:#0d1120!important}'+'.fg[aria-pressed=true]{background-color:#fff!important;background-image:none!important}.btn-ic.fg,.wfback{background-color:#151927!important}.cta{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}' +
+  try { window.__WF_LITE = framed ? +window.parent.__WF_LITE || 0 : +window.__WF_LITE || 0; } catch (e) {}
+  var lq = null;
+  function qcss(Q) {
+    return '.fg,.fgn,[style*="backdrop-filter"]{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}' +
+      '.switch::before,button[aria-label=Close]::before{content:"";position:absolute;left:-6px;right:-6px;top:-8px;bottom:-8px}button[aria-label=Close]{position:relative}'+'.tabbar{z-index:30}.scrim{z-index:40}.sheet,#wfplan .wfsh{z-index:41}'+'.sheet.fgn{background-color:#0d1120!important}'+'.fg[aria-pressed=true]{background-color:#fff!important;background-image:none!important}.btn-ic.fg,.wfback{background-color:#151927!important}.cta{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}' +
       (Q === 1 ? '.fg{background-color:rgba(14,18,30,.82)!important}.fgn{background-color:rgba(12,15,26,.92)!important}' : '.fg{background-color:rgba(13,17,29,.68)!important}.fgn{background-color:rgba(11,14,25,.84)!important}') +
-      (Q < 3 ? '.halo-pulse{animation:none!important}' + (Q === 1 ? '.floaty{animation:none!important}' : '') : '');
-    document.documentElement.appendChild(lq);
-  } catch (e) {}
+      (Q < 3 ? '.halo-pulse{animation:none!important}' + (Q === 1 ? '.floaty{animation:none!important}' : '') : '') +
+      '.press{will-change:auto!important}' +
+      (Q === 1 ? '.fg,.fgn{box-shadow:inset 0 1px 0 rgba(255,255,255,.18)!important}.rise{animation:none!important}.scrim{transition-duration:.2s!important}' : '');
+  }
+  try { lq = document.createElement('style'); lq.textContent = qcss(Q); document.documentElement.appendChild(lq); } catch (e) {}
   var rafRaw = window.requestAnimationFrame.bind(window), paused = false, held = [];
   window.requestAnimationFrame = function (cb) { if (paused) { held.push(cb); return 0; } return rafRaw(cb); };
   function setPaused(on) { paused = !!on; if (!paused) { var h = held; held = []; h.forEach(function (cb) { rafRaw(cb); }); } }
@@ -111,6 +114,7 @@
       var d = e.data; if (!d || !d.wf) return;
       if (d.ori) window.__ori(d.ori[0], d.ori[1], d.ori[2]);
       else if (d.cmd === 'pause') setPaused(d.on);
+      else if (d.cmd === 'lite') { window.__WF_Q = 1; window.__WF_LITE = 1; Q = 1; try { if (lq) lq.textContent = qcss(1); } catch (er) {} }
       else if (d.cmd === 'pill') { var ns = document.querySelectorAll('nav.tabbar'); if (d.quiet) { if (!document.getElementById('wfq')) { var sq = document.createElement('style'); sq.id = 'wfq'; sq.textContent = 'html.wfq nav.tabbar,html.wfq nav.tabbar *{transition:none!important}'; document.head.appendChild(sq); } document.documentElement.classList.add('wfq'); } for (var q = 0; q < ns.length; q++) { if (String(ns[q].getAttribute('data-at')) !== String(d.at)) ns[q].setAttribute('data-at', d.at); } if (d.quiet) { requestAnimationFrame(function () { requestAnimationFrame(function () { document.documentElement.classList.remove('wfq'); }); }); } }
       else if (d.cmd === 'local') post({ t: 'local', id: d.id, ok: closeLocal() });
     });
@@ -319,13 +323,13 @@
       void sh.offsetWidth; sc.setAttribute('data-open', '1'); sh.setAttribute('data-open', '1');
     } catch (e) { try { if (o.done) o.done(); } catch (er) {} }
   };
-  window.WFMW = function (ob, now) {
+  window.WFMW = function (ob, now, shift) {
     try {
       var A = window.Astronomy; if (!A) return null;
-      var k = ob.lat.toFixed(2) + ',' + ob.lon.toFixed(2) + ',' + Math.floor(now.getTime() / 900000);
+      var k = ob.lat.toFixed(2) + ',' + ob.lon.toFixed(2) + ',' + Math.floor(now.getTime() / 900000) + ',' + (shift || 0);
       window._mwc = window._mwc || {}; if (window._mwc[k]) return window._mwc[k];
       var o = new A.Observer(ob.lat, ob.lon, 0);
-      var s0 = new Date(now); s0.setHours(now.getHours() < 6 ? -6 : 18, 0, 0, 0);
+      var s0 = new Date(now); s0.setHours(now.getHours() < 6 ? -6 : 18, 0, 0, 0); if (shift) s0 = new Date(s0.getTime() + shift * 86400000);
       var first = null, last = null, best = null, bestAlt = -99, bestAz = 0, dark = false, moonBad = false;
       for (var i = 0; i <= 140; i++) {
         var d = new Date(s0.getTime() + i * 360000);

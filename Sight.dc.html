@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <title>Sky event detail</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1791999438"></script>
-<script src="./support.js?v=1791999438"></script>
-<script src="./a/wishfall-ui6.js?v=1791999438"></script>
-<script src="./a/three.min.js?v=1791999438"></script>
-<script src="./a/astronomy.browser.min.js?v=1791999438"></script>
-<script src="./a/wishfall-astro3.js?v=1791999438"></script>
-<script src="./a/satellite.min.js?v=1791999438"></script>
-<script src="./a/wishfall-events9.js?v=1791999438"></script>
+<script src="./bridge.js?v=1792000713"></script>
+<script src="./support.js?v=1792000713"></script>
+<script src="./a/wishfall-ui6.js?v=1792000713"></script>
+<script src="./a/three.min.js?v=1792000713"></script>
+<script src="./a/astronomy.browser.min.js?v=1792000713"></script>
+<script src="./a/wishfall-astro3.js?v=1792000713"></script>
+<script src="./a/satellite.min.js?v=1792000713"></script>
+<script src="./a/wishfall-events9.js?v=1792000713"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1791999438" rel="stylesheet">
+<link href="./outfit.css?v=1792000713" rel="stylesheet">
 </helmet>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -140,7 +140,7 @@ class Component extends DCLogic {
       planStyle: '--i:8;box-sizing:border-box;position:absolute;left:24px;right:24px;bottom:24px;transition:all .45s var(--ease-out), transform .25s var(--ease-spring);' + (p ? 'color:var(--wf-ink-1);border:1px solid rgba(255,255,255,.3);background:#151927' : 'color:var(--wf-select-ink);border:0;background:var(--wf-select);box-shadow:0 0 36px rgba(190,205,255,.3)') };
     if (!e) {
       const miss = s.ready;
-      return Object.assign(base, { kicker: 'Sky event', name: miss ? 'Not available' : 'Loading', when: miss ? 'This one has passed or needs a fresh orbit file. Open the list again.' : 'Working it out for where you are', layers: [], tone: '#cfdbff', verdictLine: miss ? 'Nothing to show' : 'One moment', rowsTitle: 'When to look', rows: [], tiles: [], blurb: '', tip: '', hasSafety: false, safety: '', alertDay: '' });
+      return Object.assign(base, { kicker: 'Sky event', name: miss ? 'Not available' : 'Loading', when: miss ? 'This one has already passed or is not available right now. Open the list again.' : 'Working it out for where you are', layers: [], tone: '#cfdbff', verdictLine: miss ? 'Nothing to show' : 'One moment', rowsTitle: 'When to look', rows: [], tiles: [], blurb: '', tip: '', hasSafety: false, safety: '', alertDay: '' });
     }
     const tone = { Go: '#7ee7c7', Maybe: '#ffc46b', Skip: '#ff8f9c', Info: '#cfdbff' }[e.verdict] || '#cfdbff';
     const dir = (r) => { const a = window.WFE; return (r.alt != null && r.az != null) ? (r.alt <= 0 ? 'Below your horizon' : Math.round(r.alt) + '° up in the ' + a.dw(r.az)) : ''; };

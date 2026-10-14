@@ -35,7 +35,7 @@ function create(o){
  var renderer;
  try{renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:false,alpha:false,powerPreference:'high-performance'});}catch(e){return null;}
  var W=canvas.clientWidth||390,Hh=canvas.clientHeight||844;
- var _Q=window.__WF_Q||3;var dpr=_Q===1?1.25:_Q===2?1.6:Math.min(2.25,Math.max(2,window.devicePixelRatio||1));
+ var _Q=window.__WF_Q||3;var dpr=_Q===1?(window.__WF_LITE?1:1.25):_Q===2?1.6:Math.min(2.25,Math.max(2,window.devicePixelRatio||1));
  renderer.setPixelRatio(dpr);renderer.setSize(W,Hh,false);renderer.setClearColor(0x03030a,1);
  var scene=new THREE.Scene();
  var cam=new THREE.PerspectiveCamera(o.fov||78,W/Hh,0.1,200);cam.rotation.order='YXZ';
@@ -186,7 +186,7 @@ var labels=[],PV=[];var lk2=new THREE.Vector3(),tv2=new THREE.Vector3();
   if(!running)return; if(!canvas.isConnected){_disp();return;}
   requestAnimationFrame(frame);
   if(V.az!==_pa||V.alt!==_pl||V.fov!==_pf||V.drag||fly){_act=now;_pa=V.az;_pl=V.alt;_pf=V.fov;}
-  if(now-_lr<(mode==='bg'||window.__WF_Q===1?31:(now-_act>1500?31:15)))return;_lr=now;
+  if(now-_lr<(mode==='bg'||window.__WF_Q===1?(window.__WF_LITE?42:31):(now-_act>1500?31:15)))return;_lr=now;
   var dt=Math.min(0.05,(now-last)/1000);last=now;resize();if(DAYON&&now-lastSun>1500){lastSun=now;updSun(tm);}
   if(mode==='bg'||V.sid){tm+=dt*1000*(V.sid||0);setSky(tm);}
   if(fly){fly.t=Math.min(1,fly.t+dt/1.4);var k=1-Math.pow(1-fly.t,3);V.fov=fly.f0+(fly.f1-fly.f0)*k;var da=((fly.az1-fly.az0+540)%360)-180;V.az=((fly.az0+da*k)%360+360)%360;V.alt=fly.alt0+(fly.alt1-fly.alt0)*k;fovT=V.fov;if(fly.t>=1)fly=null;}

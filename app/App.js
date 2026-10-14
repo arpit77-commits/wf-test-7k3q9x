@@ -11,8 +11,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFonts, Outfit_300Light, Outfit_400Regular, Outfit_500Medium, Outfit_600SemiBold } from '@expo-google-fonts/outfit';
 import { startCompass } from './src/compass';
 
-// TEST MODE: load the pages from the web so changes show up without a new APK.
-// Set to '' for the real release (pages then load from inside the app).
+// Test option: a web address here loads the pages from the web instead of from inside the app.
+// Keep '' for real use (pages load from inside the app).
 const TEST_URL = '';
 const LAUNCH = Date.now();
 const HOME = TEST_URL || 'file:///android_asset/www/shell.html';
@@ -108,6 +108,7 @@ function Shell() {
   const lastSig = useRef('');
   const [box, setBox] = useState(null);
   const [err, setErr] = useState(null);
+  const [wk, setWk] = useState(0);
 
   const run = useCallback((js) => { if (web.current && js) web.current.injectJavaScript(js); }, []);
 
@@ -180,6 +181,7 @@ function Shell() {
       <View style={{ flex: 1 }} onLayout={(e) => { const { width, height } = e.nativeEvent.layout; if (!box || Math.abs(box.w - width) > 1 || Math.abs(box.h - height) > 1) setBox({ w: width, h: height }); }}>
         {box ? (
           <WebView
+            key={wk}
             ref={web}
             style={{ flex: 1, backgroundColor: SPACE }}
             source={{ uri: TEST_URL ? HOME + '?t=' + LAUNCH : HOME }}
@@ -203,8 +205,10 @@ function Shell() {
             injectedJavaScriptBeforeContentLoaded={'window.__WF_MEM=' + (Number(Device.totalMemory) || 0) + ';true;'}
             onMessage={onMessage}
             onLoadEnd={() => { loaded.current = true; if (pending.current) { const j = pending.current; pending.current = null; setTimeout(() => run(j), 600); } }}
-            onError={(e) => setErr(e.nativeEvent.description)}
-            onHttpError={(e) => setErr('HTTP ' + e.nativeEvent.statusCode)}
+            onError={() => setErr('load')}
+            onHttpError={() => setErr('load')}
+            onRenderProcessGone={() => { loaded.current = false; lastSig.current = ''; setErr(null); setWk((k) => k + 1); }}
+            onContentProcessDidTerminate={() => { loaded.current = false; lastSig.current = ''; setWk((k) => k + 1); }}
             onShouldStartLoadWithRequest={(r) => {
               if (/^(file|about|blob|data):/.test(r.url)) return true;
               if (TEST_URL && r.url.indexOf(TEST_URL.replace(/shell\.html$/, '')) === 0) return true;
@@ -213,7 +217,7 @@ function Shell() {
             }}
           />
         ) : null}
-        {err ? <View style={s.err}><Text style={s.errTxt}>Could not load: {err}</Text></View> : null}
+        {err ? <Pressable style={s.err} onPress={() => { setErr(null); setWk((k) => k + 1); }}><Text style={s.errTxt}>Wishfall could not open this screen. Tap here to try again.</Text></Pressable> : null}
       </View>
     </View>
   );
