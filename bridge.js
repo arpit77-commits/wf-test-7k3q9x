@@ -4,6 +4,7 @@
    back button work like the on-screen back arrow, (4) works out which alerts to
    schedule and passes them to the app, which sets them with Android. */
 (function () {
+  try { if (!document.querySelector('meta[name=color-scheme]')) { var cs = document.createElement('meta'); cs.name = 'color-scheme'; cs.content = 'dark'; (document.head || document.documentElement).appendChild(cs); } } catch (e) {}
   var framed = window.parent !== window;
   var RN = window.ReactNativeWebView;
   function post(m) {
@@ -19,7 +20,7 @@
   try {
     var lq = document.createElement('style');
     lq.textContent = '.fg,.fgn,[style*="backdrop-filter"]{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}' +
-      '.btn-ic.fg,.wfback{background-color:#151927!important}.cta{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}' +
+      '.fg[aria-pressed=true]{background-color:#fff!important;background-image:none!important}.btn-ic.fg,.wfback{background-color:#151927!important}.cta{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}' +
       (Q === 1 ? '.fg{background-color:rgba(14,18,30,.82)!important}.fgn{background-color:rgba(12,15,26,.92)!important}' : '.fg{background-color:rgba(13,17,29,.68)!important}.fgn{background-color:rgba(11,14,25,.84)!important}') +
       (Q < 3 ? '.halo-pulse{animation:none!important}' + (Q === 1 ? '.floaty{animation:none!important}' : '') : '');
     document.documentElement.appendChild(lq);

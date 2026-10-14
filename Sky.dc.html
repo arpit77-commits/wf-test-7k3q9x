@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <title>Sky</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1791987777"></script>
-<script src="./support.js?v=1791987777"></script>
-<script src="./a/wishfall-ui6.js?v=1791987777"></script>
-<script src="./a/three.min.js?v=1791987777"></script>
-<script src="./a/astronomy.browser.min.js?v=1791987777"></script>
-<script src="./a/wishfall-astro3.js?v=1791987777"></script>
-<script src="./a/wishfall-deep3.js?v=1791987777"></script><script src="./a/wishfall-sky19.js?v=1791987777"></script>
-<script src="./a/wishfall-planet.js?v=1791987777"></script>
+<script src="./bridge.js?v=1791994770"></script>
+<script src="./support.js?v=1791994770"></script>
+<script src="./a/wishfall-ui6.js?v=1791994770"></script>
+<script src="./a/three.min.js?v=1791994770"></script>
+<script src="./a/astronomy.browser.min.js?v=1791994770"></script>
+<script src="./a/wishfall-astro3.js?v=1791994770"></script>
+<script src="./a/wishfall-deep3.js?v=1791994770"></script><script src="./a/wishfall-sky19.js?v=1791994770"></script>
+<script src="./a/wishfall-planet.js?v=1791994770"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1791987777" rel="stylesheet">
+<link href="./outfit.css?v=1791994770" rel="stylesheet">
 </helmet><style>#lb_sirius,#lb_rigel,#lb_aldeb,#lb_procyon,#lb_capella{display:none!important}</style>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:#03040b;color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -36,7 +36,7 @@
 
 <!-- explore: top bar (24 margin, 48 high) -->
 <div class="fade rise" style="--i:0;position:absolute;left:24px;right:24px;top:24px;display:flex;align-items:center;gap:12px;opacity:{{exploreOn}};pointer-events:{{exploreEvents}}">
-<button class="fg press" onClick="{{go3d}}" aria-pressed="{{followOn}}" aria-label="3D view: follow the compass" style="flex:none;white-space:nowrap;height:48px;padding:0 16px 0 14px;border-radius:24px;color:#fff;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:500;transition:background-color .35s var(--ease-out),color .35s var(--ease-out),box-shadow .35s var(--ease-out);{{followCss}}">
+<button class="fg press" onClick="{{go3d}}" aria-pressed="{{followOn}}" aria-label="3D view: follow the compass" style="flex:none;white-space:nowrap;height:48px;padding:0 16px 0 14px;border-radius:24px;color:#fff;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:500;{{followCss}}">
 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 7.5V6a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 6v12a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16.5"/><path d="M3.3 7 12 12l8.7-5"/><path d="M12 22V12"/></svg>3D view</button>
 <div class="fg" style="flex:1;min-width:0;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;white-space:nowrap">{{heading}}</div>
 <button class="fg press" aria-label="Search the sky" onClick="{{openSearch}}" style="flex:none;width:48px;height:48px;border-radius:24px;color:#fff;display:flex;align-items:center;justify-content:center;padding:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
@@ -478,7 +478,7 @@ class Component extends DCLogic {
       exploreEvents: explore ? 'auto' : 'none', threeEvents: explore ? 'none' : 'auto',
       cardOpacity: explore && s.card ? 1 : 0, cardEvents: explore && s.card ? 'auto' : 'none',
       go3d: () => this.setFollow(!this.state.follow),
-      followCss: s.follow ? 'background:var(--wf-select);color:var(--wf-select-ink);border-color:transparent;box-shadow:0 0 28px rgba(190,205,255,.3);' : '',
+      followCss: s.follow ? 'background-color:#fff!important;background-image:none!important;color:#0b0e1d!important;border-color:transparent;box-shadow:0 0 28px rgba(190,205,255,.3);' : '',
       followOn: s.follow ? 'true' : 'false',
       back: () => { if (this.sky) { this.sky.setAuto(0); this.sky.setLines(true); } this.stopCompass(); this.setState({ mode: 'explore' }); }
     };

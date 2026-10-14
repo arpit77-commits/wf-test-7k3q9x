@@ -195,6 +195,7 @@ function Shell() {
             overScrollMode="never"
             androidLayerType="hardware"
             textZoom={100}
+            forceDarkOn={false}
             setBuiltInZoomControls={false}
             setDisplayZoomControls={false}
             setSupportMultipleWindows={false}
