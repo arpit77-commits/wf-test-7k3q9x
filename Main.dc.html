@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <title>Tonight</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1792000713"></script>
-<script src="./support.js?v=1792000713"></script>
-<script src="./a/wishfall-ui6.js?v=1792000713"></script>
-<script src="./a/three.min.js?v=1792000713"></script>
-<script src="./a/astronomy.browser.min.js?v=1792000713"></script>
-<script src="./a/wishfall-astro3.js?v=1792000713"></script>
-<script src="./a/wishfall-moon4.js?v=1792000713"></script>
-<script src="./a/wishfall-events9.js?v=1792000713"></script>
+<script src="./bridge.js?v=1792005841"></script>
+<script src="./support.js?v=1792005841"></script>
+<script src="./a/wishfall-ui6.js?v=1792005841"></script>
+<script src="./a/three.min.js?v=1792005841"></script>
+<script src="./a/astronomy.browser.min.js?v=1792005841"></script>
+<script src="./a/wishfall-astro3.js?v=1792005841"></script>
+<script src="./a/wishfall-moon4.js?v=1792005841"></script>
+<script src="./a/wishfall-events9.js?v=1792005841"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1792000713" rel="stylesheet">
+<link href="./outfit.css?v=1792005841" rel="stylesheet">
 </helmet>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -71,7 +71,7 @@
 <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
 <sc-for list="{{events}}" as="e" hint-placeholder-count="3">
 <a class="fg press rise" href="Event.dc.html" onClick="{{e.open}}" style="--i:{{e.i}};display:flex;align-items:center;gap:14px;height:96px;padding:0 16px 0 12px;border-radius:var(--wf-r-card);overflow:hidden">
-<span style="{{e.ring}}">{{e.score}}</span>
+<span style="{{e.ring}}">{{e.score}}<span style="font-size:11px;font-weight:500;margin-left:1px;opacity:.85">%</span></span>
 <span style="display:flex;flex-direction:column;flex:1;min-width:0;gap:1px">
 <span style="display:flex;align-items:center;gap:8px;min-width:0"><span class="t-name el" style="min-width:0">{{e.name}}</span><span class="vp" style="color:{{e.tone}}"><span class="dot" style="color:{{e.tone}}"></span>{{e.verdict}}</span></span>
 <span class="t-cap i2 el">{{e.when}}</span>
@@ -185,7 +185,7 @@ class Component extends DCLogic {
         name: e.name, score: e.score, verdict: e.verdict, tone: tone[e.verdict],
         when: e.label.replace('Night of ', '') + ' · ' + e.inTxt,
         detail: 'Best ' + e.bestTime + ' · ' + (e.best.moonUp ? 'Moon ' + Math.round(e.best.ill * 100) + '% lit' : 'No Moon'),
-        ring: 'width:48px;height:48px;border-radius:24px;flex:none;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;color:' + tone[e.verdict] + ';border:2px solid ' + tone[e.verdict] + ';background:var(--wf-fill)',
+        ring: 'width:48px;height:48px;border-radius:24px;flex:none;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:' + tone[e.verdict] + ';border:2px solid ' + tone[e.verdict] + ';background:var(--wf-fill)',
         open: () => { try { localStorage.setItem('wf_event', e.id); } catch (err) {} if (window.WFUI) window.WFUI.mark('fwd', 'tonight', 'Main.dc.html'); }
       }))
     };
