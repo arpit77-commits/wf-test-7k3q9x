@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <title>Alerts</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1791984834"></script>
-<script src="./support.js?v=1791984834"></script>
-<script src="./a/wishfall-ui6.js?v=1791984834"></script>
-<script src="./a/three.min.js?v=1791984834"></script>
-<script src="./a/astronomy.browser.min.js?v=1791984834"></script>
-<script src="./a/wishfall-astro3.js?v=1791984834"></script>
-<script src="./a/satellite.min.js?v=1791984834"></script>
-<script src="./a/wishfall-events9.js?v=1791984834"></script>
+<script src="./bridge.js?v=1791986593"></script>
+<script src="./support.js?v=1791986593"></script>
+<script src="./a/wishfall-ui6.js?v=1791986593"></script>
+<script src="./a/three.min.js?v=1791986593"></script>
+<script src="./a/astronomy.browser.min.js?v=1791986593"></script>
+<script src="./a/wishfall-astro3.js?v=1791986593"></script>
+<script src="./a/satellite.min.js?v=1791986593"></script>
+<script src="./a/wishfall-events9.js?v=1791986593"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1791984834" rel="stylesheet">
+<link href="./outfit.css?v=1791986593" rel="stylesheet">
 </helmet>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -30,7 +30,7 @@
 <div class="rise" style="--i:0;display:flex;align-items:center;gap:12px;height:48px">
 <span style="flex:none;width:48px;height:48px"></span><span class="t-title" style="flex:1;min-width:0">Alerts</span>
 </div>
-<div class="t-body i2 rise" style="--i:1;margin-top:12px">We tell you the evening before, at the time you pick. Everything is worked out on your phone for where you are.</div>
+<div class="t-body i2 rise" style="--i:1;margin-top:12px">You choose when to be reminded each time you plan something. Everything is worked out on your phone for where you are.</div>
 
 <div class="t-h2 rise" style="--i:2;margin-top:24px">Planned nights</div>
 <div class="fg card rise" style="--i:3;margin-top:12px;padding:0 16px">
@@ -53,12 +53,6 @@
 <div class="row"><span style="flex:1;min-width:0"><div class="t-name">Only when it is a Go</div><div class="t-cap i2">Skip the maybes</div></span><button class="switch" role="switch" aria-checked="{{sGo}}" aria-label="Only when it is a Go" onClick="{{tGo}}"></button></div>
 </div>
 
-<div class="t-h2 rise" style="--i:6;margin-top:32px">Alert time</div>
-<div class="rise" style="--i:7;display:flex;gap:8px;margin-top:12px">
-<sc-for list="{{hours}}" as="h" hint-placeholder-count="4">
-<button class="fchip" style="flex:1;padding:0" aria-pressed="{{h.on}}" onClick="{{h.pick}}">{{h.label}}</button>
-</sc-for>
-</div>
 <div class="t-cap i3 rise" style="--i:8;margin-top:12px">Clear-sky checks will use the local forecast in the real app.</div>
 <div class="t-h2 rise" style="--i:9;margin-top:32px">Test</div>
 <div class="fg card rise" style="--i:10;margin-top:12px"><div class="t-small i1">Sends one alert to this phone in 2 minutes. Close the app or lock the screen to check it still arrives.</div><button class="press cta" onClick="{{sendTest}}" style="margin-top:14px;width:100%;height:52px;color:var(--wf-select-ink);border:0;background:var(--wf-select)">{{testLabel}}</button></div>
@@ -91,7 +85,7 @@ class Component extends DCLogic {
     const bk = W ? W.back() : 'Main.dc.html';
     const setD = (k, d) => () => { const cur = s.prefs[k] === undefined ? d : s.prefs[k]; this.setState({ prefs: W.setPref(k, !cur) }); };
     const set = (k) => () => { const np = W.setPref(k, !s.prefs[k]); this.setState({ prefs: np }); };
-    const plans0 = (WF && window.Astronomy) ? WF.SHOWERS.filter((x) => s.plans.indexOf(x.id) >= 0).map((sh) => { const e = WF.evalShower(sh, s.obs, new Date()); return { name: e.name, when: e.label.replace('Night of ', ''), alertTxt: (window.WFAlertFmt && W ? window.WFAlertFmt(new Date(e.sh.night[0], e.sh.night[1] - 1, e.sh.night[2], W.prefs().hour).getTime()) : ''), href: 'Event.dc.html', open: () => { try { localStorage.setItem('wf_event', sh.id); } catch (er) {} if (W) W.mark('fwd', 'alerts', 'Alerts.dc.html'); }, remove: () => { W.togglePlan(sh.id); this.setState({ plans: W.plans() }); } }; }) : [];
+    const plans0 = (WF && window.Astronomy) ? WF.SHOWERS.filter((x) => s.plans.indexOf(x.id) >= 0).map((sh) => { const e = WF.evalShower(sh, s.obs, new Date()); return { name: e.name, when: e.label.replace('Night of ', ''), alertTxt: (window.WFAlertText ? window.WFAlertText(e.id, e.best.d.getTime()) : ''), href: 'Event.dc.html', open: () => { try { localStorage.setItem('wf_event', sh.id); } catch (er) {} if (W) W.mark('fwd', 'alerts', 'Alerts.dc.html'); }, remove: () => { W.togglePlan(sh.id); this.setState({ plans: W.plans() }); } }; }) : [];
     let meta = {}; try { meta = JSON.parse(localStorage.getItem('wf_plan_meta') || '{}') || {}; } catch (er) {}
     const plans = plans0.concat(s.plans.filter((id) => meta[id]).map((id) => ({ name: meta[id].name, when: meta[id].when, alertTxt: window.WFAlertText ? window.WFAlertText(id, meta[id].t) : '', href: 'Sight.dc.html', open: () => { try { localStorage.setItem('wf_sight', id); } catch (er) {} if (W) W.mark('fwd', 'alerts', 'Alerts.dc.html'); }, remove: () => { W.togglePlan(id); this.setState({ plans: W.plans() }); } })));
     return {
@@ -99,8 +93,7 @@ class Component extends DCLogic {
       testLabel: this.state.testMsg || 'Send a test alert in 2 minutes', sendTest: () => { if (!window.WFTestAlert) return; this.setState({ testMsg: 'Setting it up…' }); window.WFTestAlert((msg) => this.setState({ testMsg: msg })); },
       plans, noPlans: plans.length === 0, hour: W ? W.hourText(p.hour) : '7 pm',
       sShowers: p.showers ? 'true' : 'false', sMoon: p.moon ? 'true' : 'false', sGo: p.goOnly ? 'true' : 'false',
-      tShowers: set('showers'), sEcl: p.eclipses !== false ? 'true' : 'false', sPlan: p.planets !== false ? 'true' : 'false', sIss: p.iss === true ? 'true' : 'false', tEcl: setD('eclipses', true), tPlan: setD('planets', true), tIss: setD('iss', false), tMoon: set('moon'), tGo: set('goOnly'),
-      hours: [18, 19, 20, 21].map((h) => ({ label: W ? W.hourText(h) : h, on: p.hour === h ? 'true' : 'false', pick: () => this.setState({ prefs: W.setPref('hour', h) }) }))
+      tShowers: set('showers'), sEcl: p.eclipses !== false ? 'true' : 'false', sPlan: p.planets !== false ? 'true' : 'false', sIss: p.iss === true ? 'true' : 'false', tEcl: setD('eclipses', true), tPlan: setD('planets', true), tIss: setD('iss', false), tMoon: set('moon'), tGo: set('goOnly')
     };
   }
 }

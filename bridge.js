@@ -133,16 +133,31 @@
     return _WK[d.getDay()] + ' ' + d.getDate() + ' ' + _MON[d.getMonth()] + ', ' + h12 + (m ? ':' + (m < 10 ? '0' : '') + m : '') + ' ' + ap;
   }
   window.WFAlertFmt = alertFmt;
-  window.WFAlertText = function (id, eventMs) {
-    var P = {}; try { P = window.WFUI.prefs(); } catch (e) {}
-    var at = String(id).indexOf('iss-') === 0 ? eventMs - 20 * 60000 : eveAt(eventMs, P.hour == null ? 19 : P.hour);
-    return alertFmt(at);
-  };
+  /* each planned sighting has its own reminder: N minutes before, or a time of day the person picked */
+  function leads() { try { return JSON.parse(localStorage.getItem('wf_plan_lead') || '{}') || {}; } catch (e) { return {}; } }
+  function leadAt(v, ms) {
+    if (v.k === 'c') {
+      var p = String(v.t || '21:00').split(':'), d = new Date(ms), at = new Date(d.getFullYear(), d.getMonth(), d.getDate(), +p[0] || 0, +p[1] || 0, 0).getTime();
+      while (at > ms - 60000) at -= 86400000;
+      return at;
+    }
+    return ms - (+v.k || 30) * 60000;
+  }
   function eveAt(date, hour) {
     var d = new Date(date), at = new Date(d.getFullYear(), d.getMonth(), d.getDate(), hour, 0, 0);
     if (at.getTime() >= d.getTime() - 90 * 60000) at = new Date(at.getTime() - 86400000);
     return at.getTime();
   }
+  /* alerts nobody planned (the "Tell me about" switches) arrive the evening before at 7 pm; space station passes 20 minutes before */
+  function defAt(id, ms) { return String(id).indexOf('iss-') === 0 ? ms - 20 * 60000 : eveAt(ms, 19); }
+  function alertAt(id, ms) { var v = leads()[id]; return v ? leadAt(v, ms) : defAt(id, ms); }
+  function leadWord(v) { return v.k === '60' ? 'in 1 hour' : 'in ' + v.k + ' minutes'; }
+  window.WFLead = {
+    get: function (id) { return leads()[id] || null; },
+    set: function (id, v) { var l = leads(); if (v) l[id] = v; else delete l[id]; try { localStorage.setItem('wf_plan_lead', JSON.stringify(l)); } catch (e) {} },
+    at: leadAt
+  };
+  window.WFAlertText = function (id, eventMs) { return alertFmt(alertAt(id, eventMs)); };
   function openJs(href, setKey, setVal) {
     return "try{localStorage.setItem('wf_nav',JSON.stringify({dir:'fwd',from:'',t:Date.now()}));localStorage.setItem('wf_back','Main.dc.html');" +
       (setKey ? "localStorage.setItem(" + JSON.stringify(setKey) + "," + JSON.stringify(setVal) + ");" : '') + "}catch(e){}(window.__shellGo||function(h){location.href=h;})(" + JSON.stringify(href) + ");true;";
@@ -170,8 +185,8 @@
         WF.upcoming(o, now).forEach(function (e) {
           var planned = plans.indexOf(e.id) >= 0;
           if (!planned && (!P.showers || (go && e.verdict !== 'Go'))) return;
-          var nd = new Date(e.sh.night[0], e.sh.night[1] - 1, e.sh.night[2], P.hour, 0, 0).getTime();
-          add('sh-' + e.id, nd, e.name + ' tonight', 'It is a ' + e.verdict + '. Best around ' + e.bestTime + ', looking ' + e.facing + '. ' + e.moonTxt + '.', openJs('Event.dc.html', 'wf_event', e.id));
+          var bms = e.best.d.getTime(), v0 = leads()[e.id], nd = alertAt(e.id, bms);
+          add('sh-' + e.id, nd, v0 ? e.name + (v0.k === 'c' ? ' is coming up' : ' ' + leadWord(v0)) : e.name + ' tonight', 'It is a ' + e.verdict + '. Best around ' + e.bestTime + ', looking ' + e.facing + '. ' + e.moonTxt + '.', openJs('Event.dc.html', 'wf_event', e.id));
         });
         var evs = []; try { evs = WFE.build(o, now) || []; } catch (e) {}
         try { evs = evs.concat(WFE.moonEvents(o, now, 120) || []); } catch (e) {}
@@ -180,25 +195,26 @@
           if (e.cat === 'eclipse') ok = P.eclipses !== false; else if (e.cat === 'planet') ok = P.planets !== false; else if (e.cat === 'moon') ok = P.moon !== false;
           var isMoon = e.cat === 'moon';
           if (!planned && (!ok || (go && (e.verdict === 'Maybe' || e.verdict === 'Skip')))) return;
-          add(e.id, eveAt(e.date, P.hour), e.name + (!isMoon && e.date.getHours() < 12 ? ' tomorrow morning' : ' tonight'), (e.detail || e.whenTxt || '').toString(), isMoon ? moonOpenJs(e.date.getTime()) : openJs('Sight.dc.html', 'wf_sight', e.id));
+          var v1 = leads()[e.id];
+          add(e.id, alertAt(e.id, e.date.getTime()), v1 ? e.name + (v1.k === 'c' ? ' is coming up' : ' ' + leadWord(v1)) : e.name + (!isMoon && e.date.getHours() < 12 ? ' tomorrow morning' : ' tonight'), (e.detail || e.whenTxt || '').toString(), isMoon ? moonOpenJs(e.date.getTime()) : openJs('Sight.dc.html', 'wf_sight', e.id));
         });
         try {
           var q0 = now;
           for (var n = 0; n < 4; n++) {
             var q = A.SearchMoonPhase(0, q0, 45); if (!q) break; q0 = new Date(q.date.getTime() + 86400000 * 5);
-            if (P.moon !== false) add('nm-' + q.date.getTime(), eveAt(q.date, P.hour), 'New Moon', 'The darkest sky of the month for faint things.', moonOpenJs(q.date.getTime()));
+            if (P.moon !== false) add('nm-' + q.date.getTime(), eveAt(q.date, 19), 'New Moon', 'The darkest sky of the month for faint things.', moonOpenJs(q.date.getTime()));
           }
         } catch (e) {}
         plans.forEach(function (id) {
           var m = meta[id]; if (!m || !m.t || id.indexOf('sh-') === 0 || seen[id]) return;
           if (/^(lec|sec|pl|opp|elo|sea|fm)-/.test(id) || id.indexOf('iss-') === 0) {
-            var at = id.indexOf('iss-') === 0 ? m.t - 20 * 60000 : eveAt(m.t, P.hour);
-            add(id, at, m.name, (m.when || '') + '', openJs('Sight.dc.html', 'wf_sight', id));
+            var at = alertAt(id, m.t), v2 = leads()[id];
+            add(id, at, v2 ? m.name + (v2.k === 'c' ? ' is coming up' : ' ' + leadWord(v2)) : m.name, (m.when || '') + '', openJs('Sight.dc.html', 'wf_sight', id));
           }
         });
         var finish = function () {
           out.sort(function (a, b) { return a.at - b.at; });
-          post({ t: 'alerts', list: out.slice(0, 48), hour: P.hour });
+          post({ t: 'alerts', list: out.slice(0, 48) });
         };
         if (P.iss && !issBusy) {
           issBusy = true; var done = false, to = setTimeout(function () { if (!done) { done = true; issBusy = false; finish(); } }, 9000);
@@ -207,7 +223,8 @@
               if (done) return; done = true; clearTimeout(to); issBusy = false;
               ((r && r.list) || []).slice(0, 6).forEach(function (e) {
                 if (go && e.verdict === 'Skip') return;
-                add(e.id, e.date.getTime() - 20 * 60000, 'Space station soon', (e.whenTxt || '') + ' · ' + (e.detail || ''), openJs('Sight.dc.html', 'wf_sight', e.id));
+                var v3 = leads()[e.id];
+                add(e.id, alertAt(e.id, e.date.getTime()), v3 ? 'Space station ' + (v3.k === 'c' ? 'coming up' : leadWord(v3)) : 'Space station soon', (e.whenTxt || '') + ' · ' + (e.detail || ''), openJs('Sight.dc.html', 'wf_sight', e.id));
               });
               finish();
             });
@@ -260,7 +277,48 @@
       } catch (er) {}
     }, true);
   })();
-  var KEYS = { wf_prefs: 1, wf_plans: 1, wf_plan_meta: 1 };
+
+  /* "When should we remind you?" sheet, opened when someone plans a sighting */
+  window.WFPlanSheet = function (o) {
+    try {
+      var root = document.getElementById('wfplan');
+      if (!root) {
+        var st = document.createElement('style');
+        st.textContent = '#wfplan{position:fixed;left:0;top:0;right:0;bottom:0;z-index:60;pointer-events:none}#wfplan .scrim{position:absolute;left:0;top:0;right:0;bottom:0;background:rgba(3,4,11,.6);opacity:0;pointer-events:none;transition:opacity .3s ease}#wfplan .scrim[data-open="1"]{opacity:1;pointer-events:auto}' +
+          '#wfplan .wfsh{position:absolute;left:0;right:0;bottom:0;transform:translateY(104%);transition:transform .38s cubic-bezier(.22,1,.36,1);border-radius:28px 28px 0 0;padding:10px 24px 24px;background:#0d1120;border:1px solid rgba(255,255,255,.17);border-bottom:0;box-sizing:border-box;pointer-events:auto;color:#fff;font-family:Outfit,sans-serif}#wfplan .wfsh[data-open="1"]{transform:none}' +
+          '#wfplan .grab{width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,.25);margin:0 auto 18px}#wfplan .opt{display:flex;align-items:center;width:100%;height:52px;border-radius:26px;padding:0 20px;margin-top:8px;border:1px solid rgba(255,255,255,.17);background:#151927;color:rgba(255,255,255,.85);font:500 16px Outfit,sans-serif;text-align:left}' +
+          '#wfplan .opt[aria-pressed=true]{background:#fff;color:#0b0e1d;border-color:#fff}#wfplan .opt:active{transform:scale(.98)}#wfplan input[type=time]{display:block;width:100%;height:52px;box-sizing:border-box;margin-top:8px;border-radius:26px;border:1px solid rgba(255,255,255,.3);background:#151927;color:#fff;font:500 20px Outfit,sans-serif;padding:0 20px;color-scheme:dark}' +
+          '#wfplan .pv{min-height:20px;margin-top:14px;font:300 14px/20px Outfit,sans-serif;color:rgba(255,255,255,.7)}#wfplan .sv{display:flex;align-items:center;justify-content:center;width:100%;height:56px;border-radius:28px;border:0;margin-top:14px;background:#fff;color:#0b0e1d;font:600 17px Outfit,sans-serif;transition:opacity .2s}#wfplan .sv[disabled]{opacity:.35}';
+        document.head.appendChild(st);
+        root = document.createElement('div'); root.id = 'wfplan';
+        root.innerHTML = '<div class="scrim" data-open="0"></div><div class="wfsh" data-open="0" role="dialog" aria-label="When should we remind you"><div class="grab"></div><div style="font:500 22px/28px Outfit,sans-serif;letter-spacing:-.01em">When should we remind you?</div><div class="nm" style="margin-top:4px;font:300 14px/20px Outfit,sans-serif;color:rgba(255,255,255,.7)"></div><div class="ops"></div><div class="tm" style="display:none"><input type="time" value="21:00" aria-label="Reminder time"></div><div class="pv"></div><button class="sv">Save</button></div>';
+        document.body.appendChild(root);
+      }
+      var sc = root.querySelector('.scrim'), sh = root.querySelector('.wfsh'), ops = root.querySelector('.ops'), tmw = root.querySelector('.tm'), tin = tmw.querySelector('input'), pv = root.querySelector('.pv'), sv = root.querySelector('.sv');
+      var OPT = [['15', '15 minutes before'], ['30', '30 minutes before'], ['60', '1 hour before'], ['c', 'Pick a time']];
+      var cur = (window.WFLead && window.WFLead.get(o.id)) || { k: '30', t: '21:00' };
+      if (cur.t) tin.value = cur.t;
+      root.querySelector('.nm').textContent = o.name + ' · ' + alertFmt(o.eventMs);
+      function value() { return cur.k === 'c' ? { k: 'c', t: tin.value || '21:00' } : { k: cur.k }; }
+      function render() {
+        ops.innerHTML = '';
+        OPT.forEach(function (x) {
+          var bt = document.createElement('button'); bt.className = 'opt'; bt.textContent = x[1]; bt.setAttribute('aria-pressed', cur.k === x[0] ? 'true' : 'false');
+          bt.onclick = function () { cur = { k: x[0] }; render(); }; ops.appendChild(bt);
+        });
+        tmw.style.display = cur.k === 'c' ? 'block' : 'none';
+        var at = leadAt(value(), o.eventMs), ok = at > Date.now() + 45000;
+        pv.textContent = ok ? 'You will get it ' + alertFmt(at) : 'That time has already passed. Pick a later one.';
+        sv.disabled = !ok;
+      }
+      function close() { sc.setAttribute('data-open', '0'); sh.setAttribute('data-open', '0'); }
+      sc.onclick = close; tin.oninput = render; tin.onchange = render;
+      sv.onclick = function () { if (sv.disabled) return; var v = value(); close(); if (window.WFLead) window.WFLead.set(o.id, v); if (o.done) o.done(v); };
+      render();
+      void sh.offsetWidth; sc.setAttribute('data-open', '1'); sh.setAttribute('data-open', '1');
+    } catch (e) { try { if (o.done) o.done(); } catch (er) {} }
+  };
+  var KEYS = { wf_prefs: 1, wf_plans: 1, wf_plan_meta: 1, wf_plan_lead: 1 };
   try {
     var sp = Storage.prototype.setItem;
     Storage.prototype.setItem = function (k) { var r = sp.apply(this, arguments); if (KEYS[k]) sync(); if (k === 'wf_obs') post({ t: 'obs' }); return r; };
