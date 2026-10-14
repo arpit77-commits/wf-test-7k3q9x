@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <title>Sky</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1791986593"></script>
-<script src="./support.js?v=1791986593"></script>
-<script src="./a/wishfall-ui6.js?v=1791986593"></script>
-<script src="./a/three.min.js?v=1791986593"></script>
-<script src="./a/astronomy.browser.min.js?v=1791986593"></script>
-<script src="./a/wishfall-astro3.js?v=1791986593"></script>
-<script src="./a/wishfall-deep3.js?v=1791986593"></script><script src="./a/wishfall-sky19.js?v=1791986593"></script>
-<script src="./a/wishfall-planet.js?v=1791986593"></script>
+<script src="./bridge.js?v=1791987777"></script>
+<script src="./support.js?v=1791987777"></script>
+<script src="./a/wishfall-ui6.js?v=1791987777"></script>
+<script src="./a/three.min.js?v=1791987777"></script>
+<script src="./a/astronomy.browser.min.js?v=1791987777"></script>
+<script src="./a/wishfall-astro3.js?v=1791987777"></script>
+<script src="./a/wishfall-deep3.js?v=1791987777"></script><script src="./a/wishfall-sky19.js?v=1791987777"></script>
+<script src="./a/wishfall-planet.js?v=1791987777"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1791986593" rel="stylesheet">
+<link href="./outfit.css?v=1791987777" rel="stylesheet">
 </helmet><style>#lb_sirius,#lb_rigel,#lb_aldeb,#lb_procyon,#lb_capella{display:none!important}</style>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:#03040b;color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -316,6 +316,7 @@ class Component extends DCLogic {
       const h = A.Horizon(now, ob, st[2] / 15, st[3], 'normal');
       list.push({ id: st[0], name: st[1], type: 'Star', pl: -1, ra: st[2], dec: st[3], alt: h.altitude, az: h.azimuth, tag: st[5], tagColor: st[6], desc: st[7], chip1: (st[4] >= 1000 ? (st[4] / 1000).toFixed(1) + 'k' : st[4]) + ' light-years', color: st[6] });
     });
+    try { const gh = A.Horizon(now, ob, 17.7611, -28.936, 'normal'); list.push({ id: 'gc', name: 'Galactic centre', type: 'Milky Way', pl: -1, ra: 266.417, dec: -28.936, alt: gh.altitude, az: gh.azimuth, tag: 'Heart of the Milky Way', tagColor: '#ffd9a8', desc: 'The bright, crowded middle of our galaxy. From a really dark place it looks like a thick glowing cloud.' + (gh.altitude > 0 ? '' : ' It is below the horizon right now.'), chip1: '26,000 light-years', color: '#ffd9a8', kw: 'milky way center centre core galaxy' }); } catch (e) {}
     this.objs = list; this.setState({ objTick: now.getTime() });
   }
   setFollow(on) {
@@ -449,7 +450,7 @@ class Component extends DCLogic {
     const isPl = !!sel && sel.pl >= 1; const isMoon = !!sel && sel.id === 'moon'; const btn = isPl || isMoon;
     const ld = s.lensD || { tiles: [], moons: [], name: '', sub: '', text: '', chipA: '', chipB: '' };
     const q = (s.q || '').trim().toLowerCase();
-    const res = objs.filter((o) => !q || o.name.toLowerCase().indexOf(q) >= 0).sort((a, b) => (b.alt > 0) - (a.alt > 0) || (a.pl >= 0 ? 0 : 1) - (b.pl >= 0 ? 0 : 1) || b.alt - a.alt);
+    const res = objs.filter((o) => !q || (o.name + ' ' + (o.kw || '')).toLowerCase().indexOf(q) >= 0).sort((a, b) => (b.alt > 0) - (a.alt > 0) || (a.pl >= 0 ? 0 : 1) - (b.pl >= 0 ? 0 : 1) || b.alt - a.alt);
     const idx = Math.round(s.az / 45) % 8;
     const explore = s.mode === 'explore';
     return { clItems: clItems,
@@ -470,7 +471,7 @@ class Component extends DCLogic {
       lensO: s.lens ? 1 : 0, lensEv: s.lens ? 'auto' : 'none', lensY: s.lens ? 0 : 24,
       lensName: ld.name, lensSub: ld.sub, lensText: ld.text, lensChipA: ld.chipA, lensChipB: ld.chipB, lensTiles: ld.tiles, moons: ld.moons, lensJup: !!ld.jup,
       tilesTop: ld.jup ? 482 : 440, lensCardTop: ld.jup ? 584 : 542,
-      results: res.map((o) => ({ name: o.name, type: o.pl >= 0 ? (o.id === 'moon' ? 'Moon' : 'Planet') : 'Star', color: o.color, sub: o.alt > 0 ? Math.round(o.alt) + '° high · ' + abbr(o.az) : 'Below the horizon now', pick: () => this.pick(o) })), noResults: res.length === 0,
+      results: res.map((o) => ({ name: o.name, type: o.pl >= 0 ? (o.id === 'moon' ? 'Moon' : 'Planet') : (o.id === 'gc' ? 'Milky Way' : 'Star'), color: o.color, sub: o.alt > 0 ? Math.round(o.alt) + '° high · ' + abbr(o.az) : 'Below the horizon now', pick: () => this.pick(o) })), noResults: res.length === 0,
       clock: window.WF ? window.WF.fmtTime(new Date()) : '',
       place: s.obs.name, obsName: s.obs.name,
       exploreOn: explore ? 1 : 0, threeOn: explore ? 0 : 1,

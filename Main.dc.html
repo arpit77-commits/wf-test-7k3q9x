@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <title>Tonight</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1791986593"></script>
-<script src="./support.js?v=1791986593"></script>
-<script src="./a/wishfall-ui6.js?v=1791986593"></script>
-<script src="./a/three.min.js?v=1791986593"></script>
-<script src="./a/astronomy.browser.min.js?v=1791986593"></script>
-<script src="./a/wishfall-astro3.js?v=1791986593"></script>
-<script src="./a/wishfall-moon4.js?v=1791986593"></script>
-<script src="./a/wishfall-events9.js?v=1791986593"></script>
+<script src="./bridge.js?v=1791987777"></script>
+<script src="./support.js?v=1791987777"></script>
+<script src="./a/wishfall-ui6.js?v=1791987777"></script>
+<script src="./a/three.min.js?v=1791987777"></script>
+<script src="./a/astronomy.browser.min.js?v=1791987777"></script>
+<script src="./a/wishfall-astro3.js?v=1791987777"></script>
+<script src="./a/wishfall-moon4.js?v=1791987777"></script>
+<script src="./a/wishfall-events9.js?v=1791987777"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1791986593" rel="stylesheet">
+<link href="./outfit.css?v=1791987777" rel="stylesheet">
 </helmet>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -62,6 +62,7 @@
 <span class="nw" style="font-weight:500;flex:none;margin-left:12px">{{next}}</span>
 </div>
 
+<sc-if value="{{mw}}"><div class="fg card rise" style="--i:5;margin-top:12px"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span class="t-cap i3">MILKY WAY {{mwWhen}}</span><span class="vp" style="color:{{mwTone}}">{{mwVerdict}}</span></div><div class="t-h2" style="margin-top:8px">{{mwTime}}</div><div class="t-small i2" style="margin-top:6px">{{mwText}}</div><div class="t-cap i3" style="margin-top:6px">{{mwSub}}</div></div></sc-if>
 <!-- upcoming events -->
 <div class="rise" style="--i:6;display:flex;align-items:center;justify-content:space-between;min-height:44px;margin-top:24px">
 <span class="t-h2">Upcoming events</span>
@@ -148,9 +149,23 @@ class Component extends DCLogic {
     const shortDate = WK[now.getDay()] + ', ' + now.getDate() + ' ' + MON[now.getMonth()];
     const evs = WF.upcoming(s.obs, now).slice(0, 3);
     const tone = { Go: '#7ee7c7', Maybe: '#ffc46b', Skip: '#ff8f9c' };
+    let mwo = null;
+    try {
+      if (window.WFUI && window.WFUI.prefs().darkSite && window.WFMW) {
+        const r = window.WFMW(s.obs, now);
+        if (r) {
+          const ds = (b) => ab(b) === 'N' ? 'north' : ({ NNE: 'north-north-east', NE: 'north-east', ENE: 'east-north-east', E: 'east', ESE: 'east-south-east', SE: 'south-east', SSE: 'south-south-east', S: 'south', SSW: 'south-south-west', SW: 'south-west', WSW: 'west-south-west', W: 'west', WNW: 'west-north-west', NW: 'north-west', NNW: 'north-north-west' })[ab(b)];
+          const hm = (d) => WF.fmtTime(d).toLowerCase();
+          if (r.ok) mwo = { when: 'TONIGHT', tone: '#7ee7c7', verdict: 'Good tonight', time: hm(r.start) + ' to ' + hm(r.end), text: 'The bright middle of the Milky Way is above the horizon and the sky is dark. The Moon stays out of the way.', sub: 'Highest around ' + hm(r.best) + ', ' + Math.round(r.bestAlt) + '° up in the ' + ds(r.bestAz) + '. Give your eyes 15 minutes in the dark.' };
+          else if (r.moon) mwo = { when: 'TONIGHT', tone: '#ffc46b', verdict: 'Moon in the way', time: 'Not a good night', text: 'The bright middle is up, but the Moon is too bright and washes it out. Try a night closer to the new Moon.', sub: '' };
+          else mwo = { when: 'TONIGHT', tone: '#ff8f9c', verdict: 'Not tonight', time: 'Not visible tonight', text: 'The bright middle of the Milky Way does not rise high enough in a dark sky tonight.', sub: 'It is easiest to see from about March to October.' };
+        }
+      }
+    } catch (er) {}
     const primary = m.up ? { label: 'Sets', d: m.set } : { label: 'Rises', d: m.rise };
     const other = m.up ? { label: 'Rises', d: m.rise } : { label: 'Sets', d: m.set };
     return {
+      mw: !!mwo, mwWhen: mwo ? mwo.when : '', mwTone: mwo ? mwo.tone : '', mwVerdict: mwo ? mwo.verdict : '', mwTime: mwo ? mwo.time : '', mwText: mwo ? mwo.text : '', mwSub: mwo ? mwo.sub : '',
       navDir: s.nav, tabAt: s.tabAt,
       toMoon: () => { try { localStorage.setItem('wf_moon_go', JSON.stringify({ off: 0, t: Date.now() })); } catch (er) {} if (window.WFUI) window.WFUI.mark('fwd', 'tonight', 'Main.dc.html'); },
       toAlerts: () => { if (window.WFUI) window.WFUI.mark('fwd', 'tonight', 'Main.dc.html'); },

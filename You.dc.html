@@ -4,17 +4,17 @@
 <meta charset="utf-8">
 <title>You</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1791986593"></script>
-<script src="./support.js?v=1791986593"></script>
-<script src="./a/wishfall-ui6.js?v=1791986593"></script>
-<script src="./a/three.min.js?v=1791986593"></script>
-<script src="./a/astronomy.browser.min.js?v=1791986593"></script>
-<script src="./a/wishfall-astro3.js?v=1791986593"></script>
+<script src="./bridge.js?v=1791987777"></script>
+<script src="./support.js?v=1791987777"></script>
+<script src="./a/wishfall-ui6.js?v=1791987777"></script>
+<script src="./a/three.min.js?v=1791987777"></script>
+<script src="./a/astronomy.browser.min.js?v=1791987777"></script>
+<script src="./a/wishfall-astro3.js?v=1791987777"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1791986593" rel="stylesheet">
+<link href="./outfit.css?v=1791987777" rel="stylesheet">
 </helmet>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -38,8 +38,11 @@
 <span style="flex:1;min-width:0"><div class="t-name">Alert settings</div><div class="t-cap i2">{{alertSummary}}</div></span><span class="i3" style="display:flex"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
 </a>
 
-<div class="t-h2 rise" style="--i:6;margin-top:32px">About</div>
-<div class="fg card rise" style="--i:7;margin-top:12px">
+<div class="t-h2 rise" style="--i:6;margin-top:32px">Dark sky</div>
+<div class="fg card rise" style="--i:7;margin-top:12px;display:flex;align-items:center;gap:12px"><span style="flex:1;min-width:0"><div class="t-name">I am at a dark sky place</div><div class="t-cap i2" style="margin-top:4px;line-height:1.45">Turn this on far from city lights, like Ladakh or Spiti. Tonight will then show when the Milky Way is out.</div></span><button class="switch" role="switch" aria-checked="{{sDark}}" aria-label="Dark sky place" onClick="{{tDark}}"></button></div>
+
+<div class="t-h2 rise" style="--i:8;margin-top:32px">About</div>
+<div class="fg card rise" style="--i:9;margin-top:12px">
 <div class="t-name">Wishfall 0.1</div>
 <div class="t-small i2" style="margin-top:6px">The Moon, planets and meteor showers are worked out on your phone for your place and time. Your location never leaves your phone.</div>
 <div class="t-cap i3" style="margin-top:10px;line-height:1.5">Planet, Earth and Moon maps: Solar System Scope, CC BY 4.0, resized and reprojected for Wishfall.</div>
@@ -115,6 +118,7 @@ class Component extends DCLogic {
     const fmt = (v, p, n) => Math.abs(v).toFixed(2) + '° ' + (v >= 0 ? p : n);
     const p = s.prefs; const on = []; if (p.showers) on.push('showers'); if (p.moon) on.push('Moon'); 
     return {
+      sDark: p.darkSite ? 'true' : 'false', tDark: () => { if (W) this.setState({ prefs: W.setPref('darkSite', !s.prefs.darkSite) }); },
       navDir: s.nav, tabAt: s.tabAt, onTab: () => { if (W) W.mark('tab', 'you'); }, toAlerts: () => { if (W) W.mark('fwd', 'you', 'You.dc.html'); },
       place: o.name, coords: fmt(o.lat, 'N', 'S') + ', ' + fmt(o.lon, 'E', 'W') + (o.manual ? '' : (o.real ? ' · from your phone' : '')),
       gpsLabel: s.locating ? 'Finding you…' : 'Use my phone\'s location',

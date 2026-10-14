@@ -318,6 +318,30 @@
       void sh.offsetWidth; sc.setAttribute('data-open', '1'); sh.setAttribute('data-open', '1');
     } catch (e) { try { if (o.done) o.done(); } catch (er) {} }
   };
+  window.WFMW = function (ob, now) {
+    try {
+      var A = window.Astronomy; if (!A) return null;
+      var k = ob.lat.toFixed(2) + ',' + ob.lon.toFixed(2) + ',' + Math.floor(now.getTime() / 900000);
+      window._mwc = window._mwc || {}; if (window._mwc[k]) return window._mwc[k];
+      var o = new A.Observer(ob.lat, ob.lon, 0);
+      var s0 = new Date(now); s0.setHours(now.getHours() < 6 ? -6 : 18, 0, 0, 0);
+      var first = null, last = null, best = null, bestAlt = -99, bestAz = 0, dark = false, moonBad = false;
+      for (var i = 0; i <= 140; i++) {
+        var d = new Date(s0.getTime() + i * 360000);
+        var se = A.Equator(A.Body.Sun, d, o, true, true); var su = A.Horizon(d, o, se.ra, se.dec, 'normal');
+        if (su.altitude > -18) continue;
+        var g = A.Horizon(d, o, 17.7611, -28.936, 'normal'); if (g.altitude < 10) continue;
+        dark = true;
+        var me = A.Equator(A.Body.Moon, d, o, true, true); var mh = A.Horizon(d, o, me.ra, me.dec, 'normal');
+        var ill = A.Illumination(A.Body.Moon, d).phase_fraction;
+        if (mh.altitude > 0 && ill > 0.3) { moonBad = true; continue; }
+        if (!first) first = d; last = d;
+        if (g.altitude > bestAlt) { bestAlt = g.altitude; best = d; bestAz = g.azimuth; }
+      }
+      var r = { ok: !!first, moon: !first && moonBad, start: first, end: last, best: best, bestAlt: bestAlt, bestAz: bestAz };
+      window._mwc[k] = r; return r;
+    } catch (e) { return null; }
+  };
   var KEYS = { wf_prefs: 1, wf_plans: 1, wf_plan_meta: 1, wf_plan_lead: 1 };
   try {
     var sp = Storage.prototype.setItem;
