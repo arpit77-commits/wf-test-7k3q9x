@@ -258,8 +258,11 @@
   // the automatic checks run at most once every 10 minutes across all pages (changes to prefs/plans still sync at once)
   function autoSync() { try { var t = +localStorage.getItem('wf_sync_at') || 0; if (Date.now() - t < 600000) return; sp0.call(localStorage, 'wf_sync_at', String(Date.now())); } catch (e) {} sync(); }
   var sp0 = Storage.prototype.setItem;
-  window.addEventListener('load', function () { setTimeout(autoSync, 3500); });
-  document.addEventListener('visibilitychange', function () { if (!document.hidden) autoSync(); });
+  /* the alert check is heavy: only the Home page runs it, once the phone is idle, never while pages are opening */
+  var isHome = /Main\.dc\.html/.test(location.pathname) || !framed;
+  function idleSync() { if (!isHome) return; var go = function () { autoSync(); }; if (window.requestIdleCallback) window.requestIdleCallback(go, { timeout: 30000 }); else setTimeout(go, 10000); }
+  window.addEventListener('load', function () { setTimeout(idleSync, 20000); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) setTimeout(idleSync, 8000); });
 
   post({ t: 'page', path: location.pathname.split('/').pop() });
 })();
