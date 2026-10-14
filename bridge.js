@@ -119,7 +119,7 @@
       // graphics canvases (Moon, live sky) must have faded in before we call the page ready
       var cv = document.querySelectorAll('#skycv,[id^="mooncv_"]'), okc = true;
       for (var ci = 0; ci < cv.length; ci++) if (!cv[ci].classList.contains('on')) okc = false;
-      if (!okc && (Date.now() - t0r) < 3000) return;
+      if (!okc && !/\/(Moon|Event|Sight|Alerts)\.dc\.html/.test(location.pathname) && (Date.now() - t0r) < 3000) return;
       clearInterval(rdy);
       rafRaw(function () { rafRaw(function () { setTimeout(function () { post({ t: 'ready' }); }, 140); }); });
     }, 40);
@@ -248,6 +248,17 @@
     document.addEventListener('DOMContentLoaded', function () {
       later(); try { new MutationObserver(later).observe(document.body, { childList: true, subtree: true, characterData: true }); } catch (er) {}
     });
+  })();
+  /* five quick taps on "Wishfall 0.1" (You tab) show a small speed log, for finding slow spots on a phone */
+  (function () {
+    var n = 0, t = 0;
+    document.addEventListener('click', function (e) {
+      try {
+        var x = e.target; if (!x || !/^Wishfall 0\.\d/.test((x.textContent || '').trim()) || (x.textContent || '').length > 20) return;
+        var now = Date.now(); n = now - t < 900 ? n + 1 : 1; t = now;
+        if (n >= 5) { n = 0; post({ t: 'perf' }); }
+      } catch (er) {}
+    }, true);
   })();
   var KEYS = { wf_prefs: 1, wf_plans: 1, wf_plan_meta: 1 };
   try {

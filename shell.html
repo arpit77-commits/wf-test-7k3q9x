@@ -40,12 +40,12 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   <div id="dim"></div>
   <div id="cover"><div class="st"></div><div class="wm">WISHFALL</div><div class="tg">The sky, tonight</div></div>
 </div>
-<script src="./a/three.min.js?v=1791984466"></script>
-<script src="./a/wishfall-sky8.js?v=1791984466"></script>
+<script src="./a/three.min.js?v=1791984834"></script>
+<script src="./a/wishfall-sky8.js?v=1791984834"></script>
 <script>
 (function () {
   (function(){var c=document.getElementById('cover');for(var i=0;i<26;i++){var d=document.createElement('i');d.className='ds';d.style.left=(Math.random()*100)+'%';d.style.top=(Math.random()*100)+'%';d.style.animationDelay=(Math.random()*2.4)+'s';c.appendChild(d);}})();
-  var BUILD = '1791984466'; var TABS = ['Main', 'Events', 'Sky', 'You'], STALE = 30 * 60000;
+  var BUILD = '1791984834'; var TABS = ['Main', 'Events', 'Sky', 'You'], STALE = 30 * 60000;
   var stage = document.getElementById('stage'), dim = document.getElementById('dim'), cover = document.getElementById('cover'), bgc = document.getElementById('bg');
   function toRN(m) { try { if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify(m)); } catch (e) {} }
 
@@ -85,6 +85,13 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   function sigNow(n) {
     if (n === 'Sky') return '';
     try { return ['wf_prefs', 'wf_plans', 'wf_obs'].map(function (k) { return localStorage.getItem(k) || ''; }).join('|'); } catch (e) { return ''; }
+  }
+  var PERF = [];
+  function perf(l, t0) { PERF.push(l + ': ' + (Date.now() - t0) + ' ms'); if (PERF.length > 14) PERF.shift(); }
+  function showPerf() {
+    var p = document.getElementById('perfp');
+    if (!p) { p = document.createElement('div'); p.id = 'perfp'; p.style.cssText = 'position:absolute;left:12px;right:12px;top:60px;z-index:99;background:#0b0e1d;border:1px solid rgba(255,255,255,.25);border-radius:16px;padding:14px;color:#fff;font:12px/18px monospace;white-space:pre-wrap'; p.onclick = function () { p.remove(); }; stage.appendChild(p); }
+    p.textContent = 'Speed log (tap to close)\nquality ' + window.__WF_Q + ', memory ' + Math.round((window.__WF_MEM || 0) / 1e9 * 10) / 10 + ' GB, screen ' + innerWidth + 'x' + innerHeight + '\n\n' + (PERF.length ? PERF.join('\n') : 'Open a few pages, then look again.');
   }
   function nm(h) { return String(h || '').split('?')[0].replace(/^.*\//, '').replace('.dc.html', ''); }
   function mkFrame(name, cls) {
@@ -131,9 +138,10 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   function stale(rec) { return rec.ready && (Date.now() - rec.at > STALE || rec.sig !== sigNow(rec.name)); }
 
   function showTab(name) {
-    var prev = cur ? tabs[cur] : null;
+    var prev = cur ? tabs[cur] : null, t0 = Date.now();
     var rec = tabs[name], old = null;
     if (rec && stale(rec)) { old = rec; delete tabs[name]; rec = null; }
+    var warm0 = !!(rec && rec.ready);
     if (!rec) rec = loadTab(name);
     touch(name);
     var token = {}; showTab.tok = token;
@@ -144,7 +152,7 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
       Object.keys(tabs).forEach(function (k) { var r = tabs[k]; if (r === rec) return; if (r === prev) { r.f.classList.remove('on'); r.f.classList.add('leave'); setTimeout(function () { r.f.classList.remove('leave'); send(r, { cmd: 'pill', at: TABS.indexOf(r.name), quiet: 1 }); }, 260); } else r.f.classList.remove('on', 'leave'); });
       if (old) { old.f.classList.remove('on'); old.f.classList.add('leave'); killFrame(old.f, 300); }
       send(rec, { cmd: 'pill', at: TABS.indexOf(name), quiet: 1 });
-      cur = name; rec.f.classList.remove('leave', 'hid'); rec.f.classList.add('on');
+      cur = name; rec.f.classList.remove('leave', 'hid'); rec.f.classList.add('on'); perf('tab ' + name + (warm0 ? ' (ready)' : ' (loaded)'), t0);
       evict(); refresh();
     }, name === 'Sky' ? 3000 : 2000);
   }
@@ -153,6 +161,7 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   function belowEl() { var r = stack.length > 1 ? stack[stack.length - 2] : (cur ? tabs[cur] : null); return r ? el(r) : null; }
   function pushOv(name) {
     try { if (!localStorage.getItem('wf_nav')) localStorage.setItem('wf_nav', JSON.stringify({ dir: 'fwd', from: '', t: Date.now() })); } catch (e) {}
+    var t0 = Date.now();
     var w = document.createElement('div'); w.className = 'ovw'; w.style.zIndex = String(10 + stack.length * 2);
     var b = document.createElement('div'); b.className = 'ovb'; w.appendChild(b);
     var rec = { f: mkFrame(name, ''), w: w, b: b, ready: false, want: false, paused: false, name: name };
@@ -162,7 +171,7 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
     clearUnder(); if (below) below.classList.add('under');
     dim.style.zIndex = String(9 + stack.length * 2 - 1); dim.style.opacity = '.5';
     void w.offsetWidth; w.classList.add('in');
-    var shown = false, show = function () { if (shown) return; shown = true; rec.f.style.opacity = '1'; };
+    var shown = false, show = function () { if (shown) return; shown = true; rec.f.style.opacity = '1'; perf('open ' + name, t0); };
     whenReady(rec, show, 1800);
     // once it has slid in, the page underneath is hidden and the shared stars show through
     setTimeout(function () { if (stack.indexOf(rec) < 0) return; if (below) below.classList.add('hid'); dim.style.opacity = '0'; refresh(); whenReady(rec, function () { b.style.opacity = '0'; }, 1800); }, 380);
@@ -237,6 +246,7 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
       if (rec === visibleRec() && rec.name && tabs[rec.name] === rec) { rec.at = 0; showTab(rec.name); }
       else if (tabs[rec.name] === rec && rec !== visibleRec()) dropTab(rec.name);
     }
+    else if (m.t === 'perf') showPerf();
     else if (m.t === 'alerts' || m.t === 'log' || m.t === 'testAlert') toRN(m);
   });
 
