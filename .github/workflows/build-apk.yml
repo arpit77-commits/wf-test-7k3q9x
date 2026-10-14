@@ -21,7 +21,7 @@ jobs:
       - name: Put the design pages inside the app
         run: |
           mkdir -p app/www
-          rsync -a --exclude app --exclude .github --exclude .git ./ app/www/
+          rsync -a --exclude app --exclude .github --exclude .git --exclude tools --exclude store --exclude privacy.html ./ app/www/
       - name: Install packages
         working-directory: app
         run: npm install --no-audit --no-fund
