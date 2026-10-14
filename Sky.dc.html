@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <title>Sky</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1791994770"></script>
-<script src="./support.js?v=1791994770"></script>
-<script src="./a/wishfall-ui6.js?v=1791994770"></script>
-<script src="./a/three.min.js?v=1791994770"></script>
-<script src="./a/astronomy.browser.min.js?v=1791994770"></script>
-<script src="./a/wishfall-astro3.js?v=1791994770"></script>
-<script src="./a/wishfall-deep3.js?v=1791994770"></script><script src="./a/wishfall-sky19.js?v=1791994770"></script>
-<script src="./a/wishfall-planet.js?v=1791994770"></script>
+<script src="./bridge.js?v=1791999438"></script>
+<script src="./support.js?v=1791999438"></script>
+<script src="./a/wishfall-ui6.js?v=1791999438"></script>
+<script src="./a/three.min.js?v=1791999438"></script>
+<script src="./a/astronomy.browser.min.js?v=1791999438"></script>
+<script src="./a/wishfall-astro3.js?v=1791999438"></script>
+<script src="./a/wishfall-deep3.js?v=1791999438"></script><script src="./a/wishfall-sky19.js?v=1791999438"></script>
+<script src="./a/wishfall-planet.js?v=1791999438"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1791994770" rel="stylesheet">
+<link href="./outfit.css?v=1791999438" rel="stylesheet">
 </helmet><style>#lb_sirius,#lb_rigel,#lb_aldeb,#lb_procyon,#lb_capella{display:none!important}</style>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:#03040b;color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -66,7 +66,7 @@
 <div class="fg fade" style="position:absolute;left:24px;right:24px;bottom:40px;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:14px;opacity:{{threeOn}};pointer-events:none">Move your phone to look around</div>
 
 <div class="fade" style="position:absolute;left:0;right:0;bottom:0;height:150px;background:linear-gradient(180deg,rgba(3,4,11,0),rgba(3,4,11,.6));pointer-events:none;opacity:{{exploreOn}}"></div>
-<nav class="tabbar fgn fade" data-at="{{tabAt}}" aria-label="Main" style="opacity:{{exploreOn}};pointer-events:{{exploreEvents}}">
+<nav class="tabbar fgn fade" data-at="{{tabAt}}" aria-label="Main" style="opacity:{{tabO}};pointer-events:{{tabEv}}">
 <span class="tab-ind"></span>
 <a class="tab t-tab" href="Main.dc.html" aria-label="Tonight" onClick="{{onTab}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 5h4"/><path d="M20 3v4"/><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>Tonight</a>
 <a class="tab t-tab" href="Events.dc.html" aria-label="Events" onClick="{{onTab}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>Events</a>
@@ -74,7 +74,7 @@
 <a class="tab t-tab" href="You.dc.html" aria-label="You" onClick="{{onTab}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>You</a>
 </nav>
 <!-- closer look -->
-<div style="position:absolute;left:0;top:0;width:390px;height:844px;background:rgba(3,4,11,.93);-webkit-backdrop-filter:blur(40px);backdrop-filter:blur(40px);opacity:{{lensO}};pointer-events:{{lensEv}};transition:opacity .55s var(--ease-out)">
+<div style="position:absolute;left:0;top:0;width:390px;height:844px;background:#03040b;-webkit-backdrop-filter:blur(40px);backdrop-filter:blur(40px);opacity:{{lensO}};pointer-events:{{lensEv}};transition:opacity .55s var(--ease-out)">
 <div style="position:absolute;left:0;top:0;width:390px;height:844px;transform:translateY({{lensY}}px);transition:transform .7s var(--ease-out)">
 <button class="fg press btn-ic" onClick="{{closeLens}}" aria-label="Back" style="position:absolute;left:24px;top:24px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
 <div style="position:absolute;left:84px;right:24px;top:24px;height:48px;display:flex;flex-direction:column;justify-content:center;min-width:0"><span class="t-title nw el">{{lensName}}</span><span class="t-cap i2 el" style="font-weight:300">{{lensSub}}</span></div>
@@ -474,6 +474,7 @@ class Component extends DCLogic {
       results: res.map((o) => ({ name: o.name, type: o.pl >= 0 ? (o.id === 'moon' ? 'Moon' : 'Planet') : (o.id === 'gc' ? 'Milky Way' : 'Star'), color: o.color, sub: o.alt > 0 ? Math.round(o.alt) + '° high · ' + abbr(o.az) : 'Below the horizon now', pick: () => this.pick(o) })), noResults: res.length === 0,
       clock: window.WF ? window.WF.fmtTime(new Date()) : '',
       place: s.obs.name, obsName: s.obs.name,
+      tabO: explore && !s.lens ? 1 : 0, tabEv: explore && !s.lens ? 'auto' : 'none',
       exploreOn: explore ? 1 : 0, threeOn: explore ? 0 : 1,
       exploreEvents: explore ? 'auto' : 'none', threeEvents: explore ? 'none' : 'auto',
       cardOpacity: explore && s.card ? 1 : 0, cardEvents: explore && s.card ? 'auto' : 'none',
