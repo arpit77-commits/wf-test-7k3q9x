@@ -28,6 +28,7 @@
       (Q === 1 ? '.fg,.fgn{box-shadow:inset 0 1px 0 rgba(255,255,255,.18)!important}.rise{animation:none!important}.scrim{transition-duration:.2s!important}' : '');
   }
   try { lq = document.createElement('style'); lq.textContent = qcss(Q); document.documentElement.appendChild(lq); } catch (e) {}
+  document.addEventListener('touchstart', function () { window.__lt = Date.now(); }, true);
   /* scroll-lock: a focused field must never shift a fixed page (overflow hidden) out of place */
   document.addEventListener('scroll', function (e) { var el = e.target; if (!el || el.nodeType !== 1 || !el.scrollTop) return; try { if (getComputedStyle(el).overflowY === 'hidden') el.scrollTop = 0; } catch (er) {} }, true);
   var rafRaw = window.requestAnimationFrame.bind(window), paused = false, held = [];

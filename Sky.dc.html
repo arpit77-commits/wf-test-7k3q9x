@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <title>Sky</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1792092022"></script>
-<script src="./support.js?v=1792092022"></script>
-<script src="./a/wishfall-ui6.js?v=1792092022"></script>
-<script src="./a/three.min.js?v=1792092022"></script>
-<script src="./a/astronomy.browser.min.js?v=1792092022"></script>
-<script src="./a/wishfall-astro3.js?v=1792092022"></script>
-<script src="./a/wishfall-deep3.js?v=1792092022"></script><script src="./a/wishfall-sky19.js?v=1792092022"></script>
-<script src="./a/wishfall-planet.js?v=1792092022"></script>
+<script src="./bridge.js?v=1792150435"></script>
+<script src="./support.js?v=1792150435"></script>
+<script src="./a/wishfall-ui6.js?v=1792150435"></script>
+<script src="./a/three.min.js?v=1792150435"></script>
+<script src="./a/astronomy.browser.min.js?v=1792150435"></script>
+<script src="./a/wishfall-astro3.js?v=1792150435"></script>
+<script src="./a/wishfall-deep3.js?v=1792150435"></script><script src="./a/wishfall-sky19.js?v=1792150435"></script>
+<script src="./a/wishfall-planet.js?v=1792150435"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1792092022" rel="stylesheet">
+<link href="./outfit.css?v=1792150435" rel="stylesheet">
 </helmet><style>#lb_sirius,#lb_rigel,#lb_aldeb,#lb_procyon,#lb_capella{display:none!important}</style>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:#03040b;color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -309,7 +309,7 @@ class Component extends DCLogic {
         let chip1;
         if (b[0] === 'moon') chip1 = Math.round(A.Illumination(A.Body.Moon, now).phase_fraction * 100) + '% lit';
         else { const lm = eq.dist * 8.317; chip1 = Math.round(lm) + ' light-minutes away'; }
-        list.push({ id: b[0], name: b[1], type: b[2], pl: b[3], ra: eq.ra * 15, dec: eq.dec, alt: h.altitude, az: h.azimuth, tag: b[2], tagColor: b[0] === 'moon' ? '#e8e2d0' : '#ffd9a8', desc: b[4], chip1: chip1, color: b[0] === 'moon' ? '#e8e2d0' : '#ffd9a8' });
+        list.push({ id: b[0], name: b[1], type: b[2], pl: b[3], ra: eq.ra * 15, dec: eq.dec, alt: h.altitude, az: h.azimuth, tag: b[2], tagColor: b[0] === 'moon' ? '#e8e2d0' : '#ffd9a8', desc: b[0] === 'moon' ? (() => { let dk = 384400; try { dk = A.Libration(now).dist_km; } catch (e) {} return 'Our nearest neighbour, ' + Math.round(dk / 1000) + 'k km away right now. Its shape changes every night.'; })() : b[4], chip1: chip1, color: b[0] === 'moon' ? '#e8e2d0' : '#ffd9a8' });
       } catch (e) {}
     });
     STARS.forEach((st) => {

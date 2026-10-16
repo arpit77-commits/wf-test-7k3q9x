@@ -42,12 +42,12 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   <div id="dim"></div>
   <div id="cover"><div class="st"></div><div class="wm">WISHFALL</div><div class="tg">The sky, tonight</div></div>
 </div>
-<script src="./a/three.min.js?v=1792092022"></script>
-<script src="./a/wishfall-sky8.js?v=1792092022"></script>
+<script src="./a/three.min.js?v=1792150435"></script>
+<script src="./a/wishfall-sky8.js?v=1792150435"></script>
 <script>
 (function () {
   (function(){var c=document.getElementById('cover');for(var i=0;i<26;i++){var d=document.createElement('i');d.className='ds';d.style.left=(Math.random()*100)+'%';d.style.top=(Math.random()*100)+'%';d.style.animationDelay=(Math.random()*2.4)+'s';c.appendChild(d);}})();
-  var BUILD = '1792092022'; var TABS = ['Main', 'Events', 'Sky', 'You'], STALE = 30 * 60000;
+  var BUILD = '1792150435'; var TABS = ['Main', 'Events', 'Sky', 'You'], STALE = 30 * 60000;
   var stage = document.getElementById('stage'), dim = document.getElementById('dim'), cover = document.getElementById('cover'), bgc = document.getElementById('bg');
   function toRN(m) { try { if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify(m)); } catch (e) {} }
 
@@ -59,8 +59,8 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   if (LITE) { window.__WF_Q = 1; }
   window.__WF_LITE = LITE ? 1 : 0;
   window.__WF_BGMS = window.__WF_Q === 3 ? 50 : window.__WF_Q === 2 ? 66 : 100;
-  var MAXTABS = TIER === 3 ? 4 : TIER === 2 ? 3 : 2;
-  var WARM = TIER === 3 ? ['Sky', 'Events', 'You'] : TIER === 2 ? ['Sky', 'Events'] : ['Events'];
+  var MAXTABS = TIER >= 2 ? 4 : 3;
+  var WARM = TIER >= 2 ? ['Sky', 'Events', 'You'] : ['Events', 'You'];
 
   /* ---- fit: full width, the height follows the screen ---- */
   function fit() {
@@ -86,7 +86,7 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   window.addEventListener('wf-obs', function () { var o = obs(); try { bgApi && bgApi.relocate(o.lat, o.lon); } catch (e) {} });
   startBG();
 
-  var tabs = {}, cur = null, stack = [], lru = [];
+  var tabs = {}, cur = null, stack = [], lru = [], pend = {}, bgT = 0;
   window.__wfTabs = tabs;
   function sigNow(n) {
     if (n === 'Sky') return '';
@@ -170,7 +170,7 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   function showTab(name) {
     var prev = cur ? tabs[cur] : null, t0 = Date.now();
     var rec = tabs[name], old = null;
-    if (rec && stale(rec)) { old = rec; delete tabs[name]; rec = null; }
+    if (rec && stale(rec) && !rec.ready) { old = rec; delete tabs[name]; rec = null; }
     var warm0 = !!(rec && rec.ready);
     if (!rec) rec = loadTab(name);
     touch(name);
@@ -183,8 +183,33 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
       if (old) { old.f.classList.remove('on'); old.f.classList.add('leave'); killFrame(old.f, 300); }
       send(rec, { cmd: 'pill', at: TABS.indexOf(name), quiet: 1 });
       cur = name; rec.f.classList.remove('leave', 'hid'); rec.f.classList.add('on'); perf('tab ' + name + (warm0 ? ' (ready)' : ' (loaded)'), t0);
-      evict(); refresh();
+      evict(); refresh(); schedBg(1500);
     }, name === 'Sky' ? 3000 : 2000);
+  }
+  /* ---- fresh data without waiting: an out-of-date page is rebuilt quietly behind, then swapped in ---- */
+  function schedBg(ms) { clearTimeout(bgT); bgT = setTimeout(bgRefresh, ms); }
+  function bgRefresh() {
+    if (Object.keys(pend).length) return;
+    var name = null;
+    for (var k in tabs) { if (k !== cur && tabs[k].ready && stale(tabs[k])) { name = k; break; } }
+    if (!name && cur && tabs[cur] && stale(tabs[cur]) && !stack.length) name = cur;
+    if (!name) return;
+    var nr = { f: mkFrame(name, 'tabf'), ready: false, at: Date.now(), sig: sigNow(name), want: false, paused: false, name: name };
+    pend[name] = nr; stage.insertBefore(nr.f, dim);
+    setTimeout(function () { if (pend[name] === nr && !nr.ready) { delete pend[name]; killFrame(nr.f, 0); } }, 12000);
+  }
+  function busyTab(r) {
+    try { var d = r.f.contentDocument, sc = d && d.querySelectorAll('div'); for (var i = 0; sc && i < sc.length; i++) { if (sc[i].scrollTop > 4) return true; } } catch (e) {}
+    try { if (Date.now() - (r.f.contentWindow.__lt || 0) < 4000) return true; } catch (e) {}
+    return false;
+  }
+  function swapIn(name) {
+    var nr = pend[name], or = tabs[name]; if (!nr) return;
+    if (name === cur && (stack.length || (or && busyTab(or)))) { setTimeout(function () { swapIn(name); }, 2500); return; }
+    delete pend[name]; tabs[name] = nr;
+    if (name === cur) { nr.f.classList.add('on'); if (or) { or.f.classList.remove('on'); or.f.classList.add('leave'); killFrame(or.f, 320); } send(nr, { cmd: 'pill', at: TABS.indexOf(name), quiet: 1 }); }
+    else { nr.f.classList.add('hid'); if (or) killFrame(or.f, 0); }
+    refresh(); schedBg(1200);
   }
 
   /* ---- detail pages slide over the current page ---- */
@@ -218,7 +243,7 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
     dim.style.opacity = '0'; if (stack.length) dim.style.zIndex = String(9 + stack.length * 2 - 1);
     rec.w.classList.remove('in');
     setTimeout(function () { killFrame(rec.f, 0); try { rec.w.remove(); } catch (e) {} }, 380);
-    refresh();
+    refresh(); if (!stack.length) schedBg(1500);
   }
 
   function nav(href, back) {
@@ -259,11 +284,13 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   function recOf(src) {
     for (var k in tabs) if (tabs[k].f.contentWindow === src) return tabs[k];
     for (var i = 0; i < stack.length; i++) if (stack[i].f.contentWindow === src) return stack[i];
+    for (var p in pend) if (pend[p].f.contentWindow === src) return pend[p];
     return null;
   }
   window.addEventListener('message', function (e) {
     var d = e.data; if (!d || !d.wf || !d.m) return; var m = d.m, rec = recOf(e.source);
     if (!rec) return;
+    if (pend[rec.name] === rec) { if (m.t === 'ready') { rec.ready = true; rec.at = Date.now(); rec.sig = sigNow(rec.name); send(rec, { cmd: 'pause', on: true }); rec.paused = true; setTimeout(function () { swapIn(rec.name); }, 50); } return; }
     if (m.t === 'ready') {
       rec.ready = true; rec.sig = sigNow(rec.name); rec.at = Date.now(); var cbs = rec.cb || []; rec.cb = []; cbs.forEach(function (f) { f(); });
       rec.paused = false; setTimeout(refresh, 60);
