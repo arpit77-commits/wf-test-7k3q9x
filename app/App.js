@@ -107,6 +107,10 @@ function Shell() {
   const loaded = useRef(false);
   const lastSig = useRef('');
   const [box, setBox] = useState(null);
+  const [boot, setBoot] = useState(null);
+  const locBusy = useRef(false);
+  const locAt = useRef(0);
+  useEffect(() => { AsyncStorage.getItem('wf_last_obs').then((v) => setBoot(v || '')).catch(() => setBoot('')); }, []);
   const [err, setErr] = useState(null);
   const [wk, setWk] = useState(0);
 
@@ -153,6 +157,40 @@ function Shell() {
     } catch (e) { reply({ ok: false, err: String(e && e.message || e) }); }
   }, [run]);
 
+  // Real location comes from Android itself (web pages inside the app cannot use GPS reliably).
+  const pushLoc = useCallback(async (force) => {
+    if (locBusy.current) return;
+    if (!force && Date.now() - locAt.current < 20 * 60000) return;
+    locBusy.current = true;
+    let res = null;
+    try {
+      let perm = await Location.getForegroundPermissionsAsync();
+      if (perm.status !== 'granted' && force) perm = await Location.requestForegroundPermissionsAsync();
+      if (perm.status === 'granted') {
+        let pos = null;
+        try { pos = await Location.getLastKnownPositionAsync({ maxAge: 30 * 60000 }); } catch (e) {}
+        if (!pos || force) { try { pos = await Promise.race([Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }), new Promise((r) => setTimeout(() => r(null), 12000))]) || pos; } catch (e) {} }
+        if (pos) {
+          let name = 'Your location';
+          try {
+            const g = await Promise.race([Location.reverseGeocodeAsync({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }), new Promise((r) => setTimeout(() => r(null), 4000))]);
+            const a = g && g[0]; if (a) name = a.city || a.district || a.subregion || a.region || name;
+          } catch (e) {}
+          res = { lat: Math.round(pos.coords.latitude * 1e4) / 1e4, lon: Math.round(pos.coords.longitude * 1e4) / 1e4, name, real: true };
+          locAt.current = Date.now();
+          AsyncStorage.setItem('wf_last_obs', JSON.stringify(res)).catch(() => {});
+        }
+      }
+    } catch (e) {}
+    locBusy.current = false;
+    run('(function(){try{var n=' + JSON.stringify(res) + ',f=' + (force ? 'true' : 'false') + ';if(n){var o=null;try{o=JSON.parse(localStorage.getItem("wf_obs")||"null");}catch(e){}if(f||!o||!o.manual){var same=o&&!o.manual&&Math.abs(o.lat-n.lat)<0.02&&Math.abs(o.lon-n.lon)<0.02&&o.name===n.name;if(f||!same){localStorage.setItem("wf_obs",JSON.stringify(n));window.dispatchEvent(new Event("wf-obs"));}}}if(window.__wfGpsCb){var c=window.__wfGpsCb;window.__wfGpsCb=null;c(n);}}catch(e){}})();true;');
+  }, [run]);
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (st) => { if (st === 'active' && loaded.current) pushLoc(false); });
+    return () => sub.remove();
+  }, [pushLoc]);
+
   const onTap = useCallback((resp) => {
     const js = resp && resp.notification && resp.notification.request.content.data && resp.notification.request.content.data.js;
     if (!js) return;
@@ -172,6 +210,7 @@ function Shell() {
     if (m.t === 'sensors') sensors(!!m.on);
     else if (m.t === 'alerts') schedule(m.list || []);
     else if (m.t === 'testAlert') testAlert();
+    else if (m.t === 'gps') pushLoc(true);
     else if (m.t === 'exit') BackHandler.exitApp();
   };
 
@@ -179,7 +218,7 @@ function Shell() {
     <View style={{ flex: 1, backgroundColor: SPACE, paddingTop: insets.top, paddingBottom: insets.bottom }}>
       <StatusBar style="light" />
       <View style={{ flex: 1 }} onLayout={(e) => { const { width, height } = e.nativeEvent.layout; if (!box || Math.abs(box.w - width) > 1 || Math.abs(box.h - height) > 1) setBox({ w: width, h: height }); }}>
-        {box ? (
+        {box && boot !== null ? (
           <WebView
             key={wk}
             ref={web}
@@ -202,9 +241,9 @@ function Shell() {
             setDisplayZoomControls={false}
             setSupportMultipleWindows={false}
             allowsInlineMediaPlayback
-            injectedJavaScriptBeforeContentLoaded={'window.__WF_MEM=' + (Number(Device.totalMemory) || 0) + ';true;'}
+            injectedJavaScriptBeforeContentLoaded={'window.__WF_MEM=' + (Number(Device.totalMemory) || 0) + ';' + (boot ? 'try{var _o=JSON.parse(localStorage.getItem("wf_obs")||"null");if(!_o||!_o.manual)localStorage.setItem("wf_obs",' + JSON.stringify(boot) + ');}catch(e){}' : '') + 'true;'}
             onMessage={onMessage}
-            onLoadEnd={() => { loaded.current = true; if (pending.current) { const j = pending.current; pending.current = null; setTimeout(() => run(j), 600); } }}
+            onLoadEnd={() => { loaded.current = true; setTimeout(() => pushLoc(false), 1200); if (pending.current) { const j = pending.current; pending.current = null; setTimeout(() => run(j), 600); } }}
             onError={() => setErr('load')}
             onHttpError={() => setErr('load')}
             onRenderProcessGone={() => { loaded.current = false; lastSig.current = ''; setErr(null); setWk((k) => k + 1); }}

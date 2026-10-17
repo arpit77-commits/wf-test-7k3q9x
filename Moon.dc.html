@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <title>Moon</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1792150435"></script>
-<script src="./support.js?v=1792150435"></script>
-<script src="./a/wishfall-ui6.js?v=1792150435"></script>
-<script src="./a/three.min.js?v=1792150435"></script>
-<script src="./a/astronomy.browser.min.js?v=1792150435"></script>
-<script src="./a/wishfall-astro3.js?v=1792150435"></script>
-<script src="./a/wishfall-moon4.js?v=1792150435"></script>
-<script src="./a/wishfall-events9.js?v=1792150435"></script>
+<script src="./bridge.js?v=1792245994"></script>
+<script src="./support.js?v=1792245994"></script>
+<script src="./a/wishfall-ui6.js?v=1792245994"></script>
+<script src="./a/three.min.js?v=1792245994"></script>
+<script src="./a/astronomy.browser.min.js?v=1792245994"></script>
+<script src="./a/wishfall-astro3.js?v=1792245994"></script>
+<script src="./a/wishfall-moon4.js?v=1792245994"></script>
+<script src="./a/wishfall-events9.js?v=1792245994"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1792150435" rel="stylesheet">
+<link href="./outfit.css?v=1792245994" rel="stylesheet">
 </helmet>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -189,7 +189,7 @@ class Component extends DCLogic {
     else if (up[0] && !up[4]) { const t = ev(-1, eve, 1); gaze = 'The Moon sets at ' + WF.fmtTime(t) + '. The sky is darkest after that.'; }
     else if (!up[0] && up[4]) { const t = ev(+1, eve, 1); gaze = 'The sky is dark until the Moon rises at ' + WF.fmtTime(t) + '.'; }
     else gaze = 'The Moon is up for part of the night. ' + m.note;
-    const lbl = off === 0 ? 'Today' : off === 1 ? 'Tomorrow' : off === -1 ? 'Yesterday' : WK[d0.getDay()];
+    const lbl = off === 0 ? 'Today' : off === 1 ? 'Tomorrow' : off === -1 ? 'Yesterday' : d0.getDate() + ' ' + MON[d0.getMonth()];
     const alt = Math.round(m.alt);
     const where = off === 0 ? (m.up ? 'Right now it is ' + alt + '° high in the ' + WF.dirName(m.az) + ' sky.' : 'Right now it is below the horizon.') : (m.up ? 'At 9 pm it is ' + alt + '° high in the ' + WF.dirName(m.az) + ' sky.' : 'At 9 pm it is below the horizon.');
     let distKm = 384400; try { distKm = A.Libration(smp).dist_km; } catch (e) {}
@@ -215,7 +215,7 @@ class Component extends DCLogic {
       return { name: x.name, thumb: pth, date: WK[dd.getDay()] + ', ' + dd.getDate() + ' ' + MON[dd.getMonth()] + ' · ' + WF.fmtTime(x.date), rel: rel, border: i === 0 ? '0' : '1px solid rgba(255,255,255,.12)' };
     });
     return Object.assign(base, {
-      dayName: lbl, dayDate: WK[d0.getDay()] + ', ' + d0.getDate() + ' ' + MON[d0.getMonth()],
+      dayName: lbl, dayDate: Math.abs(off) <= 1 ? WK[d0.getDay()] + ', ' + d0.getDate() + ' ' + MON[d0.getMonth()] : WK[d0.getDay()] + ' · ' + (off > 0 ? 'in ' + off + ' days' : -off + ' days ago'),
       shownAt: off === 0 ? 'Right now' : 'As seen at 9 pm',
       phase: dn ? dn.title : m.phase, note: dn ? dn.note : m.note,
       lit: m.illum, litSub: m.deg < 180 ? 'Growing' : 'Shrinking',

@@ -355,7 +355,7 @@
     try {
       lunarEclipses(o, new Date(r), 2).forEach(function (e) { if (!res && Math.abs(e.date.getTime() - r) < 14 * 3600000) res = { kind: 'eclipse', title: e.name.indexOf('eclipse') < 0 ? e.name + ' eclipse' : e.name, note: e.detail + '. ' + e.blurb, id: e.id }; });
       if (!res) solarEclipses(o, new Date(r), 2).forEach(function (e) { if (!res && dayStart(e.date).getTime() === dayStart(ref).getTime()) res = { kind: 'eclipse', title: e.name.indexOf('eclipse') < 0 ? e.name + ' eclipse' : e.name, note: e.detail + '. ' + e.blurb, id: e.id }; });
-      if (!res) moonEvents(o, new Date(r - DAY), 3).forEach(function (e) { if (!res && Math.abs(e.date.getTime() - r) < 12 * 3600000) res = { kind: 'moon', title: e.name, note: e.blurb, id: e.id }; });
+      if (!res) moonEvents(o, new Date(r - DAY), 3).forEach(function (e) { if (!res && (Math.abs(e.date.getTime() - r) < 12 * 3600000 || dayStart(e.date).getTime() === dayStart(ref).getTime())) res = { kind: 'moon', title: e.name, note: e.blurb, id: e.id }; });
     } catch (er) { res = null; }
     dnCache[key] = res; return res;
   }

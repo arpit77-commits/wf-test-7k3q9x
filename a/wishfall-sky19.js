@@ -186,7 +186,7 @@ var labels=[],PV=[];var lk2=new THREE.Vector3(),tv2=new THREE.Vector3();
   if(!running)return; if(!canvas.isConnected){_disp();return;}
   requestAnimationFrame(frame);
   if(V.az!==_pa||V.alt!==_pl||V.fov!==_pf||V.drag||fly){_act=now;_pa=V.az;_pl=V.alt;_pf=V.fov;}
-  if(now-_lr<(mode==='bg'||window.__WF_Q===1?(window.__WF_LITE?42:31):(now-_act>1500?31:15)))return;_lr=now;
+  if(now-_lr<(mode==='bg'||window.__WF_Q===1?(now-_act>2500?(window.__WF_LITE?100:66):(window.__WF_LITE?42:31)):(now-_act>2500?50:15)))return;_lr=now;
   var dt=Math.min(0.05,(now-last)/1000);last=now;resize();if(DAYON&&now-lastSun>1500){lastSun=now;updSun(tm);}
   if(mode==='bg'||V.sid){tm+=dt*1000*(V.sid||0);setSky(tm);}
   if(fly){fly.t=Math.min(1,fly.t+dt/1.4);var k=1-Math.pow(1-fly.t,3);V.fov=fly.f0+(fly.f1-fly.f0)*k;var da=((fly.az1-fly.az0+540)%360)-180;V.az=((fly.az0+da*k)%360+360)%360;V.alt=fly.alt0+(fly.alt1-fly.alt0)*k;fovT=V.fov;if(fly.t>=1)fly=null;}

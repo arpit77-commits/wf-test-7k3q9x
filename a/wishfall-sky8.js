@@ -107,8 +107,8 @@ function create(o){
  var _lr=0;
  function frame(now){
   if(!running)return; if(!canvas.isConnected){running=false;return;}
-  requestAnimationFrame(frame);
-  if(window.__WF_BGOFF){_lr=now;last=now;return;}if(now-_lr<(window.__WF_BGMS||31))return;_lr=now;
+  var _gap=window.__WF_BGOFF?400:(window.__WF_BGMS||31);setTimeout(function(){requestAnimationFrame(frame);},Math.max(0,_gap-18));
+  if(window.__WF_BGOFF){_lr=now;last=now;return;}if(now-_lr<_gap-24)return;_lr=now;
   var dt=Math.min(0.05,(now-last)/1000);last=now;resize();
   if(mode==='bg'||V.sid){tm+=dt*1000*(V.sid||0);setSky(tm);}
   if(fly){fly.t=Math.min(1,fly.t+dt/1.4);var k=1-Math.pow(1-fly.t,3);var da=((fly.az1-fly.az0+540)%360)-180;V.az=((fly.az0+da*k)%360+360)%360;V.alt=fly.alt0+(fly.alt1-fly.alt0)*k;if(fly.t>=1)fly=null;}

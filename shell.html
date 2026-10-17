@@ -42,12 +42,12 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   <div id="dim"></div>
   <div id="cover"><div class="st"></div><div class="wm">WISHFALL</div><div class="tg">The sky, tonight</div></div>
 </div>
-<script src="./a/three.min.js?v=1792150435"></script>
-<script src="./a/wishfall-sky8.js?v=1792150435"></script>
+<script src="./a/three.min.js?v=1792245994"></script>
+<script src="./a/wishfall-sky8.js?v=1792245994"></script>
 <script>
 (function () {
   (function(){var c=document.getElementById('cover');for(var i=0;i<26;i++){var d=document.createElement('i');d.className='ds';d.style.left=(Math.random()*100)+'%';d.style.top=(Math.random()*100)+'%';d.style.animationDelay=(Math.random()*2.4)+'s';c.appendChild(d);}})();
-  var BUILD = '1792150435'; var TABS = ['Main', 'Events', 'Sky', 'You'], STALE = 30 * 60000;
+  var BUILD = '1792245994'; var TABS = ['Main', 'Events', 'Sky', 'You'], STALE = 30 * 60000;
   var stage = document.getElementById('stage'), dim = document.getElementById('dim'), cover = document.getElementById('cover'), bgc = document.getElementById('bg');
   function toRN(m) { try { if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify(m)); } catch (e) {} }
 
@@ -83,7 +83,7 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
     setTimeout(function () { bgc.classList.add('on'); }, 120);
   }
   bgc.addEventListener('webglcontextlost', function (e) { e.preventDefault(); try { bgApi && bgApi.dispose && bgApi.dispose(); } catch (er) {} bgApi = null; bgc.classList.remove('on'); setTimeout(function () { var n = bgc.cloneNode(false); bgc.parentNode.replaceChild(n, bgc); bgc = n; bgc.addEventListener('webglcontextlost', arguments.callee); startBG(); }, 300); });
-  window.addEventListener('wf-obs', function () { var o = obs(); try { bgApi && bgApi.relocate(o.lat, o.lon); } catch (e) {} });
+  window.addEventListener('wf-obs', function () { var o = obs(); try { bgApi && bgApi.relocate(o.lat, o.lon); } catch (e) {} if (window.schedBgRefresh) window.schedBgRefresh(900); });
   startBG();
 
   var tabs = {}, cur = null, stack = [], lru = [], pend = {}, bgT = 0;
@@ -102,7 +102,7 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   function nm(h) { return String(h || '').split('?')[0].replace(/^.*\//, '').replace('.dc.html', ''); }
   function mkFrame(name, cls) {
     var f = document.createElement('iframe');
-    f.className = cls; f.setAttribute('allow', 'geolocation'); f.src = name + '.dc.html?v=' + BUILD;
+    f.className = cls; f.setAttribute('allow', 'geolocation *'); f.src = name + '.dc.html?v=' + BUILD;
     return f;
   }
   function send(rec, m) { try { m.wf = 1; rec.f.contentWindow.postMessage(m, '*'); } catch (e) {} }
@@ -123,9 +123,10 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   (function () {
     var nf = 0, t0 = performance.now(), boot = t0, bad = 0, off = false;
     try { off = localStorage.getItem('wf_nolite') === '1'; } catch (e) {}
-    (function f() { nf++; requestAnimationFrame(f); })();
+    (function f() { nf++; if (!LITE && performance.now() - boot < 70000) requestAnimationFrame(f); })();
     setInterval(function () {
       var now = performance.now(), fps = nf * 1000 / (now - t0); nf = 0; t0 = now;
+      if (now - boot > 72000) return;
       if (off || LITE || document.hidden || now - boot < 9000) { bad = 0; return; }
       bad = fps < 22 ? bad + 1 : 0;
       if (bad >= 6) goLite();
@@ -188,6 +189,7 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   }
   /* ---- fresh data without waiting: an out-of-date page is rebuilt quietly behind, then swapped in ---- */
   function schedBg(ms) { clearTimeout(bgT); bgT = setTimeout(bgRefresh, ms); }
+  window.schedBgRefresh = schedBg;
   function bgRefresh() {
     if (Object.keys(pend).length) return;
     var name = null;

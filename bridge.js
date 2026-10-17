@@ -29,6 +29,8 @@
   }
   try { lq = document.createElement('style'); lq.textContent = qcss(Q); document.documentElement.appendChild(lq); } catch (e) {}
   document.addEventListener('touchstart', function () { window.__lt = Date.now(); }, true);
+  /* the page runtime re-downloads its own file after drawing; not needed inside the app */
+  if (!window.__resources) window.__resources = {};
   /* scroll-lock: a focused field must never shift a fixed page (overflow hidden) out of place */
   document.addEventListener('scroll', function (e) { var el = e.target; if (!el || el.nodeType !== 1 || !el.scrollTop) return; try { if (getComputedStyle(el).overflowY === 'hidden') el.scrollTop = 0; } catch (er) {} }, true);
   var rafRaw = window.requestAnimationFrame.bind(window), paused = false, held = [];
