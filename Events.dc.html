@@ -4,20 +4,20 @@
 <meta charset="utf-8">
 <title>Events</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1792245994"></script>
-<script src="./support.js?v=1792245994"></script>
-<script src="./a/wishfall-ui6.js?v=1792245994"></script>
-<script src="./a/three.min.js?v=1792245994"></script>
-<script src="./a/wishfall-moon4.js?v=1792245994"></script>
-<script src="./a/astronomy.browser.min.js?v=1792245994"></script>
-<script src="./a/wishfall-astro3.js?v=1792245994"></script>
-<script src="./a/satellite.min.js?v=1792245994"></script>
-<script src="./a/wishfall-events9.js?v=1792245994"></script>
+<script src="./bridge.js?v=1792677654"></script>
+<script src="./support.js?v=1792677654"></script>
+<script src="./a/wishfall-ui6.js?v=1792677654"></script>
+<script src="./a/three.min.js?v=1792677654"></script>
+<script src="./a/wishfall-moon4.js?v=1792677654"></script>
+<script src="./a/astronomy.browser.min.js?v=1792677654"></script>
+<script src="./a/wishfall-astro3.js?v=1792677654"></script>
+<script src="./a/satellite.min.js?v=1792677654"></script>
+<script src="./a/wishfall-events9.js?v=1792677654"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1792245994" rel="stylesheet">
+<link href="./outfit.css?v=1792677654" rel="stylesheet">
 </helmet>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -119,7 +119,7 @@ class Component extends DCLogic {
     this.tabT = setTimeout(() => this.setState({ tabAt: 1 }), 90);
     const boot = () => { if (!window.WF || !window.Astronomy) { this.retry = setTimeout(boot, 250); return; } window.WF.getObserver((o) => { this.setState({ obs: o }); this.loadIss(o); }); this.setState({ tick: 1 }); };
     boot();
-    const tb = () => { if (!window.THREE || !window.WishfallMoon) { this.tbT = setTimeout(tb, 300); return; } this.thumb = window.WishfallMoon.thumb({ texUrl: './a/c_moon_disc.jpg', texW: 1536, size: 96 }); if (this.thumb) this.thumb.onReady(() => this.setState({ th: 1 })); };
+    const tb = () => { if (!window.THREE || !window.WishfallMoon) { this.tbT = setTimeout(tb, 300); return; } this.thumb = window.WishfallMoon.thumb({ texUrl: './a/c_moon_disc_s.jpg', texW: 768, size: 96 }); if (this.thumb) this.thumb.onReady(() => this.setState({ th: 1 })); };
     tb();
   }
   componentWillUnmount() { clearTimeout(this.bgT); if (this.space) this.space.dispose(); clearTimeout(this.tbT); if (this.thumb) this.thumb.dispose(); clearTimeout(this.retry); clearTimeout(this.tabT); this.issFor = ''; }

@@ -58,6 +58,7 @@
 
 
   /* framed pages do not draw their own star background: the shell draws one for all of them */
+  if (framed && !window.THREE) window.THREE = {};
   if (framed && !window.WishfallSky) {
     var noop = function () {}, stubObj = new Proxy({}, { get: function () { return noop; } });
     window.WishfallSky = { create: function () { return stubObj; } };

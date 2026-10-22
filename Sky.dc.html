@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <title>Sky</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1792245994"></script>
-<script src="./support.js?v=1792245994"></script>
-<script src="./a/wishfall-ui6.js?v=1792245994"></script>
-<script src="./a/three.min.js?v=1792245994"></script>
-<script src="./a/astronomy.browser.min.js?v=1792245994"></script>
-<script src="./a/wishfall-astro3.js?v=1792245994"></script>
-<script src="./a/wishfall-deep3.js?v=1792245994"></script><script src="./a/wishfall-sky19.js?v=1792245994"></script>
-<script src="./a/wishfall-planet.js?v=1792245994"></script>
+<script src="./bridge.js?v=1792677654"></script>
+<script src="./support.js?v=1792677654"></script>
+<script src="./a/wishfall-ui6.js?v=1792677654"></script>
+<script src="./a/three.min.js?v=1792677654"></script>
+<script src="./a/astronomy.browser.min.js?v=1792677654"></script>
+<script src="./a/wishfall-astro3.js?v=1792677654"></script>
+<script src="./a/wishfall-deep3.js?v=1792677654"></script><script src="./a/wishfall-sky19.js?v=1792677654"></script>
+<script src="./a/wishfall-planet.js?v=1792677654"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1792245994" rel="stylesheet">
+<link href="./outfit.css?v=1792677654" rel="stylesheet">
 </helmet><style>#lb_sirius,#lb_rigel,#lb_aldeb,#lb_procyon,#lb_capella{display:none!important}</style>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:#03040b;color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -131,7 +131,7 @@ class Component extends DCLogic {
     this.sky = null;
   }
   componentDidMount() {
-    const self = this;
+    const self = this; window.__wfSky = this;
     const items = [
       ['lb_rigel','eq',78.63,-8.2],['lb_sirius','eq',101.29,-16.72],['lb_aldeb','eq',68.98,16.51],['lb_procyon','eq',114.83,5.22],['lb_capella','eq',79.17,46.0],['lb_orion','eq',83.8,-3.5],['lb_rad','eq',95,16],
       ['cd_N','az',0,6],['cd_NE','az',45,6],['cd_E','az',90,6],['cd_SE','az',135,6],['cd_S','az',180,6],['cd_SW','az',225,6],['cd_W','az',270,6],['cd_NW','az',315,6]
@@ -204,7 +204,7 @@ class Component extends DCLogic {
           if (!dn || was) { dn = null; return; } const mv = Math.hypot(e.clientX - dn.x, e.clientY - dn.y), dt = performance.now() - dn.t; dn = null;
           if (mv < 8 && dt < 450 && self.state.mode === 'explore' && !self.state.lens && self.sky.pick) {
             const r = cv.getBoundingClientRect(); const k = r.width / 390; const x = (e.clientX - r.left) / k, y = (e.clientY - r.top) / k;
-            let hit = null, hd = 30 * 30; (self.objs || []).forEach((o) => { if (o.pl < 0 || o.alt <= 1) return; const p = self.sky.projectEq(o.ra, o.dec); if (!p.vis) return; const d = (p.x - x) * (p.x - x) + (p.y - y) * (p.y - y); if (d < hd) { hd = d; hit = o; } });
+            let hit = null, hd = 30 * 30; (self.objs || []).forEach((o) => { if (o.alt <= 0.3) return; const p = self.sky.projectEq(o.ra, o.dec); if (!p.vis) return; const big = o.pl >= 0 || o.id === 'sun'; const d = ((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y)) * (big ? 1 : 1.8); if (d < hd) { hd = d; hit = o; } });
             if (hit) { self.pick(hit, true); return; }
             let li = -1, ld = 1e9; self.sky.labels.forEach((L, i) => { if (!L.show || L.a < 0.3) return; const dx = Math.abs(x - L.x), dy = Math.abs(y - L.y); if (dx < L.w / 2 + 8 && dy < 18 && dx + dy < ld) { ld = dx + dy; li = i; } });
             if (li < 0) li = self.sky.pick(x, y);
@@ -299,7 +299,62 @@ class Component extends DCLogic {
       ["sds", "Sadalsuud", 322.89, -5.571, 540, "Yellow supergiant", "#fff2d1", "The luckiest of the lucky, in Aquarius."],
       ["sdm", "Sadalmelik", 331.446, -0.32, 760, "Yellow supergiant", "#fff2d1", "The lucky star of the king, in Aquarius."],
       ["alm", "Almach", 30.975, 42.33, 350, "Gold and blue pair", "#fff2d1", "A beautiful double in Andromeda."],
-      ["mch", "Mirach", 17.433, 35.621, 197, "Red giant", "#ff9d85", "Points the way to the Andromeda Galaxy."]
+      ["mch", "Mirach", 17.433, 35.621, 197, "Red giant", "#ff9d85", "Points the way to the Andromeda Galaxy."],
+      ['alde', 'Alderamin', 319.645, 62.586, 49, 'White star', '#f4f6ff', 'The brightest star of Cepheus. In a few thousand years it will take a turn as the pole star.'],
+      ['erra', 'Errai', 354.837, 77.632, 45, 'Orange star', '#ffd2a0', 'A star with its own planet. It will be the pole star in about 1,000 years.'],
+      ['pher', 'Pherkad', 230.182, 71.834, 487, 'Guardian of the pole', '#f4f6ff', 'With Kochab it guards the Pole Star, wheeling around it every night.'],
+      ['phec', 'Phecda', 178.458, 53.695, 84, 'Plough star', '#f4f6ff', 'The bottom corner of the Plough, next to Merak.'],
+      ['megr', 'Megrez', 183.856, 57.033, 81, 'Plough star', '#f4f6ff', 'Where the Plough handle meets the bowl. The faintest of the seven.'],
+      ['alco', 'Alcor', 201.306, 54.988, 82, 'Eyesight test', '#f4f6ff', 'The faint partner of Mizar. Seeing both was an old test of good eyesight.'],
+      ['cor', 'Cor Caroli', 194.007, 38.318, 110, 'White star', '#f4f6ff', 'The heart of King Charles. It sits below the Plough handle.'],
+      ['izar', 'Izar', 221.247, 27.074, 200, 'Orange giant', '#ffc99a', 'A lovely orange and blue pair in a small telescope.'],
+      ['muph', 'Muphrid', 208.671, 18.398, 37, 'Yellow-white star', '#fff6e0', 'A close neighbour of Arcturus in the sky and in space.'],
+      ['unuk', 'Unukalhai', 236.067, 6.426, 74, 'Orange giant', '#ffc99a', 'The neck of the Serpent, the brightest star of Serpens.'],
+      ['rasg', 'Rasalgethi', 258.662, 14.390, 360, 'Red giant', '#ffb98a', 'The head of Hercules. A huge red star that slowly brightens and fades.'],
+      ['korn', 'Kornephoros', 247.555, 21.490, 140, 'Yellow giant', '#ffe2a8', 'The brightest star of Hercules.'],
+      ['sabi', 'Sabik', 257.595, -15.725, 88, 'White star', '#f4f6ff', 'The second brightest star of Ophiuchus, the serpent bearer.'],
+      ['acra', 'Acrab', 241.359, -19.806, 400, 'Blue-white star', '#cfe0ff', 'A forehead star of the Scorpion. A small telescope splits it in two.'],
+      ['lesa', 'Lesath', 262.691, -37.296, 580, 'Blue-white star', '#cfe0ff', 'Right next to Shaula, the two make the sting of the Scorpion.'],
+      ['asce', 'Ascella', 285.653, -29.880, 88, 'White star', '#f4f6ff', 'Part of the Teapot shape in Sagittarius.'],
+      ['tara', 'Tarazed', 296.565, 10.613, 400, 'Orange giant', '#ffc99a', 'The orange star just above Altair.'],
+      ['alsh', 'Alshain', 298.828, 6.407, 45, 'Yellow star', '#fff6e0', 'The star just below Altair. Altair sits between Tarazed and Alshain.'],
+      ['sual', 'Sualocin', 309.910, 15.912, 240, 'Blue-white star', '#cfe0ff', 'In the tiny diamond of Delphinus, the dolphin.'],
+      ['rota', 'Rotanev', 308.303, 14.595, 100, 'Yellow-white star', '#fff6e0', 'Another dolphin star. Its name is a hidden name spelled backwards.'],
+      ['gcyg', 'Aljanah', 311.553, 33.970, 72, 'Orange giant', '#ffc99a', 'The wing of the Swan, on the Northern Cross.'],
+      ['shel', 'Sheliak', 282.520, 33.363, 960, 'Blue-white star', '#cfe0ff', 'Near Vega. Two stars that orbit so close they pull each other out of shape.'],
+      ['sula', 'Sulafat', 284.736, 32.690, 620, 'Blue-white star', '#cfe0ff', 'With Sheliak it marks the bottom of the Lyre.'],
+      ['dbld', 'Epsilon Lyrae', 281.08, 39.67, 160, 'The Double Double', '#f4f6ff', 'Looks like one star, binoculars show two, and a telescope shows each of those is double.'],
+      ['menk', 'Menkent', 211.671, -36.370, 59, 'Orange giant', '#ffc99a', 'A bright star of Centaurus, low in the south.'],
+      ['gacr', 'Gacrux', 187.791, -57.113, 89, 'Red giant', '#ffb98a', 'The top of the Southern Cross. Only just rises from south India.'],
+      ['mimo', 'Mimosa', 191.930, -59.689, 280, 'Blue giant', '#cfe0ff', 'An arm of the Southern Cross, best from south India.'],
+      ['suha', 'Suhail', 136.999, -43.433, 545, 'Orange supergiant', '#ffc99a', 'A bright star of Vela, low in the south on winter nights.'],
+      ['avio', 'Avior', 125.628, -59.509, 630, 'Orange giant', '#ffc99a', 'Part of the False Cross, seen from south India.'],
+      ['naos', 'Naos', 120.896, -40.003, 1080, 'Blue supergiant', '#cfe0ff', 'One of the hottest bright stars, far to the south.'],
+      ['alud', 'Aludra', 111.024, -29.303, 2000, 'Blue supergiant', '#cfe0ff', 'The tail of the Great Dog, very far away and very powerful.'],
+      ['arne', 'Arneb', 83.183, -17.822, 2200, 'Yellow-white supergiant', '#fff6e0', 'The brightest star of Lepus, the hare under Orion.'],
+      ['niha', 'Nihal', 82.061, -20.759, 160, 'Yellow giant', '#ffe2a8', 'The second star of Lepus, just below Arneb.'],
+      ['curs', 'Cursa', 76.962, -5.086, 89, 'White star', '#f4f6ff', 'Near Rigel, where the river Eridanus begins.'],
+      ['zaur', 'Zaurak', 59.507, -13.509, 220, 'Red giant', '#ffb98a', 'A star of the river Eridanus.'],
+      ['acam', 'Acamar', 44.565, -40.305, 160, 'White star', '#f4f6ff', 'Once the end of the river Eridanus, low in the south.'],
+      ['mira', 'Mira', 34.837, -2.977, 300, 'The Wonderful', '#ffb98a', 'Every 11 months it brightens until easy to see, then fades out of sight.'],
+      ['sher', 'Sheratan', 28.660, 20.808, 60, 'White star', '#f4f6ff', 'One of the horns of Aries, next to Hamal.'],
+      ['alre', 'Alrescha', 30.512, 2.764, 150, 'White star', '#f4f6ff', 'The knot that ties the two Fishes of Pisces together.'],
+      ['zubs', 'Zubeneschamali', 229.252, -9.383, 185, 'Blue-white star', '#cfe0ff', 'The brightest star of Libra. Some people see a green tint in it.'],
+      ['porr', 'Porrima', 190.415, -1.449, 38, 'White double star', '#f4f6ff', 'A pair of twin stars in Virgo that slowly circle each other.'],
+      ['zavi', 'Zavijava', 177.674, 1.765, 36, 'Yellow-white star', '#fff6e0', 'A Sun-like star in Virgo, close to us.'],
+      ['alke', 'Alkes', 164.944, -18.299, 160, 'Orange giant', '#ffc99a', 'The base of the Cup, Crater.'],
+      ['kraz', 'Kraz', 188.597, -23.397, 140, 'Yellow giant', '#ffe2a8', 'A corner of Corvus, the crow.'],
+      ['algo', 'Algorab', 187.466, -16.515, 87, 'White star', '#f4f6ff', 'The crow\'s wing in Corvus.'],
+      ['wasa', 'Wasat', 110.031, 21.982, 60, 'White star', '#f4f6ff', 'In the middle of Gemini. Pluto was found close to it in 1930.'],
+      ['teja', 'Tejat', 95.740, 22.514, 230, 'Red giant', '#ffb98a', 'At the foot of Gemini, near the star cluster M35.'],
+      ['menl', 'Menkalinan', 89.882, 44.948, 82, 'White star', '#f4f6ff', 'The second star of Auriga, near Capella.'],
+      ['algi', 'Algieba', 154.993, 19.842, 130, 'Orange giant', '#ffc99a', 'In the mane of Leo. A golden pair in a small telescope.'],
+      ['zosm', 'Zosma', 168.527, 20.524, 58, 'White star', '#f4f6ff', 'The back of Leo, the lion.'],
+      ['dabi', 'Dabih', 305.253, -14.781, 330, 'Yellow giant', '#ffe2a8', 'A star of Capricornus. Binoculars show a fainter partner.'],
+      ['skat', 'Skat', 343.663, -15.821, 160, 'White star', '#f4f6ff', 'A star of Aquarius. The Delta Aquariids meteors seem to come from near it.'],
+      ['alge', 'Algenib', 3.309, 15.184, 390, 'Blue-white star', '#cfe0ff', 'The corner of the Great Square of Pegasus.'],
+      ['ruch', 'Ruchbah', 21.454, 60.235, 99, 'White star', '#f4f6ff', 'Part of the W of Cassiopeia.'],
+      ['navi', 'Navi', 14.177, 60.717, 550, 'Blue-white star', '#cfe0ff', 'The middle of the W of Cassiopeia. It spins so fast it throws off gas.']
     ];
     const BODIES = [['moon', 'Moon', 'Moon', 0, "Our nearest neighbour, about 384,000 km away. Its shape changes every night."], ['mer', 'Mercury', 'Planet', 1, 'The smallest planet, closest to the Sun. Hard to catch, only low near dusk or dawn.'], ['ven', 'Venus', 'Planet', 2, 'The brightest planet. The evening or morning star, too bright to miss.'], ['mar', 'Mars', 'Planet', 3, 'The red planet. Its colour is rusty iron dust.'], ['jup', 'Jupiter', 'Planet', 4, 'The biggest planet. Binoculars show its four largest moons as tiny dots.'], ['sat', 'Saturn', 'Planet', 5, 'The ringed planet. A small telescope is enough to see the rings.']];
     const list = [];
@@ -312,6 +367,7 @@ class Component extends DCLogic {
         list.push({ id: b[0], name: b[1], type: b[2], pl: b[3], ra: eq.ra * 15, dec: eq.dec, alt: h.altitude, az: h.azimuth, tag: b[2], tagColor: b[0] === 'moon' ? '#e8e2d0' : '#ffd9a8', desc: b[0] === 'moon' ? (() => { let dk = 384400; try { dk = A.Libration(now).dist_km; } catch (e) {} return 'Our nearest neighbour, ' + Math.round(dk / 1000) + 'k km away right now. Its shape changes every night.'; })() : b[4], chip1: chip1, color: b[0] === 'moon' ? '#e8e2d0' : '#ffd9a8' });
       } catch (e) {}
     });
+    try { const se = A.Equator(A.Body.Sun, now, ob, true, true); const sh = A.Horizon(now, ob, se.ra, se.dec, 'normal'); list.push({ id: 'sun', name: 'Sun', type: 'Sun', pl: -1, ra: se.ra * 15, dec: se.dec, alt: sh.altitude, az: sh.azimuth, tag: 'Our star', tagColor: '#ffd27a', desc: 'The star at the centre of our solar system. Never look straight at it, and never through binoculars or a telescope.' + (sh.altitude > 0 ? '' : ' It is below the horizon right now.'), chip1: (se.dist * 8.317).toFixed(1) + ' light-minutes away', color: '#ffd27a', kw: 'sunrise sunset day star' }); } catch (e) {}
     STARS.forEach((st) => {
       const h = A.Horizon(now, ob, st[2] / 15, st[3], 'normal');
       list.push({ id: st[0], name: st[1], type: 'Star', pl: -1, ra: st[2], dec: st[3], alt: h.altitude, az: h.azimuth, tag: st[5], tagColor: st[6], desc: st[7], chip1: (st[4] >= 1000 ? (st[4] / 1000).toFixed(1) + 'k' : st[4]) + ' light-years', color: st[6] });
@@ -473,7 +529,7 @@ class Component extends DCLogic {
       lensO: s.lens ? 1 : 0, lensEv: s.lens ? 'auto' : 'none', lensY: s.lens ? 0 : 24,
       lensName: ld.name, lensSub: ld.sub, lensText: ld.text, lensChipA: ld.chipA, lensChipB: ld.chipB, lensTiles: ld.tiles, moons: ld.moons, lensJup: !!ld.jup,
       tilesTop: ld.jup ? 482 : 440, lensCardTop: ld.jup ? 584 : 542,
-      results: res.map((o) => ({ name: o.name, type: o.pl >= 0 ? (o.id === 'moon' ? 'Moon' : 'Planet') : (o.id === 'gc' ? 'Milky Way' : 'Star'), color: o.color, sub: o.alt > 0 ? Math.round(o.alt) + '° high · ' + abbr(o.az) : 'Below the horizon now', pick: () => this.pick(o) })).concat(cres), noResults: res.length === 0 && cres.length === 0,
+      results: res.map((o) => ({ name: o.name, type: o.pl >= 0 ? (o.id === 'moon' ? 'Moon' : 'Planet') : (o.id === 'gc' ? 'Milky Way' : o.id === 'sun' ? 'Our star' : 'Star'), color: o.color, sub: o.alt > 0 ? Math.round(o.alt) + '° high · ' + abbr(o.az) : 'Below the horizon now', pick: () => this.pick(o) })).concat(cres), noResults: res.length === 0 && cres.length === 0,
       clock: window.WF ? window.WF.fmtTime(new Date()) : '',
       place: s.obs.name, obsName: s.obs.name,
       tabO: explore && !s.lens ? 1 : 0, tabEv: explore && !s.lens ? 'auto' : 'none',
