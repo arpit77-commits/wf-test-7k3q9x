@@ -8,6 +8,19 @@ var SHOWERS=[
  {id:'urs',name:'Ursids',night:[2026,12,21],zhr:10,ra:217,dec:76,speed:'Slow',parent:'Comet Tuttle',blurb:'A quiet shower in the far north of the sky.'},
  {id:'qua',name:'Quadrantids',night:[2027,1,3],zhr:80,ra:230,dec:49,speed:'Medium',parent:'Asteroid 2003 EH1',blurb:'Short but intense. Over in a few hours.'}
 ];
+(function(){try{var A=window.Astronomy;if(!A||!A.SearchSunLongitude)return;
+var L={qua:283.15,lyr:32.32,eta:45.5,sda:127,per:140.0,dra:195.4,ori:208.0,leo:235.27,gem:262.2,urs:270.7};
+[{id:'lyr',name:'Lyrids',night:[2027,4,22],zhr:18,ra:271,dec:34,speed:'Medium',parent:'Comet Thatcher',blurb:'One of the oldest known showers. Mostly steady, with a sudden burst now and then.'},
+ {id:'eta',name:'Eta Aquariids',night:[2027,5,5],zhr:50,ra:338,dec:-1,speed:'Very fast',parent:"Halley's Comet",blurb:"Dust from Halley's Comet. Best in the last hour or two before dawn."},
+ {id:'sda',name:'Delta Aquariids',night:[2027,7,29],zhr:25,ra:340,dec:-16,speed:'Medium',parent:'Comet 96P/Machholz',blurb:'A gentle summer shower, best after midnight from India.'},
+ {id:'per',name:'Perseids',night:[2027,8,12],zhr:100,ra:48,dec:58,speed:'Fast',parent:'Comet Swift-Tuttle',blurb:'The famous August shower. Many bright, fast meteors, some leave glowing trails.'},
+ {id:'dra',name:'Draconids',night:[2027,10,8],zhr:10,ra:262,dec:54,speed:'Slow',parent:'Comet Giacobini-Zinner',blurb:'Slow meteors in the early evening. Usually few, now and then a surprise outburst.'}
+].forEach(function(s){if(!SHOWERS.some(function(x){return x.id===s.id;}))SHOWERS.push(s);});
+var lim=Date.now()-2*86400000,start=new Date(Date.now()-40*86400000);
+SHOWERS.forEach(function(s){var lon=L[s.id];if(lon==null)return;try{var t=A.SearchSunLongitude(lon,start,400);if(t&&t.date.getTime()<lim)t=A.SearchSunLongitude(lon,new Date(t.date.getTime()+86400000),400);if(!t)return;var mid=new Date(t.date.getTime()+12*3600000);mid.setHours(0,0,0,0);var d=new Date(mid.getTime()-86400000+3600000);s.night=[d.getFullYear(),d.getMonth()+1,d.getDate()];}catch(e){}});
+SHOWERS.sort(function(a,b){return new Date(a.night[0],a.night[1]-1,a.night[2])-new Date(b.night[0],b.night[1]-1,b.night[2]);});
+}catch(e){}})();
+
 var DIRS=['north','north-northeast','northeast','east-northeast','east','east-southeast','southeast','south-southeast','south','south-southwest','southwest','west-southwest','west','west-northwest','northwest','north-northwest'];
 function dirName(az){return DIRS[Math.round(((az%360)+360)%360/22.5)%16];}
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
