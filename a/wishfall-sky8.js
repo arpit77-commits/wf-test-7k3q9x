@@ -82,7 +82,7 @@ function create(o){
  var V={az:o.az!=null?o.az:135,alt:o.alt!=null?o.alt:28,fov:o.fov||78,vaz:0,valt:0,auto:0,drag:false,t0:performance.now(),sid:o.sid||0};
  var running=true,fn=o.onFrame||null,ptr={},pinch=0;
  function applyCam(){cam.rotation.y=-V.az*D;cam.rotation.x=V.alt*D;cam.fov=V.fov;cam.updateProjectionMatrix();cam.updateMatrixWorld(true);}
- function resize(){var w=canvas.clientWidth||390,h=canvas.clientHeight||844;if(w!==W||h!==Hh){W=w;Hh=h;renderer.setSize(W,Hh,false);cam.aspect=W/Hh;cam.updateProjectionMatrix();}}
+ var _rz=true;try{new ResizeObserver(function(){_rz=true;}).observe(canvas);}catch(e){}window.addEventListener('resize',function(){_rz=true;});function resize(){if(!_rz)return;_rz=false;var w=canvas.clientWidth||390,h=canvas.clientHeight||844;if(w!==W||h!==Hh){W=w;Hh=h;renderer.setSize(W,Hh,false);cam.aspect=W/Hh;cam.updateProjectionMatrix();}}
  if(o.interactive){
   var lastX=0,lastY=0,lastT=0,dscale=1;
   canvas.style.touchAction='none';

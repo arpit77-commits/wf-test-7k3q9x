@@ -85,15 +85,15 @@ function evalShower(sh,o,now){
  var score=Math.round(100*(0.55*Math.min(1,Math.pow(best.rate/45,0.7))+0.45*mf));
  if(best.rate<=0)score=Math.min(score,20);
  var nd=new Date(sh.night[0],sh.night[1]-1,sh.night[2],20,0,0);
- var days=Math.ceil((nd-now)/86400000);
+ var _n=new Date(now.getTime()-7*3600000);var days=Math.round((new Date(nd.getFullYear(),nd.getMonth(),nd.getDate())-new Date(_n.getFullYear(),_n.getMonth(),_n.getDate()))/86400000);
  var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
  var nd2=new Date(nd.getTime()+86400000);
  var label='Night of '+nd.getDate()+(nd.getMonth()===nd2.getMonth()?'':' '+M[nd.getMonth()])+'–'+nd2.getDate()+' '+M[nd2.getMonth()];
- var inTxt=days<=0?'Tonight':(days===1?'Tomorrow':'in '+days+' days');
+ var inTxt=days<0?'Last night':days===0?'Tonight':(days===1?'Tomorrow':'in '+days+' days');
  var moonTxt=best.moonUp?('Moon is up ('+Math.round(best.ill*100)+'% lit)'):'Moon is down by then';
  return {sh:sh,id:sh.id,name:sh.name,score:score,verdict:verdict(score),label:label,inTxt:inTxt,days:days,best:best,bestTime:fmtTime(best.d),facing:cap(dirName(best.radAz)),moonTxt:moonTxt,rate:Math.round(best.rate),nightSamples:ns};
 }
-function upcoming(o,now){now=now||new Date();var arr=[];for(var i=0;i<SHOWERS.length;i++){var e=evalShower(SHOWERS[i],o,now);if(e.days>=-1)arr.push(e);}return arr;}
+function upcoming(o,now){now=now||new Date();var arr=[];for(var i=0;i<SHOWERS.length;i++){var e=evalShower(SHOWERS[i],o,now);if(e.days>=0)arr.push(e);}return arr;}
 function getObserver(cb){
  var o=DEF; try{var s=localStorage.getItem('wf_obs');if(s){var p=JSON.parse(s);if(p&&isFinite(p.lat)&&isFinite(p.lon))o=p;}}catch(e){}
  cb(o); if(o&&o.manual)return;

@@ -153,7 +153,7 @@ var labels=[],PV=[];var lk2=new THREE.Vector3(),tv2=new THREE.Vector3();
  function _disp(){running=false;try{scene.traverse(function(ob){if(ob.geometry)ob.geometry.dispose();var m=ob.material;if(m){(Array.isArray(m)?m:[m]).forEach(function(mm){for(var k in mm){if(mm[k]&&mm[k].isTexture)mm[k].dispose();}if(mm.uniforms)for(var u in mm.uniforms){var v=mm.uniforms[u].value;if(v&&v.isTexture)v.dispose();}mm.dispose();});}});renderer.dispose();renderer.forceContextLoss();}catch(x){}}
  var ALTMIN=EARTH?-84:-4;var running=true,fn=o.onFrame||null,ptr={},pinch=0,fovT=V.fov,pf=null,pfT=0,pmx=0,pmy=0,zRate=9,lastMT=0;
  function applyCam(){cam.rotation.y=-V.az*D;cam.rotation.x=V.alt*D;cam.fov=V.fov;cam.updateProjectionMatrix();cam.updateMatrixWorld(true);}
- function resize(){var w=canvas.clientWidth||390,h=canvas.clientHeight||844;if(w!==W||h!==Hh){W=w;Hh=h;renderer.setSize(W,Hh,false);cam.aspect=W/Hh;cam.updateProjectionMatrix();}}
+ var _rz=true;try{new ResizeObserver(function(){_rz=true;}).observe(canvas);}catch(e){}window.addEventListener('resize',function(){_rz=true;});function resize(){if(!_rz)return;_rz=false;var w=canvas.clientWidth||390,h=canvas.clientHeight||844;if(w!==W||h!==Hh){W=w;Hh=h;renderer.setSize(W,Hh,false);cam.aspect=W/Hh;cam.updateProjectionMatrix();}}
  if(o.interactive){
   var lastX=0,lastY=0,lastT=0,dscale=1;
   canvas.style.touchAction='none';

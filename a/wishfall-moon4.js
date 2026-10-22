@@ -21,7 +21,7 @@ function create(o){
   'float a=1.-smoothstep(0.985,1.0,r);gl_FragColor=vec4(col*a,a);}'});
  var quad=new THREE.Mesh(new THREE.PlaneGeometry(2,2),mat);scene.add(quad);
  function draw(){renderer.render(scene,cam);}
- var st=0;function snap(){if(o.noSnap)return;clearTimeout(st);st=setTimeout(function(){var go=function(){try{canvas.style.backgroundImage='url('+canvas.toDataURL('image/png')+')';canvas.style.backgroundSize='100% 100%';canvas.style.backgroundRepeat='no-repeat';}catch(e){}};if(window.requestIdleCallback)requestIdleCallback(go,{timeout:3000});else go();},1200);}
+ var st=0;var _ls=0;function snap(){if(o.noSnap)return;if(Date.now()-_ls<1800000)return;_ls=Date.now();clearTimeout(st);st=setTimeout(function(){var go=function(){try{canvas.style.backgroundImage='url('+canvas.toDataURL('image/png')+')';canvas.style.backgroundSize='100% 100%';canvas.style.backgroundRepeat='no-repeat';}catch(e){}};if(window.requestIdleCallback)requestIdleCallback(go,{timeout:3000});else go();},1200);}
  canvas.addEventListener('webglcontextrestored',function(){setTimeout(function(){draw();snap();},60);});
  return {set:function(L,rot){mat.uniforms.uL.value.set(L[0],L[1],L[2]);mat.uniforms.uRot.value=-rot;draw();snap();},draw:draw,toURL:function(){return canvas.toDataURL('image/png');},dispose:function(){try{renderer.dispose();}catch(e){}}};
 }
