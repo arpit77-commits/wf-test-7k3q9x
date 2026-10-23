@@ -1,11 +1,14 @@
-// Reads the phone's own magnetic-field and gravity sensors and turns them into
-// "where is the back of the phone pointing" (a unit vector: east, north, up).
-// Works on any Android that has an accelerometer and a magnetometer (almost all).
+// "Where is the back of the phone pointing" as a unit vector (east, north, up).
 //
-// Smoothing: a "One Euro" filter. When the phone is held still it smooths strongly
-// (no shaking of the sky); when you turn the phone it lets the movement through
-// quickly (little lag). Values are sent only when the direction really changed.
+// Main path: Android's own fused rotation sensor (gyroscope + accelerometer + compass),
+// the same kind of sensor Google Sky Map and star apps use. The gyroscope keeps the
+// sky steady when the hand shakes or moves sideways; the compass only slowly corrects
+// the direction. Heading is turned from magnetic north to true north for your place.
+//
+// Fallback (phones without that sensor): accelerometer + magnetometer with a One Euro
+// filter (strong smoothing when still, quick when turning).
 import { Accelerometer, Magnetometer } from 'expo-sensors';
+import WfOrientation from '../modules/wf-orientation';
 
 const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 const norm = (v) => { const l = Math.hypot(v[0], v[1], v[2]); return l > 1e-6 ? [v[0] / l, v[1] / l, v[2] / l] : null; };
@@ -27,27 +30,65 @@ export function vecFilter(minCut, beta, dCut) {
   };
 }
 
-export async function startCompass(onVec, onStatus) {
-  const okA = await Accelerometer.isAvailableAsync().catch(() => false);
-  const okM = await Magnetometer.isAvailableAsync().catch(() => false);
-  if (!okA || !okM) { onStatus && onStatus('no ' + (!okA ? 'accelerometer' : 'magnetometer')); return () => {}; }
-  Accelerometer.setUpdateInterval(20);
-  Magnetometer.setUpdateInterval(20);
-  const fg = vecFilter(0.3, 0.5, 1.0), fm = vecFilter(0.35, 1.0, 1.0), fo = vecFilter(0.5, 1.0, 1.0); // tuned in a noise simulation: 30% less shake, settles in 0.15 s
-  let g = null, m = null, lastSend = 0, last = null;
-  const compute = (t) => {
-    if (!g || !m) return;
-    const H = norm(cross(m, g)); const A = norm(g); if (!H || !A) return;
-    const M = cross(A, H);
-    const d = norm([-H[2], -M[2], -A[2]]); if (!d) return; // east, north, up of the direction the back camera faces
-    const o = fo(d, t);
+// magnetic -> true north (degrees east), for the fallback path
+let declDeg = 0;
+export function setCompassPlace(lat, lon) {
+  try { if (WfOrientation && WfOrientation.setPlace && isFinite(lat) && isFinite(lon)) declDeg = WfOrientation.setPlace(lat, lon) || 0; } catch (e) {}
+}
+
+function sender(onVec) {
+  let lastSend = 0, last = null;
+  return (o, t) => {
     if (t - lastSend < 30) return;
     if (last && Math.abs(o[0] - last[0]) + Math.abs(o[1] - last[1]) + Math.abs(o[2] - last[2]) < 0.0012) return; // moved less than about 0.05 degrees
     lastSend = t; last = o.slice();
     onVec(o[0], o[1], o[2]);
   };
+}
+
+async function startFused(onVec) {
+  if (!WfOrientation || !WfOrientation.start || !WfOrientation.addListener) return null;
+  let kind = '';
+  try { kind = WfOrientation.start(); } catch (e) { kind = ''; }
+  if (kind !== 'rv') return null;
+  const f = vecFilter(1.6, 4, 1.2); // very light: the fused sensor is already smooth
+  const send = sender(onVec);
+  let got = false;
+  const sub = WfOrientation.addListener('onDir', (d) => {
+    const v = norm([d.x, d.y, d.z]); if (!v) return; got = true;
+    const t = Date.now(); send(f(v, t), t);
+  });
+  // if no data arrives (broken sensor on some phones), fall back
+  await new Promise((r) => setTimeout(r, 1200));
+  if (!got) { try { sub.remove(); WfOrientation.stop(); } catch (e) {} return null; }
+  return () => { try { sub.remove(); WfOrientation.stop(); } catch (e) {} };
+}
+
+async function startAccMag(onVec, onStatus) {
+  const okA = await Accelerometer.isAvailableAsync().catch(() => false);
+  const okM = await Magnetometer.isAvailableAsync().catch(() => false);
+  if (!okA || !okM) { onStatus && onStatus('no ' + (!okA ? 'accelerometer' : 'magnetometer')); return () => {}; }
+  Accelerometer.setUpdateInterval(20);
+  Magnetometer.setUpdateInterval(20);
+  const fg = vecFilter(0.3, 0.5, 1.0), fm = vecFilter(0.35, 1.0, 1.0), fo = vecFilter(0.5, 1.0, 1.0); // tuned in a noise simulation
+  const send = sender(onVec);
+  let g = null, m = null;
+  const compute = (t) => {
+    if (!g || !m) return;
+    const H = norm(cross(m, g)); const A = norm(g); if (!H || !A) return;
+    const M = cross(A, H);
+    let d = norm([-H[2], -M[2], -A[2]]); if (!d) return; // east, north, up of the direction the back camera faces
+    if (declDeg) { const r = declDeg * Math.PI / 180, c = Math.cos(r), s = Math.sin(r); d = [d[0] * c + d[1] * s, d[1] * c - d[0] * s, d[2]]; }
+    send(fo(d, t), t);
+  };
   const s1 = Accelerometer.addListener((d) => { const v = norm([d.x, d.y, d.z]); if (!v) return; const t = Date.now(); g = fg(v, t); compute(t); });
   const s2 = Magnetometer.addListener((d) => { const v = norm([d.x, d.y, d.z]); if (!v) return; m = fm(v, Date.now()); });
   onStatus && onStatus('ok');
   return () => { s1.remove(); s2.remove(); };
+}
+
+export async function startCompass(onVec, onStatus) {
+  const stop = await startFused(onVec).catch(() => null);
+  if (stop) { onStatus && onStatus('ok'); return stop; }
+  return startAccMag(onVec, onStatus);
 }

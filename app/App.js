@@ -9,7 +9,7 @@ import * as Device from 'expo-device';
 import * as IntentLauncher from 'expo-intent-launcher';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFonts, Outfit_300Light, Outfit_400Regular, Outfit_500Medium, Outfit_600SemiBold } from '@expo-google-fonts/outfit';
-import { startCompass } from './src/compass';
+import { startCompass, setCompassPlace } from './src/compass';
 
 // Test option: a web address here loads the pages from the web instead of from inside the app.
 // Keep '' for real use (pages load from inside the app).
@@ -178,6 +178,7 @@ function Shell() {
           } catch (e) {}
           res = { lat: Math.round(pos.coords.latitude * 1e4) / 1e4, lon: Math.round(pos.coords.longitude * 1e4) / 1e4, name, real: true };
           locAt.current = Date.now();
+          setCompassPlace(res.lat, res.lon);
           AsyncStorage.setItem('wf_last_obs', JSON.stringify(res)).catch(() => {});
         }
       }
@@ -207,7 +208,7 @@ function Shell() {
 
   const onMessage = (e) => {
     let m; try { m = JSON.parse(e.nativeEvent.data); } catch (er) { return; }
-    if (m.t === 'sensors') sensors(!!m.on);
+    if (m.t === 'sensors') { if (m.obs && isFinite(m.obs.lat) && isFinite(m.obs.lon)) setCompassPlace(m.obs.lat, m.obs.lon); sensors(!!m.on); }
     else if (m.t === 'alerts') schedule(m.list || []);
     else if (m.t === 'testAlert') testAlert();
     else if (m.t === 'gps') pushLoc(true);
