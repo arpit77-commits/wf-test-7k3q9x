@@ -31,6 +31,7 @@
   document.addEventListener('touchstart', function () { window.__lt = Date.now(); }, true);
   /* the page runtime re-downloads its own file after drawing; not needed inside the app */
   if (!window.__resources) window.__resources = {};
+  try { var _si = Storage.prototype.setItem; Storage.prototype.setItem = function (k, v) { _si.call(this, k, v); if (framed && (k === 'wf_prefs' || k === 'wf_plans' || k === 'wf_obs')) { try { window.parent.postMessage({ wf: 1, m: { t: 'stale' } }, '*'); } catch (e) {} } }; } catch (e) {}
   /* scroll-lock: a focused field must never shift a fixed page (overflow hidden) out of place */
   document.addEventListener('scroll', function (e) { var el = e.target; if (!el || el.nodeType !== 1 || !el.scrollTop) return; try { if (getComputedStyle(el).overflowY === 'hidden') el.scrollTop = 0; } catch (er) {} }, true);
   var rafRaw = window.requestAnimationFrame.bind(window), paused = false, held = [];

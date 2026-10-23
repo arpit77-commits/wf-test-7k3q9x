@@ -42,12 +42,12 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   <div id="dim"></div>
   <div id="cover"><div class="st"></div><div class="wm">WISHFALL</div><div class="tg">The sky, tonight</div></div>
 </div>
-<script src="./a/three.min.js?v=1792737008"></script>
-<script src="./a/wishfall-sky8.js?v=1792737008"></script>
+<script src="./a/three.min.js?v=1792738981"></script>
+<script src="./a/wishfall-sky8.js?v=1792738981"></script>
 <script>
 (function () {
   (function(){var c=document.getElementById('cover');for(var i=0;i<26;i++){var d=document.createElement('i');d.className='ds';d.style.left=(Math.random()*100)+'%';d.style.top=(Math.random()*100)+'%';d.style.animationDelay=(Math.random()*2.4)+'s';c.appendChild(d);}})();
-  var BUILD = '1792737008'; var TABS = ['Main', 'Events', 'Sky', 'You'], STALE = 30 * 60000;
+  var BUILD = '1792738981'; var TABS = ['Main', 'Events', 'Sky', 'You'], STALE = 30 * 60000;
   var stage = document.getElementById('stage'), dim = document.getElementById('dim'), cover = document.getElementById('cover'), bgc = document.getElementById('bg');
   function toRN(m) { try { if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify(m)); } catch (e) {} }
 
@@ -86,7 +86,7 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   window.addEventListener('wf-obs', function () { var o = obs(); try { bgApi && bgApi.relocate(o.lat, o.lon); } catch (e) {} if (window.schedBgRefresh) window.schedBgRefresh(900); });
   startBG();
 
-  var tabs = {}, cur = null, stack = [], lru = [], pend = {}, bgT = 0;
+  var tabs = {}, cur = null, stack = [], lru = [], pendF = {}, bgT = 0;
   window.__wfTabs = tabs;
   function sigNow(n) {
     if (n === 'Sky') return '';
@@ -190,15 +190,15 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   /* ---- fresh data without waiting: an out-of-date page is rebuilt quietly behind, then swapped in ---- */
   function schedBg(ms) { clearTimeout(bgT); bgT = setTimeout(bgRefresh, ms); }
   window.schedBgRefresh = schedBg;
+  window.addEventListener('storage', function (e) { if (e.key === 'wf_prefs' || e.key === 'wf_plans' || e.key === 'wf_obs') schedBg(500); });
   function bgRefresh() {
-    if (Object.keys(pend).length) return;
+    if (Object.keys(pendF).length) return;
     var name = null;
     for (var k in tabs) { if (k !== cur && tabs[k].ready && stale(tabs[k])) { name = k; break; } }
-    if (!name && cur && tabs[cur] && stale(tabs[cur]) && !stack.length) name = cur;
     if (!name) return;
     var nr = { f: mkFrame(name, 'tabf'), ready: false, at: Date.now(), sig: sigNow(name), want: false, paused: false, name: name };
-    pend[name] = nr; stage.insertBefore(nr.f, dim);
-    setTimeout(function () { if (pend[name] === nr && !nr.ready) { delete pend[name]; killFrame(nr.f, 0); } }, 12000);
+    pendF[name] = nr; stage.insertBefore(nr.f, dim);
+    setTimeout(function () { if (pendF[name] === nr && !nr.ready) { delete pendF[name]; killFrame(nr.f, 0); } }, 12000);
   }
   function busyTab(r) {
     try { var d = r.f.contentDocument, sc = d && d.querySelectorAll('div'); for (var i = 0; sc && i < sc.length; i++) { if (sc[i].scrollTop > 4) return true; } } catch (e) {}
@@ -206,9 +206,9 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
     return false;
   }
   function swapIn(name) {
-    var nr = pend[name], or = tabs[name]; if (!nr) return;
-    if (name === cur && (stack.length || (or && busyTab(or)))) { setTimeout(function () { swapIn(name); }, 2500); return; }
-    delete pend[name]; tabs[name] = nr;
+    var nr = pendF[name], or = tabs[name]; if (!nr) return;
+    if (name === cur) { setTimeout(function () { swapIn(name); }, 1500); return; } // never swap the page you are looking at
+    delete pendF[name]; tabs[name] = nr;
     if (name === cur) { nr.f.classList.add('on'); if (or) { or.f.classList.remove('on'); or.f.classList.add('leave'); killFrame(or.f, 320); } send(nr, { cmd: 'pill', at: TABS.indexOf(name), quiet: 1 }); }
     else { nr.f.classList.add('hid'); if (or) killFrame(or.f, 0); }
     refresh(); schedBg(1200);
@@ -271,7 +271,7 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
     var id = ++qid, done = false;
     pend[id] = function (ok) { if (done) return; done = true; delete pend[id]; cb(ok); };
     send(rec, { cmd: 'local', id: id });
-    setTimeout(function () { if (pend[id]) pend[id](false); }, 140);
+    setTimeout(function () { if (pend[id]) pend[id](false); }, 380);
   }
   window.__shellBack = function () {
     askLocal(visibleRec(), function (ok) {
@@ -286,13 +286,13 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   function recOf(src) {
     for (var k in tabs) if (tabs[k].f.contentWindow === src) return tabs[k];
     for (var i = 0; i < stack.length; i++) if (stack[i].f.contentWindow === src) return stack[i];
-    for (var p in pend) if (pend[p].f.contentWindow === src) return pend[p];
+    for (var p in pendF) if (pendF[p].f.contentWindow === src) return pendF[p];
     return null;
   }
   window.addEventListener('message', function (e) {
     var d = e.data; if (!d || !d.wf || !d.m) return; var m = d.m, rec = recOf(e.source);
     if (!rec) return;
-    if (pend[rec.name] === rec) { if (m.t === 'ready') { rec.ready = true; rec.at = Date.now(); rec.sig = sigNow(rec.name); send(rec, { cmd: 'pause', on: true }); rec.paused = true; setTimeout(function () { swapIn(rec.name); }, 50); } return; }
+    if (pendF[rec.name] === rec) { if (m.t === 'ready') { rec.ready = true; rec.at = Date.now(); rec.sig = sigNow(rec.name); send(rec, { cmd: 'pause', on: true }); rec.paused = true; setTimeout(function () { swapIn(rec.name); }, 50); } return; }
     if (m.t === 'ready') {
       rec.ready = true; rec.sig = sigNow(rec.name); rec.at = Date.now(); var cbs = rec.cb || []; rec.cb = []; cbs.forEach(function (f) { f(); });
       rec.paused = false; setTimeout(refresh, 60);
@@ -300,6 +300,7 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
     else if (m.t === 'sensors') { rec.want = !!m.on; refresh(); }
     else if (m.t === 'local') { if (pend[m.id]) pend[m.id](!!m.ok); }
     else if (m.t === 'obs') { window.dispatchEvent(new Event('wf-obs')); }
+    else if (m.t === 'stale') { schedBg(500); }
     else if (m.t === 'lost') {
       // a page lost its graphics: rebuild it so it never stays blank
       if (rec === visibleRec() && rec.name && tabs[rec.name] === rec) { rec.at = 0; showTab(rec.name); }
