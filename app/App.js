@@ -105,6 +105,8 @@ function Shell() {
   const stopCmp = useRef(null);
   const pending = useRef(null);
   const loaded = useRef(false);
+  const shellReady = useRef(false);
+  const tapSeen = useRef('');
   const lastSig = useRef('');
   const [box, setBox] = useState(null);
   const [boot, setBoot] = useState(null);
@@ -192,10 +194,16 @@ function Shell() {
     return () => sub.remove();
   }, [pushLoc]);
 
-  const onTap = useCallback((resp) => {
-    const js = resp && resp.notification && resp.notification.request.content.data && resp.notification.request.content.data.js;
+  // An alert was tapped: open what it points to, once, and only when the app shell is ready.
+  const onTap = useCallback(async (resp) => {
+    const n = resp && resp.notification; const js = n && n.request.content.data && n.request.content.data.js;
     if (!js) return;
-    if (loaded.current) run(js); else pending.current = js;
+    const key = n.request.identifier + ':' + n.date;
+    if (tapSeen.current === key) return;
+    try { if ((await AsyncStorage.getItem('wf_last_tap')) === key) return; } catch (e) {}
+    tapSeen.current = key; AsyncStorage.setItem('wf_last_tap', key).catch(() => {});
+    if (Date.now() - (n.date || Date.now()) > 24 * 3600000) return; // an old alert from long ago: just open the app
+    if (shellReady.current) run(js); else pending.current = js;
   }, [run]);
 
   useEffect(() => {
@@ -213,6 +221,7 @@ function Shell() {
     else if (m.t === 'testAlert') testAlert();
     else if (m.t === 'gps') pushLoc(true);
     else if (m.t === 'exit') BackHandler.exitApp();
+    else if (m.t === 'shell') { shellReady.current = true; if (pending.current) { const j = pending.current; pending.current = null; setTimeout(() => run(j), 300); } }
   };
 
     return (
@@ -244,12 +253,15 @@ function Shell() {
             allowsInlineMediaPlayback
             injectedJavaScriptBeforeContentLoaded={'window.__WF_MEM=' + (Number(Device.totalMemory) || 0) + ';' + (boot ? 'try{var _o=JSON.parse(localStorage.getItem("wf_obs")||"null");if(!_o||!_o.manual)localStorage.setItem("wf_obs",' + JSON.stringify(boot) + ');}catch(e){}' : '') + 'true;'}
             onMessage={onMessage}
-            onLoadEnd={() => { loaded.current = true; setTimeout(() => pushLoc(false), 1200); if (pending.current) { const j = pending.current; pending.current = null; setTimeout(() => run(j), 600); } }}
+            onLoadStart={() => { shellReady.current = false; }}
+            onLoadEnd={() => { loaded.current = true; setTimeout(() => pushLoc(false), 1200); }}
             onError={() => setErr('load')}
             onHttpError={() => setErr('load')}
-            onRenderProcessGone={() => { loaded.current = false; lastSig.current = ''; setErr(null); setWk((k) => k + 1); }}
+            onRenderProcessGone={() => { loaded.current = false; shellReady.current = false; lastSig.current = ''; setErr(null); setWk((k) => k + 1); }}
             onContentProcessDidTerminate={() => { loaded.current = false; lastSig.current = ''; setWk((k) => k + 1); }}
             onShouldStartLoadWithRequest={(r) => {
+              // pages must always open inside the app frame, never on their own (that left a blank star screen)
+              if (/^file:/.test(r.url) && r.isTopFrame !== false && !/\/shell\.html(\?|#|$)/.test(r.url) && /\.dc\.html/.test(r.url)) { const nm = r.url.split('/').pop().split('?')[0]; run('window.__shellGo&&window.__shellGo(' + JSON.stringify(nm) + ');true;'); return false; }
               if (/^(file|about|blob|data):/.test(r.url)) return true;
               if (TEST_URL && r.url.indexOf(TEST_URL.replace(/shell\.html$/, '')) === 0) return true;
               if (/^https?:/.test(r.url)) { Linking.openURL(r.url).catch(() => {}); return false; }

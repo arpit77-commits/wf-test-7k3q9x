@@ -172,10 +172,10 @@
   window.WFAlertText = function (id, eventMs) { return alertFmt(alertAt(id, eventMs)); };
   function openJs(href, setKey, setVal) {
     return "try{localStorage.setItem('wf_nav',JSON.stringify({dir:'fwd',from:'',t:Date.now()}));localStorage.setItem('wf_back','Main.dc.html');" +
-      (setKey ? "localStorage.setItem(" + JSON.stringify(setKey) + "," + JSON.stringify(setVal) + ");" : '') + "}catch(e){}(window.__shellGo||function(h){location.href=h;})(" + JSON.stringify(href) + ");true;";
+      (setKey ? "localStorage.setItem(" + JSON.stringify(setKey) + "," + JSON.stringify(setVal) + ");" : '') + "}catch(e){}(function(h){if(window.__shellGo)window.__shellGo(h);else{try{localStorage.setItem('wf_open',JSON.stringify({h:h,t:Date.now()}));}catch(e){}}})(" + JSON.stringify(href) + ");true;";
   }
   function moonOpenJs(ts) {
-    return "try{var d=Math.round((new Date(" + ts + ").setHours(0,0,0,0)-new Date().setHours(0,0,0,0))/864e5);localStorage.setItem('wf_nav',JSON.stringify({dir:'fwd',from:'',t:Date.now()}));localStorage.setItem('wf_back','Main.dc.html');localStorage.setItem('wf_moon_go',JSON.stringify({off:d,t:Date.now()}));}catch(e){}(window.__shellGo||function(h){location.href=h;})('Moon.dc.html');true;";
+    return "try{var d=Math.round((new Date(" + ts + ").setHours(0,0,0,0)-new Date().setHours(0,0,0,0))/864e5);localStorage.setItem('wf_nav',JSON.stringify({dir:'fwd',from:'',t:Date.now()}));localStorage.setItem('wf_back','Main.dc.html');localStorage.setItem('wf_moon_go',JSON.stringify({off:d,t:Date.now()}));}catch(e){}(function(h){if(window.__shellGo)window.__shellGo(h);else{try{localStorage.setItem('wf_open',JSON.stringify({h:h,t:Date.now()}));}catch(e){}}})('Moon.dc.html');true;";
   }
   var syncT = 0, issBusy = false;
   function sync() {
@@ -214,7 +214,7 @@
           var q0 = now;
           for (var n = 0; n < 4; n++) {
             var q = A.SearchMoonPhase(0, q0, 45); if (!q) break; q0 = new Date(q.date.getTime() + 86400000 * 5);
-            if (P.moon !== false) add('nm-' + q.date.getTime(), eveAt(q.date, 19), 'New Moon', 'The darkest sky of the month for faint things.', moonOpenJs(q.date.getTime()));
+            if (P.moon !== false) add('nm-' + q.date.getTime(), eveAt(WFE.nightOf ? WFE.nightOf(q.date) : q.date, 19), 'New Moon', 'The darkest sky of the month for faint things.', moonOpenJs(q.date.getTime()));
           }
         } catch (e) {}
         plans.forEach(function (id) {
