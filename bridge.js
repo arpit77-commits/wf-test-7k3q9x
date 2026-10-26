@@ -177,6 +177,7 @@
   function moonOpenJs(ts) {
     return "try{var d=Math.round((new Date(" + ts + ").setHours(0,0,0,0)-new Date().setHours(0,0,0,0))/864e5);localStorage.setItem('wf_nav',JSON.stringify({dir:'fwd',from:'',t:Date.now()}));localStorage.setItem('wf_back','Main.dc.html');localStorage.setItem('wf_moon_go',JSON.stringify({off:d,t:Date.now()}));}catch(e){}(function(h){if(window.__shellGo)window.__shellGo(h);else{try{localStorage.setItem('wf_open',JSON.stringify({h:h,t:Date.now()}));}catch(e){}}})('Moon.dc.html');true;";
   }
+  var DAILY_TEST = true; // set to false to remove the daily 8 pm test alert
   var syncT = 0, issBusy = false;
   function sync() {
     clearTimeout(syncT);
@@ -224,6 +225,8 @@
             add(id, at, v2 ? m.name + (v2.k === 'c' ? ' is coming up' : ' ' + leadWord(v2)) : m.name, (m.when || '') + '', openJs('Sight.dc.html', 'wf_sight', id));
           }
         });
+        /* TEMPORARY test alert: every day at 8:00 pm for the next 14 days. Remove before launch. */
+        if (DAILY_TEST) { for (var dd = 0; dd < 14; dd++) { var tt = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dd, 20, 0, 0).getTime(); add('daily-test-' + dd + '-' + tt, tt, 'Wishfall daily test', 'The 8 pm test alert. Tap it and press back to check the app opens and returns correctly.', moonOpenJs(tt)); } }
         var finish = function () {
           out.sort(function (a, b) { return a.at - b.at; });
           post({ t: 'alerts', list: out.slice(0, 48) });
