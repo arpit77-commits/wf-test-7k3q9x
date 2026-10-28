@@ -12,7 +12,7 @@ time.sleep(1)
 targets = json.load(urllib.request.urlopen('http://127.0.0.1:9333/json'))
 for t in targets: print('::notice::CDP target %s %s' % (t.get('type'), t.get('url', '')[:120]))
 page = [t for t in targets if t.get('type') == 'page'][0]
-ws = websocket.create_connection(page['webSocketDebuggerUrl'], timeout=5)
+ws = websocket.create_connection(page['webSocketDebuggerUrl'], timeout=5, suppress_origin=True)
 mid = [0]
 def call(method, params=None):
     mid[0] += 1; i = mid[0]
@@ -36,6 +36,10 @@ def probe(tag):
     m = call('Runtime.evaluate', {'expression': PROBE, 'returnByValue': True})
     v = m.get('result', {}).get('result', {}).get('value')
     print('::warning::CDP %s %s' % (tag, str(v)[:3000]))
+BTN = r"""(function(){var r=[];document.querySelectorAll('iframe').forEach(function(f){try{var d=f.contentDocument;var c=d.querySelectorAll('button[aria-label="Back"],button[aria-label="Close"]');var o=[];for(var i=0;i<c.length;i++){var b=c[i].getBoundingClientRect();if(b.width<4)continue;var el=d.elementFromPoint(b.left+b.width/2,b.top+b.height/2);if(el&&c[i].contains(el))o.push(c[i].getAttribute('aria-label')+'@'+Math.round(b.left)+','+Math.round(b.top)+' in '+((c[i].closest('[class]')||{}).className||'').toString().slice(0,60)+' / '+(c[i].parentElement?c[i].parentElement.innerText.slice(0,60):''));}r.push((f.src||'').split('/').pop().split('?')[0]+' cls='+f.className+' top-buttons=['+o.join(' | ')+'] scrimOpen='+!!d.querySelector('.scrim[data-open="1"]'));}catch(e){r.push('err '+e)}});return r.join(' ;; ');})()"""
+if len(sys.argv) > 1 and sys.argv[1] == 'buttons':
+    m = call('Runtime.evaluate', {'expression': BTN, 'returnByValue': True})
+    print('::warning::CDP buttons ' + str(m.get('result', {}).get('result', {}).get('value'))[:3000]); sys.exit(0)
 call('Runtime.enable'); call('Log.enable')
 probe('before-reload')
 call('Page.enable'); call('Page.reload', {'ignoreCache': True})
