@@ -36,6 +36,8 @@ L=[re.sub(r'^\S+ \S+ +\d+ +\d+ \w ','',l)[:260] for l in L][-60:]
 s=' || '.join(L)
 for i in range(0,min(len(s),9000),900): print('::warning::LOG '+s[i:i+900].replace('%','%25'))
 PY
+pip3 install -q websocket-client >/dev/null 2>&1 || pip3 install -q --break-system-packages websocket-client >/dev/null 2>&1
+timeout 90 python3 tools/cdp.py || echo "::warning::cdp probe failed"
 [ -n "$ok" ] || fail "Tonight screen never appeared. Visible text: $(texts "$X")"
 note "Tonight screen OK: $(texts "$X" | cut -c1-200)"
 tap_text "$X" "Events" || fail "no Events tab"

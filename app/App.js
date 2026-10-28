@@ -248,6 +248,7 @@ function Shell() {
             androidLayerType="hardware"
             textZoom={100}
             forceDarkOn={false}
+            webviewDebuggingEnabled
             setBuiltInZoomControls={false}
             setDisplayZoomControls={false}
             setSupportMultipleWindows={false}
