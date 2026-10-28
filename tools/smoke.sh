@@ -5,7 +5,7 @@ PKG=app.wishfall.test
 fail(){ echo "::error::SMOKE: $1"; exit 1; }
 note(){ echo "::notice::SMOKE: $1"; }
 adb install -r -g "$APK" || fail "install failed"
-adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
+adb logcat -c; adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
 dump(){ adb shell uiautomator dump /sdcard/u.xml >/dev/null 2>&1; adb shell cat /sdcard/u.xml 2>/dev/null; }
 texts(){ echo "$1" | grep -o 'text="[^"]\+"' | sed 's/text="//;s/"$//' | tr '\n' '|' | cut -c1-600; }
 tap_text(){ local X="$1" T="$2"; local b; b=$(echo "$X" | tr '>' '\n' | grep "text=\"$T\"" | grep -o 'bounds="[^"]*"' | head -1 | grep -o '[0-9]\+' | tr '\n' ' '); [ -z "$b" ] && return 1; set -- $b; adb shell input tap $(( ($1+$3)/2 )) $(( ($2+$4)/2 )); return 0; }
@@ -27,6 +27,14 @@ from PIL import Image, ImageStat
 im=Image.open('/tmp/s1.png').convert('L'); w,h=im.size
 bar=im.crop((0,int(h*0.86),w,int(h*0.95))); st=ImageStat.Stat(bar)
 print("::notice::SMOKE: screen %dx%d mean %.1f, bottom-bar area mean %.1f sd %.1f"%(w,h,ImageStat.Stat(im).mean[0],st.mean[0],st.stddev[0]))
+PY
+adb logcat -d > /tmp/lc.txt
+python3 - <<'PY'
+import re
+L=[l.strip() for l in open('/tmp/lc.txt',errors='ignore') if re.search(r'WFSTATE|WFERR|Uncaught|CONSOLE|ReactNativeJS|AndroidRuntime',l)]
+L=[re.sub(r'^\S+ \S+ +\d+ +\d+ \w ','',l)[:260] for l in L][-60:]
+s=' || '.join(L)
+for i in range(0,min(len(s),9000),900): print('::warning::LOG '+s[i:i+900].replace('%','%25'))
 PY
 [ -n "$ok" ] || fail "Tonight screen never appeared. Visible text: $(texts "$X")"
 note "Tonight screen OK: $(texts "$X" | cut -c1-200)"
