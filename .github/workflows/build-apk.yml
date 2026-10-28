@@ -7,7 +7,7 @@ on:
       - '.github/workflows/build-apk.yml'
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +30,17 @@ jobs:
         run: npx expo prebuild --platform android --no-install
       - name: Build the APK
         working-directory: app/android
-        run: ./gradlew assembleRelease --no-daemon -Dorg.gradle.jvmargs="-Xmx4g"
+        run: |
+          # build; if a download hiccups, wait and try once more; show the real error if it still fails
+          ./gradlew assembleRelease --no-daemon -Dorg.gradle.jvmargs="-Xmx4g" 2>&1 | tee /tmp/g1.log || true
+          if ! ls app/build/outputs/apk/release/*.apk >/dev/null 2>&1; then
+            sleep 30
+            ./gradlew assembleRelease --no-daemon -Dorg.gradle.jvmargs="-Xmx4g" 2>&1 | tee /tmp/g2.log || true
+          fi
+          if ! ls app/build/outputs/apk/release/*.apk >/dev/null 2>&1; then
+            grep -E "What went wrong|error:|FAILURE|Execution failed|Could not" -A2 /tmp/g2.log | head -30 | while IFS= read -r l; do echo "::error::${l:0:300}"; done
+            exit 1
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: wishfall-apk
