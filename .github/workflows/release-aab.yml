@@ -39,7 +39,7 @@ jobs:
           python3 tools/set_package.py "${{ inputs.package }}" "${{ inputs.version_code }}"
       - name: Install packages
         working-directory: app
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
       - name: Create the Android project
         working-directory: app
         run: npx expo prebuild --platform android --no-install
