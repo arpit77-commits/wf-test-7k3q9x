@@ -6,7 +6,9 @@ fail(){ echo "::error::SMOKE: $1"; exit 1; }
 note(){ echo "::notice::SMOKE: $1"; }
 adb install -r -g "$APK" || fail "install failed"
 adb logcat -c; adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
-dump(){ adb shell uiautomator dump /sdcard/u.xml >/dev/null 2>&1; adb shell cat /sdcard/u.xml 2>/dev/null; }
+dump0(){ adb shell uiautomator dump /sdcard/u.xml >/dev/null 2>&1; adb shell cat /sdcard/u.xml 2>/dev/null; }
+# a slow emulator sometimes shows "<system app> isn't responding": press Wait and carry on (not an app problem)
+dump(){ local D; D=$(dump0); if echo "$D" | grep -q "isn't responding"; then echo "::notice::SMOKE: emulator ANR dialog dismissed: $(echo "$D" | grep -o 'text="[^"]*responding"' | head -1)" >&2; tap_text "$D" "Wait"; sleep 3; D=$(dump0); fi; echo "$D"; }
 texts(){ echo "$1" | grep -o 'text="[^"]\+"' | sed 's/text="//;s/"$//' | tr '\n' '|' | cut -c1-600; }
 tap_text(){ local X="$1" T="$2"; local b; b=$(echo "$X" | tr '>' '\n' | grep "text=\"$T\"" | grep -o 'bounds="[^"]*"' | head -1 | grep -o '[0-9]\+' | tr '\n' ' '); [ -z "$b" ] && return 1; set -- $b; adb shell input tap $(( ($1+$3)/2 )) $(( ($2+$4)/2 )); return 0; }
 sleep 15
