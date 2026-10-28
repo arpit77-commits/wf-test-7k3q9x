@@ -327,7 +327,6 @@
   }
 
   /* ---------- full moon cards ---------- */
-  function nightOf(d) { var x = new Date(d), e = new Date(x.getFullYear(), x.getMonth(), x.getDate(), 21, 0, 0); if (x.getTime() < e.getTime() - 12 * 3600000) e = new Date(e.getTime() - 86400000); return e; }
   function moonEvents(o, now, horizon) {
     var out = [];
     fullMoons(dayStart(now), horizon).forEach(function (f) {
@@ -335,7 +334,7 @@
       var title = blue ? 'Blue Moon' : f.name;
       var mr = null; try { mr = A.SearchRiseSet(A.Body.Moon, ob(o), +1, new Date(f.date.getTime() - 12 * 3600000), 1); } catch (er) { }
       out.push({
-        id: 'fm-' + f.date.getTime(), cat: 'moon', type: 'Full moon', name: title, nick: sup ? 'Supermoon' : '', kicker: 'Full Moon', icon: { k: 'full' }, date: nightOf(f.date), exact: f.date, days: dayDiff(nightOf(f.date), now), whenTxt: whenTxt(nightOf(f.date), now), dateTxt: dateTxt(nightOf(f.date)), verdict: 'Info',
+        id: 'fm-' + f.date.getTime(), cat: 'moon', type: 'Full moon', name: title, nick: sup ? 'Supermoon' : '', kicker: 'Full Moon', icon: { k: 'full' }, date: f.date, days: dayDiff(f.date, now), whenTxt: whenTxt(f.date, now), dateTxt: dateTxt(f.date), verdict: 'Info',
         chip: sup ? 'Supermoon' : blue ? 'Rare' : micro ? 'Small' : 'Bright', tags: tags, fname: f.name, dist: f.dist,
         detail: (sup ? 'Closest and biggest this year' : blue ? 'The second full Moon of the month' : micro ? 'Farthest from Earth, a little smaller' : 'Bright all night, faint stars fade') + (mr ? ' · rises ' + t12(mr.date) : ''),
         blurb: (blue ? 'A Blue Moon is the second full Moon in one calendar month. It is not blue in colour. ' : '') + (FBLURB[f.name] || '') + (sup ? ' It is also a Supermoon: the Moon is near its closest point to Earth, so it looks a bit bigger and brighter than usual.' : '') + (micro ? ' It is also near its farthest point from Earth, so it looks a little smaller than usual.' : ''),
@@ -465,5 +464,5 @@
     });
   }
 
-  window.WFE = { nightOf: nightOf, iconUrl: iconUrl, layers: layers, dayNote: dayNote, build: build, find: find, moonEvents: moonEvents, fullMoons: fullMoons, moonNameFor: moonNameFor, iss: iss, issEvents: issEvents, issPasses: issPasses, _t12: t12, ab: ab, dw: dw };
+  window.WFE = { iconUrl: iconUrl, layers: layers, dayNote: dayNote, build: build, find: find, moonEvents: moonEvents, fullMoons: fullMoons, moonNameFor: moonNameFor, iss: iss, issEvents: issEvents, issPasses: issPasses, _t12: t12, ab: ab, dw: dw };
 })();

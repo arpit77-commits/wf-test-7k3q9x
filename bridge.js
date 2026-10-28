@@ -31,8 +31,6 @@
   document.addEventListener('touchstart', function () { window.__lt = Date.now(); }, true);
   /* the page runtime re-downloads its own file after drawing; not needed inside the app */
   if (!window.__resources) window.__resources = {};
-  try { var _si = Storage.prototype.setItem; Storage.prototype.setItem = function (k, v) { _si.call(this, k, v); if (framed && (k === 'wf_prefs' || k === 'wf_plans' || k === 'wf_obs')) { try { window.parent.postMessage({ wf: 1, m: { t: 'stale' } }, '*'); } catch (e) {} } }; } catch (e) {}
-  window.addEventListener('error', function (e) { try { var s = 'WFERR ' + (location.pathname.split('/').pop()) + ' ' + e.message + ' @' + (e.filename || '').split('/').pop() + ':' + e.lineno; if (framed) window.parent.postMessage({ wf: 1, m: { t: 'log', s: s } }, '*'); else if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify({ t: 'log', s: s })); } catch (er) {} });
   /* scroll-lock: a focused field must never shift a fixed page (overflow hidden) out of place */
   document.addEventListener('scroll', function (e) { var el = e.target; if (!el || el.nodeType !== 1 || !el.scrollTop) return; try { if (getComputedStyle(el).overflowY === 'hidden') el.scrollTop = 0; } catch (er) {} }, true);
   var rafRaw = window.requestAnimationFrame.bind(window), paused = false, held = [];
@@ -173,12 +171,11 @@
   window.WFAlertText = function (id, eventMs) { return alertFmt(alertAt(id, eventMs)); };
   function openJs(href, setKey, setVal) {
     return "try{localStorage.setItem('wf_nav',JSON.stringify({dir:'fwd',from:'',t:Date.now()}));localStorage.setItem('wf_back','Main.dc.html');" +
-      (setKey ? "localStorage.setItem(" + JSON.stringify(setKey) + "," + JSON.stringify(setVal) + ");" : '') + "}catch(e){}(function(h){if(window.__shellGo)window.__shellGo(h);else{try{localStorage.setItem('wf_open',JSON.stringify({h:h,t:Date.now()}));}catch(e){}}})(" + JSON.stringify(href) + ");true;";
+      (setKey ? "localStorage.setItem(" + JSON.stringify(setKey) + "," + JSON.stringify(setVal) + ");" : '') + "}catch(e){}(window.__shellGo||function(h){location.href=h;})(" + JSON.stringify(href) + ");true;";
   }
   function moonOpenJs(ts) {
-    return "try{var d=Math.round((new Date(" + ts + ").setHours(0,0,0,0)-new Date().setHours(0,0,0,0))/864e5);localStorage.setItem('wf_nav',JSON.stringify({dir:'fwd',from:'',t:Date.now()}));localStorage.setItem('wf_back','Main.dc.html');localStorage.setItem('wf_moon_go',JSON.stringify({off:d,t:Date.now()}));}catch(e){}(function(h){if(window.__shellGo)window.__shellGo(h);else{try{localStorage.setItem('wf_open',JSON.stringify({h:h,t:Date.now()}));}catch(e){}}})('Moon.dc.html');true;";
+    return "try{var d=Math.round((new Date(" + ts + ").setHours(0,0,0,0)-new Date().setHours(0,0,0,0))/864e5);localStorage.setItem('wf_nav',JSON.stringify({dir:'fwd',from:'',t:Date.now()}));localStorage.setItem('wf_back','Main.dc.html');localStorage.setItem('wf_moon_go',JSON.stringify({off:d,t:Date.now()}));}catch(e){}(window.__shellGo||function(h){location.href=h;})('Moon.dc.html');true;";
   }
-  var DAILY_TEST = true; // set to false to remove the daily 8 pm test alert
   var syncT = 0, issBusy = false;
   function sync() {
     clearTimeout(syncT);
@@ -216,7 +213,7 @@
           var q0 = now;
           for (var n = 0; n < 4; n++) {
             var q = A.SearchMoonPhase(0, q0, 45); if (!q) break; q0 = new Date(q.date.getTime() + 86400000 * 5);
-            if (P.moon !== false) add('nm-' + q.date.getTime(), eveAt(WFE.nightOf ? WFE.nightOf(q.date) : q.date, 19), 'New Moon', 'The darkest sky of the month for faint things.', moonOpenJs(q.date.getTime()));
+            if (P.moon !== false) add('nm-' + q.date.getTime(), eveAt(q.date, 19), 'New Moon', 'The darkest sky of the month for faint things.', moonOpenJs(q.date.getTime()));
           }
         } catch (e) {}
         plans.forEach(function (id) {
@@ -226,8 +223,6 @@
             add(id, at, v2 ? m.name + (v2.k === 'c' ? ' is coming up' : ' ' + leadWord(v2)) : m.name, (m.when || '') + '', openJs('Sight.dc.html', 'wf_sight', id));
           }
         });
-        /* TEMPORARY test alert: every day at 8:00 pm for the next 14 days. Remove before launch. */
-        if (DAILY_TEST) { for (var dd = 0; dd < 14; dd++) { var tt = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dd, 20, 0, 0).getTime(); add('daily-test-' + dd + '-' + tt, tt, 'Wishfall daily test', 'The 8 pm test alert. Tap it and press back to check the app opens and returns correctly.', moonOpenJs(tt)); } }
         var finish = function () {
           out.sort(function (a, b) { return a.at - b.at; });
           post({ t: 'alerts', list: out.slice(0, 48) });
