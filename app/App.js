@@ -221,6 +221,7 @@ function Shell() {
     else if (m.t === 'testAlert') testAlert();
     else if (m.t === 'gps') pushLoc(true);
     else if (m.t === 'exit') BackHandler.exitApp();
+    else if (m.t === 'log') console.log('WFLOG ' + m.s);
     else if (m.t === 'shell') { shellReady.current = true; if (pending.current) { const j = pending.current; pending.current = null; setTimeout(() => run(j), 300); } }
   };
 
@@ -253,9 +254,9 @@ function Shell() {
             allowsInlineMediaPlayback
             injectedJavaScriptBeforeContentLoaded={'window.__WF_MEM=' + (Number(Device.totalMemory) || 0) + ';' + (boot ? 'try{var _o=JSON.parse(localStorage.getItem("wf_obs")||"null");if(!_o||!_o.manual)localStorage.setItem("wf_obs",' + JSON.stringify(boot) + ');}catch(e){}' : '') + 'true;'}
             onMessage={onMessage}
-            onLoadStart={() => { shellReady.current = false; }}
-            onLoadEnd={() => { loaded.current = true; setTimeout(() => pushLoc(false), 1200); }}
-            onError={() => setErr('load')}
+            onLoadStart={(e) => { shellReady.current = false; console.log('WFLOG native loadStart ' + e.nativeEvent.url); }}
+            onLoadEnd={(e) => { console.log('WFLOG native loadEnd ' + e.nativeEvent.url); loaded.current = true; setTimeout(() => pushLoc(false), 1200); }}
+            onError={(e) => { console.log('WFLOG native error ' + JSON.stringify(e.nativeEvent)); setErr('load'); }}
             onHttpError={() => setErr('load')}
             onRenderProcessGone={() => { loaded.current = false; shellReady.current = false; lastSig.current = ''; setErr(null); setWk((k) => k + 1); }}
             onContentProcessDidTerminate={() => { loaded.current = false; lastSig.current = ''; setWk((k) => k + 1); }}

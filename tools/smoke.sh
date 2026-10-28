@@ -31,7 +31,7 @@ PY
 adb logcat -d > /tmp/lc.txt
 python3 - <<'PY'
 import re
-L=[l.strip() for l in open('/tmp/lc.txt',errors='ignore') if re.search(r'WFSTATE|WFERR|Uncaught|CONSOLE|ReactNativeJS|AndroidRuntime',l)]
+L=[l.strip() for l in open('/tmp/lc.txt',errors='ignore') if re.search(r'WFLOG|WFSTATE|WFERR|Uncaught|FATAL|chromium',l)]
 L=[re.sub(r'^\S+ \S+ +\d+ +\d+ \w ','',l)[:260] for l in L][-60:]
 s=' || '.join(L)
 for i in range(0,min(len(s),9000),900): print('::warning::LOG '+s[i:i+900].replace('%','%25'))
