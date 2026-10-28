@@ -260,8 +260,6 @@ function Shell() {
             onRenderProcessGone={() => { loaded.current = false; shellReady.current = false; lastSig.current = ''; setErr(null); setWk((k) => k + 1); }}
             onContentProcessDidTerminate={() => { loaded.current = false; lastSig.current = ''; setWk((k) => k + 1); }}
             onShouldStartLoadWithRequest={(r) => {
-              // pages must always open inside the app frame, never on their own (that left a blank star screen)
-              if (/^file:/.test(r.url) && r.isTopFrame !== false && !/\/shell\.html(\?|#|$)/.test(r.url) && /\.dc\.html/.test(r.url)) { const nm = r.url.split('/').pop().split('?')[0]; run('window.__shellGo&&window.__shellGo(' + JSON.stringify(nm) + ');true;'); return false; }
               if (/^(file|about|blob|data):/.test(r.url)) return true;
               if (TEST_URL && r.url.indexOf(TEST_URL.replace(/shell\.html$/, '')) === 0) return true;
               if (/^https?:/.test(r.url)) { Linking.openURL(r.url).catch(() => {}); return false; }
