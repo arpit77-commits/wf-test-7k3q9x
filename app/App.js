@@ -88,7 +88,7 @@ function Setup({ onDone }) {
         <Step n="1" title="Allow alerts" text="Lets us tell you the evening before a meteor shower, eclipse or Moon event." label={notif ? 'Allowed' : 'Allow notifications'} done={notif} strong={!notif} onPress={askNotif} />
         <Step n="2" title="On time, not late" text={api >= 31 ? 'Android delays alerts by minutes unless you allow exact alarms. Switch it ON for Wishfall.' : 'This phone already allows exact alerts.'} label={api >= 31 ? (exactSeen ? 'Open again' : 'Open exact alarm setting') : 'Already allowed'} done={api < 31 || exactSeen} strong={api >= 31 && !exactSeen} onPress={exact} />
         <Step n="3" title="Keep running at night" text={'Choose Wishfall and set it to Unrestricted or Don\'t optimise, so the phone does not put it to sleep. ' + hint} label={batSeen ? 'Open again' : 'Open battery setting'} done={batSeen} strong={!batSeen} onPress={battery} />
-        <Step n="4" title="Your sky, your place" text="Your location gives the real Moon, planets and rise times for where you stand. It stays on your phone." label={loc ? 'Allowed' : 'Allow location'} done={loc} strong={!loc} onPress={askLoc} />
+        <Step n="4" title="Your sky, your place" text="Your location gives the real Moon, planets and rise times for where you stand. It is never sent to us." label={loc ? 'Allowed' : 'Allow location'} done={loc} strong={!loc} onPress={askLoc} />
         <Pressable onPress={onDone} style={({ pressed }) => [s.btn, s.btnStrong, { marginTop: 8 }, pressed && { opacity: 0.7 }]}>
           <Text style={[s.btnTxt, { color: '#0b0e1d' }]}>Open Wishfall</Text>
         </Pressable>
