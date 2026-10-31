@@ -9,7 +9,7 @@ import * as Device from 'expo-device';
 import * as IntentLauncher from 'expo-intent-launcher';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFonts, Outfit_300Light, Outfit_400Regular, Outfit_500Medium, Outfit_600SemiBold } from '@expo-google-fonts/outfit';
-import { startCompass, setCompassPlace } from './src/compass';
+import { startCompass, stopCompass, setCompassPlace } from './src/compass';
 
 // Test option: a web address here loads the pages from the web instead of from inside the app.
 // Keep '' for real use (pages load from inside the app).
@@ -118,11 +118,23 @@ function Shell() {
 
   const run = useCallback((js) => { if (web.current && js) web.current.injectJavaScript(js); }, []);
 
+  // compass for the live sky: only while a screen asks for it AND the app is on screen
+  const wantSens = useRef(false);
   const sensors = useCallback(async (on) => {
-    if (stopCmp.current) { stopCmp.current(); stopCmp.current = null; }
-    if (!on) return;
-    stopCmp.current = await startCompass((x, y, z) => run('window.__ori&&window.__ori(' + x.toFixed(4) + ',' + y.toFixed(4) + ',' + z.toFixed(4) + ');true;'), () => {});
+    wantSens.current = !!on;
+    stopCompass(); stopCmp.current = null;
+    if (!on || AppState.currentState !== 'active') return;
+    stopCmp.current = await startCompass(
+      (x, y, z) => run('window.__ori&&window.__ori(' + x.toFixed(5) + ',' + y.toFixed(5) + ',' + z.toFixed(5) + ');true;'),
+      (st) => run('window.__oriCal&&window.__oriCal(' + JSON.stringify(st) + ');true;'));
   }, [run]);
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (st) => {
+      if (st === 'active') { if (wantSens.current) sensors(true); }
+      else { stopCompass(); stopCmp.current = null; }
+    });
+    return () => sub.remove();
+  }, [sensors]);
 
   const schedule = useCallback(async (list) => {
     try {

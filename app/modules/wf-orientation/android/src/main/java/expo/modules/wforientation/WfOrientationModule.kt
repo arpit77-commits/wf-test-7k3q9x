@@ -36,6 +36,9 @@ class WfOrientationModule : Module(), SensorEventListener {
         } else {
           sm.unregisterListener(this@WfOrientationModule)
           sm.registerListener(this@WfOrientationModule, sensor, SensorManager.SENSOR_DELAY_GAME)
+          // the magnetometer is only listened to for its calibration state (accuracy)
+          acc = -1
+          sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)?.let { sm.registerListener(this@WfOrientationModule, it, SensorManager.SENSOR_DELAY_NORMAL) }
           manager = sm
           "rv"
         }
@@ -59,22 +62,35 @@ class WfOrientationModule : Module(), SensorEventListener {
     }
   }
 
+  // accuracy of the compass part (0 unreliable .. 3 high), from Android
+  private var acc = -1
+
   override fun onSensorChanged(event: SensorEvent) {
+    if (event.sensor.type != Sensor.TYPE_ROTATION_VECTOR) return
     val now = System.currentTimeMillis()
     if (now - lastSent < 16) return
     lastSent = now
     SensorManager.getRotationMatrixFromVector(rot, event.values)
-    val e = -rot[2].toDouble()
-    val n = -rot[5].toDouble()
-    val u = -rot[8].toDouble()
     val c = Math.cos(declRad)
     val s = Math.sin(declRad)
+    // back camera (device -Z) and top of the screen (device +Y), in east/north/up
+    val e = -rot[2].toDouble(); val n = -rot[5].toDouble(); val u = -rot[8].toDouble()
+    val te = rot[1].toDouble(); val tn = rot[4].toDouble(); val tu = rot[7].toDouble()
+    // estimated heading error in degrees (Android 4.3+, -1 when the phone does not say)
+    val headErr = if (event.values.size > 4 && event.values[4] >= 0f) Math.toDegrees(event.values[4].toDouble()) else -1.0
     sendEvent("onDir", Bundle().apply {
       putDouble("x", e * c + n * s)
       putDouble("y", n * c - e * s)
       putDouble("z", u)
+      putDouble("tx", te * c + tn * s)
+      putDouble("ty", tn * c - te * s)
+      putDouble("tz", tu)
+      putInt("acc", acc)
+      putDouble("herr", headErr)
     })
   }
 
-  override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+  override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+    if (sensor?.type == Sensor.TYPE_MAGNETIC_FIELD) acc = accuracy
+  }
 }
