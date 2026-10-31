@@ -86,6 +86,9 @@
     if (isOri(t)) { var i = oriL.indexOf(fn); if (i >= 0) { oriL.splice(i, 1); if (!oriL.length) post({ t: 'sensors', on: false }); } }
     return remL.apply(this, arguments);
   };
+  /* compass calibration state from Android: 'ok' | 'cal' (needs a figure-8) | 'none' (no compass) */
+  window.__wfCal = 'ok';
+  window.__oriCal = function (st) { window.__wfCal = st; try { window.dispatchEvent(new Event('wf-cal')); } catch (e) {} };
   window.__ori = function (x, y, z) {
     var ev = { type: 'deviceorientationabsolute', absolute: true, v: [x, y, z], alpha: 0, beta: 0, gamma: 0 };
     for (var i = 0; i < oriL.length; i++) { try { oriL[i](ev); } catch (e) {} }
@@ -121,6 +124,7 @@
     window.addEventListener('message', function (e) {
       var d = e.data; if (!d || !d.wf) return;
       if (d.ori) window.__ori(d.ori[0], d.ori[1], d.ori[2]);
+      else if (d.cal) window.__oriCal(d.cal);
       else if (d.cmd === 'pause') setPaused(d.on);
       else if (d.cmd === 'lite') { window.__WF_Q = 1; window.__WF_LITE = 1; Q = 1; try { if (lq) lq.textContent = qcss(1); } catch (er) {} }
       else if (d.cmd === 'pill') { var ns = document.querySelectorAll('nav.tabbar'); if (d.quiet) { if (!document.getElementById('wfq')) { var sq = document.createElement('style'); sq.id = 'wfq'; sq.textContent = 'html.wfq nav.tabbar,html.wfq nav.tabbar *{transition:none!important}'; document.head.appendChild(sq); } document.documentElement.classList.add('wfq'); } for (var q = 0; q < ns.length; q++) { if (String(ns[q].getAttribute('data-at')) !== String(d.at)) ns[q].setAttribute('data-at', d.at); } if (d.quiet) { requestAnimationFrame(function () { requestAnimationFrame(function () { document.documentElement.classList.remove('wfq'); }); }); } }

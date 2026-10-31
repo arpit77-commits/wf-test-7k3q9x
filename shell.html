@@ -42,12 +42,12 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   <div id="dim"></div>
   <div id="cover"><div class="st"></div><div class="wm">WISHFALL</div><div class="tg">The sky, tonight</div></div>
 </div>
-<script src="./a/three.min.js?v=1793213986"></script>
-<script src="./a/wishfall-sky8.js?v=1793213986"></script>
+<script src="./a/three.min.js?v=1793450985"></script>
+<script src="./a/wishfall-sky8.js?v=1793450985"></script>
 <script>
 (function () {
   (function(){var c=document.getElementById('cover');for(var i=0;i<26;i++){var d=document.createElement('i');d.className='ds';d.style.left=(Math.random()*100)+'%';d.style.top=(Math.random()*100)+'%';d.style.animationDelay=(Math.random()*2.4)+'s';c.appendChild(d);}})();
-  var BUILD = '1793213986'; var TABS = ['Main', 'Events', 'Sky', 'You'], STALE = 30 * 60000;
+  var BUILD = '1793450985'; var TABS = ['Main', 'Events', 'Sky', 'You'], STALE = 30 * 60000;
   var stage = document.getElementById('stage'), dim = document.getElementById('dim'), cover = document.getElementById('cover'), bgc = document.getElementById('bg');
   function toRN(m) { try { if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify(m)); } catch (e) {} }
   toRN({ t: 'log', s: 'WF shell script started, screen ' + innerWidth + 'x' + innerHeight });
@@ -142,7 +142,9 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
     var on = !!(v && v.want);
     if (on !== lastSens) { lastSens = on; toRN({ t: 'sensors', on: on, obs: obs() }); }
   }
-  window.__ori = function (x, y, z) { var v = visibleRec(); if (v && v.ready) send(v, { ori: [x, y, z] }); };
+  var lastCal = 'ok';
+  window.__ori = function (x, y, z) { var v = visibleRec(); if (v && v.ready) { if (v.cal !== lastCal) { v.cal = lastCal; send(v, { cal: lastCal }); } send(v, { ori: [x, y, z] }); } };
+  window.__oriCal = function (st) { lastCal = st; var v = visibleRec(); if (v && v.ready) { v.cal = st; send(v, { cal: st }); } };
 
   function whenReady(rec, fn, max) {
     if (rec.ready) return fn();
