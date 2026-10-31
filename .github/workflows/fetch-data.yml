@@ -1,0 +1,32 @@
+name: Fetch star data
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download HYG v4.1 and keep stars brighter than mag 6.5
+        run: |
+          mkdir -p tools/data
+          curl -sSfL -o /tmp/hyg.csv.gz https://raw.githubusercontent.com/astronexus/HYG-Database/main/hyg/CURRENT/hygdata_v41.csv.gz || curl -sSfL -o /tmp/hyg.csv.gz https://codeberg.org/astronexus/hyg/raw/branch/main/data/hyg/CURRENT/hygdata_v41.csv.gz
+          python3 - <<'PY'
+          import csv,gzip
+          r=csv.DictReader(gzip.open('/tmp/hyg.csv.gz','rt'))
+          keep=['hip','proper','ra','dec','dist','mag','spect','ci','bayer','flam','con','lum']
+          w=csv.writer(open('tools/data/hyg_bright.csv','w',newline=''))
+          w.writerow(keep); n=0
+          for x in r:
+              try: m=float(x['mag'])
+              except: continue
+              if m<=6.5 and x['id']!='0': w.writerow([x.get(k,'') for k in keep]); n+=1
+          print('kept',n)
+          PY
+      - name: Commit to the data branch
+        run: |
+          git config user.name "Arpit"; git config user.email "thesnapseven@gmail.com"
+          git checkout -b data
+          git add -f tools/data/hyg_bright.csv
+          git commit -m "HYG star data (CC BY-SA 4.0, astronexus)"
+          git push -f origin data
