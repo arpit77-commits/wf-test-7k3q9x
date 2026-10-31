@@ -12,7 +12,7 @@ on:
         default: '1'
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
@@ -64,3 +64,37 @@ jobs:
           path: |
             app/android/app/build/outputs/bundle/release/*.aab
             app/android/app/build/outputs/apk/release/*.apk
+  smoke:
+    # opens the signed release APK on Android emulators and checks the screens appear, before you upload
+    needs: release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [30, 34]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: wishfall-play-bundle
+          path: dl
+      - name: Pick the APK
+        run: mkdir -p apk && find dl -name "*.apk" -exec cp {} apk/ \; && ls -la apk
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          PKG: ${{ inputs.package }}
+        with:
+          api-level: ${{ matrix.api }}
+          arch: x86_64
+          target: google_apis
+          profile: pixel_4
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: bash tools/smoke.sh

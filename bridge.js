@@ -182,7 +182,7 @@
   function moonOpenJs(ts) {
     return "try{var d=Math.round((new Date(" + ts + ").setHours(0,0,0,0)-new Date().setHours(0,0,0,0))/864e5);localStorage.setItem('wf_nav',JSON.stringify({dir:'fwd',from:'',t:Date.now()}));localStorage.setItem('wf_back','Main.dc.html');localStorage.setItem('wf_moon_go',JSON.stringify({off:d,t:Date.now()}));}catch(e){}(function(h){if(window.__shellGo)window.__shellGo(h);else{try{localStorage.setItem('wf_open',JSON.stringify({h:h,t:Date.now()}));}catch(e){}}})('Moon.dc.html');true;";
   }
-  var DAILY_TEST = true; // set to false to remove the daily 8 pm test alert
+  var DAILY_TEST = false; // true = a test alert every day at 8 pm (testing only, never in a Play release)
   var syncT = 0, issBusy = false;
   function sync() {
     clearTimeout(syncT);

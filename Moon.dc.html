@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <title>Moon</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1793450985"></script>
-<script src="./support.js?v=1793450985"></script>
-<script src="./a/wishfall-ui6.js?v=1793450985"></script>
-<script src="./a/three.min.js?v=1793450985"></script>
-<script src="./a/astronomy.browser.min.js?v=1793450985"></script>
-<script src="./a/wishfall-astro3.js?v=1793450985"></script>
-<script src="./a/wishfall-moon4.js?v=1793450985"></script>
-<script src="./a/wishfall-events9.js?v=1793450985"></script>
+<script src="./bridge.js?v=1793451434"></script>
+<script src="./support.js?v=1793451434"></script>
+<script src="./a/wishfall-ui6.js?v=1793451434"></script>
+<script src="./a/three.min.js?v=1793451434"></script>
+<script src="./a/astronomy.browser.min.js?v=1793451434"></script>
+<script src="./a/wishfall-astro3.js?v=1793451434"></script>
+<script src="./a/wishfall-moon4.js?v=1793451434"></script>
+<script src="./a/wishfall-events9.js?v=1793451434"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1793450985" rel="stylesheet">
+<link href="./outfit.css?v=1793451434" rel="stylesheet">
 </helmet>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -219,7 +219,7 @@ class Component extends DCLogic {
       shownAt: off === 0 ? 'Right now' : 'As seen at 9 pm',
       phase: dn ? dn.title : m.phase, note: dn ? dn.note : m.note,
       lit: m.illum, litSub: m.deg < 180 ? 'Growing' : 'Shrinking',
-      age: ageD.toFixed(1), dist: Math.round(distKm / 1000) + 'k', distSub: distKm < 366000 ? 'Closer' : distKm > 400000 ? 'Farther' : 'Average',
+      age: ageD.toFixed(1), dist: Math.round(distKm / 1000) + 'k', distSub: distKm < 373000 ? 'Closer' : distKm > 390000 ? 'Farther' : 'Average',
       riseT: rr[0], riseAp: rr[1], riseSub: rise ? 'toward ' + ab(azAt(rise)) : 'No moonrise today',
       setT: ss[0], setAp: ss[1], setSub: set ? 'toward ' + ab(azAt(set)) : 'No moonset today',
       where: where, gaze: gaze, week: week, phases: phases

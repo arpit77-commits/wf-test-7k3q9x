@@ -1,7 +1,7 @@
 #!/bin/bash
 # Real-Android smoke test: install the APK on an emulator, open it, and check the screens actually appear.
 APK=$(ls apk/*.apk | head -1)
-PKG=app.wishfall.test
+PKG=${PKG:-app.wishfall.test}
 fail(){ echo "::error::SMOKE: $1"; exit 1; }
 note(){ echo "::notice::SMOKE: $1"; }
 adb install -r -g "$APK" || fail "install failed"

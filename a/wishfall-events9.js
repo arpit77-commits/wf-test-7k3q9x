@@ -309,7 +309,7 @@
   }
   function seasonEvents(o, now, horizon) {
     var out = [], y = now.getFullYear(), s = [];
-    [y, y + 1].forEach(function (yy) { try { var S = A.Seasons(yy); s.push(['March equinox', S.mar_equinox.date, 'Day and night are almost equal. The Sun rises due east and sets due west.'], ['June solstice', S.jun_solstice.date, 'The Sun reaches its highest point in the north. Longest day in the north, shortest in the south.'], ['September equinox', S.sep_equinox.date, 'Day and night are almost equal. The Sun rises due east and sets due west.'], ['December solstice', S.dec_solstice.date, 'The Sun reaches its lowest point in the north. Shortest day in the north, longest in the south.']); } catch (er) { } });
+    [y, y + 1].forEach(function (yy) { try { var S = A.Seasons(yy); s.push(['March equinox', S.mar_equinox.date, 'Day and night are almost equal. The Sun rises due east and sets due west.'], ['June solstice', S.jun_solstice.date, 'The midday Sun is at its highest of the year in the northern half of Earth. Longest day in the north, shortest in the south.'], ['September equinox', S.sep_equinox.date, 'Day and night are almost equal. The Sun rises due east and sets due west.'], ['December solstice', S.dec_solstice.date, 'The midday Sun is at its lowest of the year in the northern half of Earth. Shortest day in the north, longest in the south.']); } catch (er) { } });
     s.forEach(function (x) {
       var d = x[1]; if (d.getTime() < dayStart(now).getTime() || d.getTime() > now.getTime() + horizon * DAY) return;
       var sol = x[0].indexOf('solstice') > 0, north = o.lat >= 0;
@@ -319,7 +319,7 @@
       out.push({
         id: 'sea-' + d.getTime(), cat: 'more', type: 'Season', name: nm, nick: '', kicker: 'Sun', icon: { k: 'sun' }, date: d, days: dayDiff(d, now), whenTxt: whenTxt(d, now), dateTxt: dateTxt(d), verdict: 'Info', verdictWords: 'A turning point of the year',
         detail: 'At ' + t12(d) + (len ? ' · daylight ' + mins(len) : ''),
-        rows: [{ t: d, time: t12(d), label: nm + ' begins', alt: 0, az: 0, up: true }], tiles: [{ l: 'Daylight', v: len ? Math.floor(len / 60) + ' h ' + Math.round(len % 60) + ' m' : '—' }, { l: 'Sunrise', v: sr ? t12(sr.date) : '—' }, { l: 'Sunset', v: ss ? t12(ss.date) : '—' }],
+        rows: [{ t: d, time: t12(d), label: nm + ' begins', alt: null, az: null, up: true }], tiles: [{ l: 'Daylight', v: len ? Math.floor(len / 60) + ' h ' + Math.round(len % 60) + ' m' : '—' }, { l: 'Sunrise', v: sr ? t12(sr.date) : '—' }, { l: 'Sunset', v: ss ? t12(ss.date) : '—' }],
         blurb: x[2], tip: 'This is not something to watch for in the sky. It marks a change in the seasons.', hasAlt: false, info: true
       });
     });
@@ -362,10 +362,10 @@
   }
 
   /* ---------- everything, in date order ---------- */
-  var _evm = {};
+  var _evm = {}, _EVV = (function () { try { return ((document.currentScript && document.currentScript.src || '').match(/v=(\d+)/) || [])[1] || ''; } catch (e) { return ''; } })() + '|';
   function build(o, now, opts) {
     now = now || new Date();
-    var k = o.lat.toFixed(1) + ',' + o.lon.toFixed(1) + ':' + now.getFullYear() + '-' + now.getMonth() + '-' + now.getDate();
+    var k = _EVV + o.lat.toFixed(1) + ',' + o.lon.toFixed(1) + ':' + now.getFullYear() + '-' + now.getMonth() + '-' + now.getDate();
     if (_evm[k]) return _evm[k].slice();
     var store = {};
     try { var raw = localStorage.getItem('wf_evc'); if (raw) { store = JSON.parse(raw, function (kk, v) { return v && typeof v === 'object' && v.$d !== undefined ? new Date(v.$d) : v; }) || {}; if (store[k]) { _evm[k] = store[k]; return store[k].slice(); } } } catch (e) { store = {}; }
