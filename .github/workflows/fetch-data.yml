@@ -11,9 +11,18 @@ jobs:
         run: |
           mkdir -p tools/data
           # find the newest HYG file in the repository (the path changes between versions)
-          P=$(curl -sSf "https://api.github.com/repos/astronexus/HYG-Database/git/trees/main?recursive=1" -H "Authorization: Bearer ${{ github.token }}" | python3 -c "import json,sys,re; t=[x['path'] for x in json.load(sys.stdin)['tree']]; c=sorted([p for p in t if re.search(r'hyg(data)?_v4\d*\.csv(\.gz)?$',p) and 'CURRENT' in p] or [p for p in t if re.search(r'hyg.*v4\d*\.csv(\.gz)?$',p)]); print('\n'.join(t[:0])); print(c[-1] if c else '')")
-          echo "::notice::HYG path: $P"
-          curl -sSfL -o /tmp/hyg.raw "https://raw.githubusercontent.com/astronexus/HYG-Database/main/$P"
+          H="Authorization: Bearer ${{ github.token }}"
+          BR=$(curl -sSf https://api.github.com/repos/astronexus/HYG-Database -H "$H" | python3 -c "import json,sys; print(json.load(sys.stdin)['default_branch'])")
+          curl -sSf "https://api.github.com/repos/astronexus/HYG-Database/git/trees/$BR?recursive=1" -H "$H" > /tmp/tree.json
+          python3 -c "import json; t=[x['path'] for x in json.load(open('/tmp/tree.json'))['tree'] if x['type']=='blob']; [print('::notice::F '+p) for p in t if p.endswith(('.csv','.gz','.zip'))][:0]"
+          P=$(python3 -c "
+          import json,re
+          t=[x['path'] for x in json.load(open('/tmp/tree.json'))['tree'] if x['type']=='blob']
+          c=[p for p in t if re.search(r'hyg[^/]*\.csv(\.gz)?$',p,re.I) and 'athyg' not in p.lower() and 'v3' not in p]
+          c.sort(key=lambda p:(('CURRENT' in p), p))
+          print(c[-1] if c else '')")
+          echo "::notice::HYG branch $BR path: $P"
+          curl -sSfL -o /tmp/hyg.raw "https://raw.githubusercontent.com/astronexus/HYG-Database/$BR/$P"
           case "$P" in *.gz) mv /tmp/hyg.raw /tmp/hyg.csv.gz ;; *) gzip -c /tmp/hyg.raw > /tmp/hyg.csv.gz ;; esac
           python3 - <<'PY'
           import csv,gzip
