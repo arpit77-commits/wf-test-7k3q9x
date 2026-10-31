@@ -52,6 +52,7 @@ note "Back to Tonight OK"
 tap_text "$X" "Sky" || fail "no Sky tab"; sleep 8; X=$(dump)
 echo "$X" | grep -qi 'Search the sky\|3D view' || fail "Sky screen did not open: $(texts "$X")"
 note "Sky tab OK"
+timeout 40 python3 tools/cdp.py compass || true
 timeout 40 python3 tools/cdp.py buttons || true
 adb shell input keyevent 4; sleep 4; X=$(dump)
 if ! echo "$X" | grep -q 'Upcoming events'; then timeout 40 python3 tools/cdp.py buttons || true; note "first back stayed on Sky; pressing back again"; adb shell input keyevent 4; sleep 4; X=$(dump); fi
