@@ -42,12 +42,12 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   <div id="dim"></div>
   <div id="cover"><div class="st"></div><div class="wm">WISHFALL</div><div class="tg">The sky, tonight</div></div>
 </div>
-<script src="./a/three.min.js?v=1793627474"></script>
-<script src="./a/wishfall-sky8.js?v=1793627474"></script>
+<script src="./a/three.min.js?v=1793627957"></script>
+<script src="./a/wishfall-sky8.js?v=1793627957"></script>
 <script>
 (function () {
   (function(){var c=document.getElementById('cover');for(var i=0;i<26;i++){var d=document.createElement('i');d.className='ds';d.style.left=(Math.random()*100)+'%';d.style.top=(Math.random()*100)+'%';d.style.animationDelay=(Math.random()*2.4)+'s';c.appendChild(d);}})();
-  var BUILD = '1793627474'; var TABS = ['Main', 'Events', 'Sky', 'You'], STALE = 30 * 60000;
+  var BUILD = '1793627957'; var TABS = ['Main', 'Events', 'Sky', 'You'], STALE = 30 * 60000;
   var stage = document.getElementById('stage'), dim = document.getElementById('dim'), cover = document.getElementById('cover'), bgc = document.getElementById('bg');
   function toRN(m) { try { if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify(m)); } catch (e) {} }
   toRN({ t: 'log', s: 'WF shell script started, screen ' + innerWidth + 'x' + innerHeight });
@@ -348,16 +348,25 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
     var d = document.createElement('div'); d.id = 'wfhelp';
     d.style.cssText = 'position:absolute;left:24px;right:24px;top:30%;z-index:99;padding:24px;border-radius:28px;background:rgba(14,18,30,.96);border:1px solid rgba(255,255,255,.14);color:#fff;font:400 15px/1.45 Outfit,sans-serif;text-align:left';
     var info = 'WebView ' + (CHV || '?') + ' · ' + (GB ? GB.toFixed(1) + ' GB' : 'RAM ?') + ' · ' + Object.keys(tabs).map(function (k) { return k + (tabs[k].ready ? ' ok' : ' wait'); }).join(', ') + (lastErrs.length ? ' · ' + lastErrs.join(' | ') : '');
-    d.innerHTML = '<div style="font-weight:500;font-size:20px;margin-bottom:8px"></div><div style="color:rgba(255,255,255,.78)"></div><button style="margin-top:18px;width:100%;height:52px;border-radius:26px;border:0;background:#fff;color:#0b0e1d;font:500 15px Outfit,sans-serif"></button><div style="margin-top:14px;font-size:11px;line-height:1.4;color:rgba(255,255,255,.45);word-break:break-word"></div>';
-    d.children[0].textContent = title; d.children[1].textContent = text; d.children[2].textContent = btn; d.children[3].textContent = info;
-    d.children[2].onclick = act;
+    d.innerHTML = '<div style="font-weight:500;font-size:20px;margin-bottom:8px"></div><div style="color:rgba(255,255,255,.78)"></div><button style="margin-top:18px;width:100%;height:52px;border-radius:26px;border:0;background:#fff;color:#0b0e1d;font:500 15px Outfit,sans-serif"></button><button style="margin-top:10px;width:100%;height:48px;border-radius:24px;border:1px solid rgba(255,255,255,.3);background:none;color:#fff;font:500 15px Outfit,sans-serif">Share a report</button><div style="margin-top:14px;font-size:11px;line-height:1.4;color:rgba(255,255,255,.45);word-break:break-word"></div>';
+    d.children[0].textContent = title; d.children[1].textContent = text; d.children[2].textContent = btn; d.children[4].textContent = info;
+    d.children[2].onclick = act; d.children[3].onclick = function () { toRN({ t: 'share', s: diag() }); };
     cover.classList.add('off'); stage.appendChild(d);
     toRN({ t: 'log', s: 'WFHELP ' + title + ' :: ' + info });
   }
   if (CHV && CHV < 61) helpScreen('Update needed', 'Your phone’s web engine (Android System WebView) is too old for Wishfall. Update it from the Play Store, then open Wishfall again.', 'Update Android System WebView', function () { location.href = 'https://play.google.com/store/apps/details?id=com.google.android.webview'; });
+  function diag() {
+    var v = visibleRec(), o = { build: BUILD, chrome: CHV, ua: navigator.userAgent.slice(0, 160), gb: +GB.toFixed(1), tier: TIER, q: window.__WF_Q, lite: LITE, dpr: window.devicePixelRatio, scr: innerWidth + 'x' + innerHeight, reduceMotion: !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches), cur: cur, stack: stack.length, cover: cover.className, bg: !!bgApi, tabs: Object.keys(tabs).map(function (k) { return k + (tabs[k].ready ? ':ok' : ':wait') + (tabs[k].f.className ? '(' + tabs[k].f.className + ')' : ''); }).join(' '), errs: lastErrs, keys: (function () { try { return Object.keys(localStorage).join(','); } catch (e) { return 'x'; } })() };
+    try { var f = v.f, cs = getComputedStyle(f), fr = f.getBoundingClientRect(), dd = f.contentDocument, p = dd && dd.querySelector('.wf-page'), r = p && p.getBoundingClientRect();
+      o.vis = { name: v.name, ready: v.ready, op: cs.opacity, visib: cs.visibility, z: cs.zIndex, frame: Math.round(fr.width) + 'x' + Math.round(fr.height) + '@' + Math.round(fr.left) + ',' + Math.round(fr.top), doc: dd && dd.readyState, page: !!p, pageBox: r ? Math.round(r.width) + 'x' + Math.round(r.height) + '@' + Math.round(r.left) + ',' + Math.round(r.top) : '-', pageOp: p ? getComputedStyle(p).opacity : '-', text: dd && dd.body ? dd.body.innerText.length : -1, fit: dd && dd.documentElement ? dd.documentElement.style.cssText.slice(0, 80) : '' }; } catch (e) { o.vis = 'err ' + e.message; }
+    return JSON.stringify(o);
+  }
+  window.__wfDiag = diag;
+  function looksEmpty() { try { if (stack.length) return false; var v = visibleRec(); if (!v) return true; var f = v.f, cs = getComputedStyle(f), dd = f.contentDocument, p = dd && dd.querySelector('.wf-page'); if (!p || +cs.opacity < 0.2 || cs.visibility === 'hidden') return true; var r = p.getBoundingClientRect(); return r.width < 100 || r.height < 100 || !dd.body || dd.body.innerText.length < 20; } catch (e) { return false; } }
+  setTimeout(function check() { if (looksEmpty()) { toRN({ t: 'log', s: 'WFEMPTY ' + diag() }); helpScreen('Something went wrong', 'Wishfall opened but the screen stayed empty. Tap below to try again. If it happens again, tap Share a report and send it to the developer.', 'Try again', function () { location.reload(); }); } }, 16000);
   setTimeout(function () {
     if (first.ready || stack.length) return;
-    helpScreen('Taking too long', 'Wishfall could not finish opening. Tap below to try again. If this keeps happening, send a screenshot of this screen.', 'Try again', function () { try { sessionStorage.removeItem('wf_rl'); } catch (e) {} location.reload(); });
+    helpScreen('Taking too long', 'Wishfall could not finish opening. Tap below to try again. If this keeps happening, tap Share a report and send it to the developer.', 'Try again', function () { try { sessionStorage.removeItem('wf_rl'); } catch (e) {} location.reload(); });
   }, 25000);
   /* safety net: if no screen has appeared after 12 s, reload once; if it still fails, offer a reload button */
   setTimeout(function () {

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { View, Text, Pressable, ScrollView, StyleSheet, Platform, BackHandler, Linking, AppState } from 'react-native';
+import { View, Text, Pressable, ScrollView, StyleSheet, Platform, BackHandler, Linking, AppState, Share } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
@@ -114,7 +114,12 @@ function Shell() {
   const locAt = useRef(0);
   useEffect(() => { AsyncStorage.getItem('wf_last_obs').then((v) => setBoot(v || '')).catch(() => setBoot('')); }, []);
   const [err, setErr] = useState(null);
+  // last lines of what happened, for the "Share a report" button
+  const logs = useRef([]); const crashes = useRef(0);
+  const note = useCallback((t) => { console.log('WFLOG ' + t); logs.current.push(new Date().toISOString().slice(11, 19) + ' ' + String(t).slice(0, 300)); if (logs.current.length > 40) logs.current.shift(); }, []);
+  const shareReport = useCallback((extra) => { Share.share({ message: 'Wishfall report (app ' + PKG.replace('package:', '') + ', Android ' + Platform.Version + ', ' + (Device.manufacturer || '') + ' ' + (Device.modelName || '') + ', ' + Math.round((Number(Device.totalMemory) || 0) / 1073741824) + ' GB, renderer crashes ' + crashes.current + ')\n' + (extra ? String(extra) + '\n' : '') + logs.current.join('\n') }).catch(() => {}); }, []);
   const [wk, setWk] = useState(0);
+  const wkRef = useRef(0); wkRef.current = wk;
 
   const run = useCallback((js) => { if (web.current && js) web.current.injectJavaScript(js); }, []);
 
@@ -233,7 +238,8 @@ function Shell() {
     else if (m.t === 'testAlert') testAlert();
     else if (m.t === 'gps') pushLoc(true);
     else if (m.t === 'exit') BackHandler.exitApp();
-    else if (m.t === 'log') console.log('WFLOG ' + m.s);
+    else if (m.t === 'log') note(m.s);
+    else if (m.t === 'share') shareReport(m.s);
     else if (m.t === 'shell') { shellReady.current = true; if (pending.current) { const j = pending.current; pending.current = null; setTimeout(() => run(j), 300); } }
   };
 
@@ -267,11 +273,11 @@ function Shell() {
             allowsInlineMediaPlayback
             injectedJavaScriptBeforeContentLoaded={'window.__WF_MEM=' + (Number(Device.totalMemory) || 0) + ';' + (boot ? 'try{var _o=JSON.parse(localStorage.getItem("wf_obs")||"null");if(!_o||!_o.manual)localStorage.setItem("wf_obs",' + JSON.stringify(boot) + ');}catch(e){}' : '') + 'true;'}
             onMessage={onMessage}
-            onLoadStart={(e) => { shellReady.current = false; console.log('WFLOG native loadStart ' + e.nativeEvent.url); }}
-            onLoadEnd={(e) => { console.log('WFLOG native loadEnd ' + e.nativeEvent.url); loaded.current = true; setTimeout(() => pushLoc(false), 1200); }}
-            onError={(e) => { console.log('WFLOG native error ' + JSON.stringify(e.nativeEvent)); setErr('load'); }}
+            onLoadStart={(e) => { shellReady.current = false; note('native loadStart ' + e.nativeEvent.url); }}
+            onLoadEnd={(e) => { note('native loadEnd ' + e.nativeEvent.url); loaded.current = true; setTimeout(() => pushLoc(false), 1200); const k0 = wkRef.current; setTimeout(() => { if (!shellReady.current && wkRef.current === k0) { note('shell never started'); setErr('stuck'); } }, 15000); }}
+            onError={(e) => { note('native error ' + JSON.stringify(e.nativeEvent)); setErr('load'); }}
             onHttpError={() => setErr('load')}
-            onRenderProcessGone={() => { loaded.current = false; shellReady.current = false; lastSig.current = ''; setErr(null); setWk((k) => k + 1); }}
+            onRenderProcessGone={(e) => { crashes.current++; note('renderer gone ' + JSON.stringify((e && e.nativeEvent) || {})); if (crashes.current > 3) { setErr('crash'); return; } loaded.current = false; shellReady.current = false; lastSig.current = ''; setErr(null); setWk((k) => k + 1); }}
             onContentProcessDidTerminate={() => { loaded.current = false; lastSig.current = ''; setWk((k) => k + 1); }}
             onShouldStartLoadWithRequest={(r) => {
               if (/^(file|about|blob|data):/.test(r.url)) return true;
@@ -281,7 +287,7 @@ function Shell() {
             }}
           />
         ) : null}
-        {err ? <Pressable style={s.err} onPress={() => { setErr(null); setWk((k) => k + 1); }}><Text style={s.errTxt}>Wishfall could not open this screen. Tap here to try again.</Text></Pressable> : null}
+        {err ? <View style={s.err}><Pressable onPress={() => { setErr(null); crashes.current = 0; setWk((k) => k + 1); }}><Text style={s.errTxt}>Wishfall could not open this screen. Tap here to try again.</Text></Pressable><Pressable onPress={() => shareReport('native: ' + err)} style={{ marginTop: 10 }}><Text style={[s.errTxt, { textDecorationLine: 'underline' }]}>Share a report with the developer</Text></Pressable></View> : null}
       </View>
     </View>
   );
