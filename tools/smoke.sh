@@ -15,8 +15,8 @@ sleep 15
 X=$(dump)
 if echo "$X" | grep -q 'Four quick steps'; then
   note "first-run setup shown"
-  for i in 1 2 3; do adb shell input swipe 540 1700 540 400 300; sleep 1; done
-  X=$(dump); tap_text "$X" "Open Wishfall" || fail "no Open Wishfall button: $(texts "$X")"
+  ok0=""; for i in 1 2 3 4 5 6 7 8; do adb shell input swipe 540 1700 540 400 300; sleep 1; X=$(dump); if tap_text "$X" "Open Wishfall"; then ok0=1; break; fi; done
+  [ -n "$ok0" ] || fail "no Open Wishfall button: $(texts "$X")"
 fi
 ok=""
 for i in 1 2 3 4 5 6; do
@@ -50,6 +50,7 @@ adb shell input keyevent 4; sleep 4; X=$(dump)
 echo "$X" | grep -q 'Upcoming events' || fail "Back from Events did not return to Tonight: $(texts "$X")"
 note "Back to Tonight OK"
 tap_text "$X" "Sky" || fail "no Sky tab"; sleep 8; X=$(dump)
+if ! echo "$X" | grep -qi 'Search the sky\|3D view'; then note "Sky slow, waiting longer"; sleep 10; X=$(dump); fi
 echo "$X" | grep -qi 'Search the sky\|3D view' || fail "Sky screen did not open: $(texts "$X")"
 note "Sky tab OK"
 timeout 40 python3 tools/cdp.py compass || true

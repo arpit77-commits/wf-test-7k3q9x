@@ -35,7 +35,7 @@ function create(o){
   set:function(p){if(p.L)uni.uL.value.set(p.L[0],p.L[1],p.L[2]);if(p.pa!=null)roll.rotation.z=p.pa;if(p.b!=null)tilt.rotation.x=p.b;draw();},
   start:function(){if(running)return;running=true;requestAnimationFrame(frame);},
   stop:function(){running=false;},
-  dispose:function(){running=false;try{renderer.dispose();}catch(e){}}
+  dispose:function(){running=false;try{renderer.dispose();renderer.forceContextLoss();}catch(e){}}
  };
 }
 window.WishfallPlanet={create:create};

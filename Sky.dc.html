@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <title>Sky</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1793626013"></script>
-<script src="./support.js?v=1793626013"></script>
-<script src="./a/wishfall-ui6.js?v=1793626013"></script>
-<script src="./a/three.min.js?v=1793626013"></script>
-<script src="./a/astronomy.browser.min.js?v=1793626013"></script>
-<script src="./a/wishfall-astro3.js?v=1793626013"></script>
-<script src="./a/wishfall-deep3.js?v=1793626013"></script><script src="./a/wishfall-sky19.js?v=1793626013"></script>
-<script src="./a/wishfall-planet.js?v=1793626013"></script>
+<script src="./bridge.js?v=1793627474"></script>
+<script src="./support.js?v=1793627474"></script>
+<script src="./a/wishfall-ui6.js?v=1793627474"></script>
+<script src="./a/three.min.js?v=1793627474"></script>
+<script src="./a/astronomy.browser.min.js?v=1793627474"></script>
+<script src="./a/wishfall-astro3.js?v=1793627474"></script>
+<script src="./a/wishfall-deep3.js?v=1793627474"></script><script src="./a/wishfall-sky19.js?v=1793627474"></script>
+<script src="./a/wishfall-planet.js?v=1793627474"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1793626013" rel="stylesheet">
+<link href="./outfit.css?v=1793627474" rel="stylesheet">
 </helmet><style>#lb_sirius,#lb_rigel,#lb_aldeb,#lb_procyon,#lb_capella{display:none!important}</style>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:#03040b;color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -511,7 +511,7 @@ class Component extends DCLogic {
     const AT = { mer: 0, ven: 0.5, mar: 0.12, jup: 0.25, sat: 0.2 };
     this.piT = setTimeout(() => {
       if (!window.WishfallPlanet) return;
-      [1, 2, 3, 4, 5].forEach((n, k) => setTimeout(() => {
+      const one = (k) => { if (k >= 5) return; const n = [1, 2, 3, 4, 5][k]; const nextOne = () => setTimeout(() => one(k + 1), 150); let moved = false; const go = () => { if (moved) return; moved = true; nextOne(); }; setTimeout(go, 2500);
         try {
           const id = ids[n], d = self.lensInfo(id); if (!d) return;
           const cv = document.createElement('canvas'); const opt = { canvas: cv, tex: TX[id], atmo: AT[id] };
@@ -519,9 +519,9 @@ class Component extends DCLogic {
           const p = window.WishfallPlanet.create(opt); if (!p) return;
           p.set({ L: d.L, pa: d.pa, b: d.b });
           const grab = () => { try { p.set({ L: d.L, pa: d.pa, b: d.b }); const o = document.createElement('canvas'); o.width = o.height = 128; const x = o.getContext('2d'); x.imageSmoothingQuality = 'high'; x.drawImage(cv, 0, 0, 128, 128); try { const id2 = x.getImageData(0, 0, 128, 128), q = id2.data; let lit = 0; for (let i = 0; i < q.length; i += 4) { const a = Math.max(q[i], q[i + 1], q[i + 2]); if (a < 10) { q[i + 3] = 0; continue; } lit++; q[i] = Math.min(255, q[i] * 255 / a); q[i + 1] = Math.min(255, q[i + 1] * 255 / a); q[i + 2] = Math.min(255, q[i + 2] * 255 / a); q[i + 3] = a; } x.putImageData(id2, 0, 0); var litFrac = lit / 16384; } catch (e2) { var litFrac = 1; } const im = document.getElementById('pli_' + n), dt = document.getElementById('pld_' + n); if (im) { im.src = o.toDataURL('image/png'); im.style.opacity = 1; } if (dt) dt.style.opacity = litFrac > 0.12 ? 0 : 0.55; } catch (e) {} };
-          setTimeout(grab, 1200); setTimeout(() => { grab(); try { p.dispose(); } catch (e) {} }, 3000);
-        } catch (e) {}
-      }, k * 250));
+          setTimeout(grab, 900); setTimeout(() => { grab(); try { p.dispose(); } catch (e) {} go(); }, 1600);
+        } catch (e) { go(); }
+      }; one(0);
     }, 600);
   }
   openLens(id) {

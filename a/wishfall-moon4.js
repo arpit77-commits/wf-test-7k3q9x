@@ -23,16 +23,21 @@ function create(o){
  function draw(){renderer.render(scene,cam);}
  var st=0;var _ls=0;function snap(){if(o.noSnap)return;if(Date.now()-_ls<1800000)return;_ls=Date.now();clearTimeout(st);st=setTimeout(function(){var go=function(){try{canvas.style.backgroundImage='url('+canvas.toDataURL('image/png')+')';canvas.style.backgroundSize='100% 100%';canvas.style.backgroundRepeat='no-repeat';}catch(e){}};if(window.requestIdleCallback)requestIdleCallback(go,{timeout:3000});else go();},1200);}
  canvas.addEventListener('webglcontextrestored',function(){setTimeout(function(){draw();snap();},60);});
- return {set:function(L,rot){mat.uniforms.uL.value.set(L[0],L[1],L[2]);mat.uniforms.uRot.value=-rot;draw();snap();},draw:draw,toURL:function(){return canvas.toDataURL('image/png');},dispose:function(){try{renderer.dispose();}catch(e){}}};
+ return {set:function(L,rot){mat.uniforms.uL.value.set(L[0],L[1],L[2]);mat.uniforms.uRot.value=-rot;draw();snap();},draw:draw,toURL:function(){return canvas.toDataURL('image/png');},dispose:function(){try{renderer.dispose();renderer.forceContextLoss();}catch(e){}}};
 }
 var cache={};
 function thumb(o){
- var cv=document.createElement('canvas');cv.style.cssText='position:fixed;left:-999px;top:0;width:'+(o.size||120)+'px;height:'+(o.size||120)+'px;pointer-events:none';document.body.appendChild(cv);
- var ready=false,cbs=[];
- var r=create({canvas:cv,texUrl:o.texUrl,texW:o.texW,dpr:2,noSnap:true,onReady:function(){ready=true;cbs.splice(0).forEach(function(f){f();});}});
- return {isReady:function(){return ready;},onReady:function(f){if(ready)f();else cbs.push(f);},
-  url:function(L,rot){if(!ready||!r)return '';var k=L[0].toFixed(2)+','+L[1].toFixed(2)+','+L[2].toFixed(2)+','+rot.toFixed(2);if(cache[k])return cache[k];r.set(L,rot);return cache[k]=r.toURL();},
-  dispose:function(){if(r)r.dispose();if(cv.parentNode)cv.parentNode.removeChild(cv);}};
+ // small Moon pictures for lists. The graphics context is only kept while pictures are being made,
+ // then released after a few quiet seconds and made again only if a new picture is needed.
+ var cv=null,r=null,ready=false,cbs=[],subs=[],idle=0;
+ function make(){cv=document.createElement('canvas');cv.style.cssText='position:fixed;left:-999px;top:0;width:'+(o.size||120)+'px;height:'+(o.size||120)+'px;pointer-events:none';document.body.appendChild(cv);ready=false;
+  r=create({canvas:cv,texUrl:o.texUrl,texW:o.texW,dpr:2,noSnap:true,onReady:function(){ready=true;cbs.splice(0).forEach(function(f){f();});subs.forEach(function(f){try{f();}catch(e){}});}});}
+ function free(){clearTimeout(idle);if(r)r.dispose();r=null;ready=false;if(cv&&cv.parentNode)cv.parentNode.removeChild(cv);cv=null;}
+ function touch(){clearTimeout(idle);idle=setTimeout(free,6000);}
+ make();touch();
+ return {isReady:function(){return ready;},onReady:function(f){subs.push(f);if(ready)f();},
+  url:function(L,rot){var k=L[0].toFixed(2)+','+L[1].toFixed(2)+','+L[2].toFixed(2)+','+rot.toFixed(2);if(cache[k])return cache[k];if(!r){make();touch();return '';}if(!ready)return '';touch();r.set(L,rot);return cache[k]=r.toURL();},
+  dispose:function(){subs.length=0;free();}};
 }
 window.WishfallMoon={create:create,thumb:thumb};
 })();
