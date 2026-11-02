@@ -4,6 +4,14 @@
    back button work like the on-screen back arrow, (4) works out which alerts to
    schedule and passes them to the app, which sets them with Android. */
 (function () {
+  /* older Android WebViews: small fill-ins for the few newer things the page runtime uses */
+  try { if (!Object.fromEntries) Object.fromEntries = function (it) { var o = {}; Array.from(it).forEach(function (p) { o[p[0]] = p[1]; }); return o; }; } catch (e) {}
+  try { if (!window.queueMicrotask) window.queueMicrotask = function (f) { Promise.resolve().then(f); }; } catch (e) {}
+  try { var EP = Element.prototype, tn = function (a) { return a instanceof Node ? a : document.createTextNode(String(a)); };
+    if (!EP.prepend) EP.prepend = function () { var f = document.createDocumentFragment(); for (var i = 0; i < arguments.length; i++) f.appendChild(tn(arguments[i])); this.insertBefore(f, this.firstChild); };
+    if (!EP.replaceWith) EP.replaceWith = function (n) { if (this.parentNode) this.parentNode.replaceChild(tn(n), this); }; } catch (e) {}
+})();
+(function () {
   try { if (!document.querySelector('meta[name=color-scheme]')) { var cs = document.createElement('meta'); cs.name = 'color-scheme'; cs.content = 'dark'; (document.head || document.documentElement).appendChild(cs); } } catch (e) {}
   var framed = window.parent !== window;
   var RN = window.ReactNativeWebView;

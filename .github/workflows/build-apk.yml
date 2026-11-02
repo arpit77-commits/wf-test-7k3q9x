@@ -53,7 +53,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        api: [30, 34]
+        # 28 = old phone with an old web engine and little memory, 30 = Android 11, 34 = Android 14
+        api: [28, 30, 34]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -69,6 +70,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api }}
+          ram-size: ${{ matrix.api == 28 && '1536M' || '2048M' }}
           arch: x86_64
           target: google_apis
           profile: pixel_4
