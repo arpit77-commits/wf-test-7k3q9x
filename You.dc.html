@@ -4,16 +4,16 @@
 <meta charset="utf-8">
 <title>You</title>
 <style>html,body{margin:0;background:#04060f}</style>
-<script src="./bridge.js?v=1793627957"></script>
-<script src="./support.js?v=1793627957"></script>
-<script src="./a/wishfall-ui6.js?v=1793627957"></script>
-<script src="./a/astronomy.browser.min.js?v=1793627957"></script>
-<script src="./a/wishfall-astro3.js?v=1793627957"></script>
+<script src="./bridge.js?v=1793693582"></script>
+<script src="./support.js?v=1793693582"></script>
+<script src="./a/wishfall-ui6.js?v=1793693582"></script>
+<script src="./a/astronomy.browser.min.js?v=1793693582"></script>
+<script src="./a/wishfall-astro3.js?v=1793693582"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="./outfit.css?v=1793627957" rel="stylesheet">
+<link href="./outfit.css?v=1793693582" rel="stylesheet">
 </helmet>
 <div class="wf-page" data-nav="{{navDir}}" style="position:relative;width:390px;height:844px;overflow:hidden;background:var(--wf-space);color:var(--wf-ink-1);font-family:'Outfit',sans-serif">
 
@@ -108,7 +108,7 @@ class Component extends DCLogic {
     this.qT = setTimeout(() => {
       fetch('https://geocoding-api.open-meteo.com/v1/search?count=6&language=en&name=' + encodeURIComponent(q))
         .then((r) => r.json())
-        .then((j) => { if (this.state.q !== q) return; this.setState({ busy: false, res: (j.results || []).map((x) => ({ name: x.name, sub: [x.admin1, x.country].filter(Boolean).join(', '), lat: x.latitude, lon: x.longitude })) }); })
+        .then((j) => { if (this.state.q !== q) return; this.setState({ busy: false, res: (j.results || []).map((x) => ({ name: x.name, sub: [x.admin1, x.country].filter(Boolean).join(', '), lat: x.latitude, lon: x.longitude, tz: x.timezone || '' })) }); })
         .catch(() => { this.setState({ busy: false, res: [], err: 'Search needs an internet connection.' }); });
     }, 350);
   }
@@ -119,14 +119,14 @@ class Component extends DCLogic {
     return {
       sDark: p.darkSite ? 'true' : 'false', tDark: () => { if (W) this.setState({ prefs: W.setPref('darkSite', !s.prefs.darkSite) }); },
       navDir: s.nav, tabAt: s.tabAt, onTab: () => { if (W) W.mark('tab', 'you'); }, toAlerts: () => { if (W) W.mark('fwd', 'you', 'You.dc.html'); },
-      place: o.name, coords: fmt(o.lat, 'N', 'S') + ', ' + fmt(o.lon, 'E', 'W') + (o.manual ? '' : (o.real ? ' · from your phone' : '')),
+      place: o.name, coords: fmt(o.lat, 'N', 'S') + ', ' + fmt(o.lon, 'E', 'W') + (o.manual ? (window.__wfTZ || (o.tz && o.tz !== (function () { try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) { return ''; } })()) ? ' · times in ' + o.name + ' time' : '') : (o.real ? ' · from your phone' : '')),
       gpsLabel: s.locating ? 'Finding you…' : 'Use my phone\'s location',
       useGps: () => { if (!WF) return; this.setState({ locating: true }); WF.useGps((n) => this.setState({ obs: n, locating: false, open: false }), () => this.setState({ locating: false, q: '', res: [], err: 'Could not get your location. Search for a place instead.' })); },
       sheetOpen: s.open ? '1' : '0',
       openEdit: () => { this.setState({ open: true, q: '', res: [], err: '' }); const e = document.getElementById('you_q'); if (e) e.value = ''; },
       closeEdit: () => this.setState({ open: false }),
       onQ: (e) => this.search(e.target.value),
-      results: s.res.map((r) => ({ name: r.name, sub: r.sub, pick: () => { const n = { lat: r.lat, lon: r.lon, name: r.name, manual: true }; if (WF) WF.setPlace(n); this.setState({ obs: n, open: false }); } })),
+      results: s.res.map((r) => ({ name: r.name, sub: r.sub, pick: () => { const n = { lat: r.lat, lon: r.lon, name: r.name, manual: true, tz: r.tz || '' }; if (WF) WF.setPlace(n); this.setState({ obs: n, open: false }); } })),
       hasMsg: !!(s.err || s.busy || (s.q.length > 1 && !s.res.length)), msg: s.err || (s.busy ? 'Searching…' : 'No place found. Try another spelling.'),
       alertSummary: (on.length ? 'On for ' + on.join(' and ') : 'All off') + (p.goOnly ? ', only when it is a Go' : '')
     };

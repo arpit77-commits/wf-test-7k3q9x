@@ -203,7 +203,7 @@ function Shell() {
       }
     } catch (e) {}
     locBusy.current = false;
-    run('(function(){try{var n=' + JSON.stringify(res) + ',f=' + (force ? 'true' : 'false') + ';if(n){var o=null;try{o=JSON.parse(localStorage.getItem("wf_obs")||"null");}catch(e){}if(f||!o||!o.manual){var same=o&&!o.manual&&Math.abs(o.lat-n.lat)<0.02&&Math.abs(o.lon-n.lon)<0.02&&o.name===n.name;if(f||!same){localStorage.setItem("wf_obs",JSON.stringify(n));window.dispatchEvent(new Event("wf-obs"));}}}if(window.__wfGpsCb){var c=window.__wfGpsCb;window.__wfGpsCb=null;c(n);}}catch(e){}})();true;');
+    run('(function(){try{var n=' + JSON.stringify(res) + ',f=' + (force ? 'true' : 'false') + ';if(n){var o=null;try{o=JSON.parse(localStorage.getItem("wf_obs")||"null");}catch(e){}if(f||!o||!o.manual){var same=o&&!o.manual&&Math.abs(o.lat-n.lat)<0.02&&Math.abs(o.lon-n.lon)<0.02&&o.name===n.name;if(f||!same){localStorage.setItem("wf_obs",JSON.stringify(n));if(f&&window.__wfObsChanged)window.__wfObsChanged();else window.dispatchEvent(new Event("wf-obs"));}}}if(window.__wfGpsCb){var c=window.__wfGpsCb;window.__wfGpsCb=null;c(n);}}catch(e){}})();true;');
   }, [run]);
 
   useEffect(() => {

@@ -3,6 +3,44 @@
    (2) hands the phone's real compass sensors to the Sky page, (3) lets the Android
    back button work like the on-screen back arrow, (4) works out which alerts to
    schedule and passes them to the app, which sets them with Android. */
+/* The place's own clock. When you pick a place in another time zone (say Florence while the phone is in
+   India), every time on every screen is shown in that place's local time, and "tonight" means its night.
+   It works by giving this page a calendar that runs in the place's time zone; the moment-in-time maths
+   (Sun, Moon, planets) is untouched. */
+(function () {
+  var TZ = ''; try { var ob = JSON.parse(localStorage.getItem('wf_obs') || 'null'); TZ = ob && ob.tz || ''; } catch (e) {}
+  var dev = ''; try { dev = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+  if (!TZ || TZ === dev) return;
+  var F; try { F = new Intl.DateTimeFormat('en-US', { timeZone: TZ, hour12: false, year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' }); F.format(0); } catch (e) { return; }
+  var ND = Date, P = ND.prototype, gt = P.getTime, st = P.setTime, cache = {};
+  var U = { y: P.getUTCFullYear, mo: P.getUTCMonth, d: P.getUTCDate, w: P.getUTCDay, h: P.getUTCHours, mi: P.getUTCMinutes, s: P.getUTCSeconds, ms: P.getUTCMilliseconds };
+  function off(t) { // minutes the place is ahead of UTC at instant t
+    var k = Math.floor(t / 900000); if (cache[k] != null) return cache[k];
+    var v = {}; F.formatToParts(new ND(t)).forEach(function (x) { v[x.type] = +x.value; });
+    var o = Math.round((ND.UTC(v.year, v.month - 1, v.day, v.hour % 24, v.minute, v.second) - Math.floor(t / 1000) * 1000) / 60000);
+    return (cache[k] = o);
+  }
+  var S = new ND(0);
+  function part(d, f) { var t = gt.call(d); if (t !== t) return NaN; st.call(S, t + off(t) * 60000); return f.call(S); }
+  function toUTC(y, mo, d, h, mi, s, ms) { var a = ND.UTC(y, mo, d, h, mi, s, ms); if (a !== a) return NaN; var g = a - off(a) * 60000; return a - off(g) * 60000; }
+  function comps(d) { return [part(d, U.y), part(d, U.mo), part(d, U.d), part(d, U.h), part(d, U.mi), part(d, U.s), part(d, U.ms)]; }
+  P.getFullYear = function () { return part(this, U.y); }; P.getMonth = function () { return part(this, U.mo); }; P.getDate = function () { return part(this, U.d); };
+  P.getDay = function () { return part(this, U.w); }; P.getHours = function () { return part(this, U.h); }; P.getMinutes = function () { return part(this, U.mi); };
+  P.getSeconds = function () { return part(this, U.s); }; P.getMilliseconds = function () { return part(this, U.ms); };
+  P.getTimezoneOffset = function () { var t = gt.call(this); return t !== t ? NaN : -off(t); };
+  function setter(i, n) { return function () { var c = comps(this); if (c[0] !== c[0]) return NaN; for (var k = 0; k < n && k < arguments.length; k++) c[i + k] = +arguments[k]; var t = toUTC(c[0], c[1], c[2], c[3], c[4], c[5], c[6]); st.call(this, t); return t; }; }
+  P.setFullYear = setter(0, 3); P.setMonth = setter(1, 2); P.setDate = setter(2, 1); P.setHours = setter(3, 4); P.setMinutes = setter(4, 3); P.setSeconds = setter(5, 2); P.setMilliseconds = setter(6, 1);
+  function D(a, b, c, d, e, f, g) {
+    if (!(this instanceof D)) return new ND().toString();
+    var n = arguments.length, r;
+    if (n >= 2) r = new ND(toUTC(+a, +b, n > 2 ? +c : 1, n > 3 ? +d : 0, n > 4 ? +e : 0, n > 5 ? +f : 0, n > 6 ? +g : 0));
+    else if (n === 1) r = new ND(a instanceof ND ? gt.call(a) : a); else r = new ND();
+    return r;
+  }
+  D.prototype = P; D.now = ND.now; D.UTC = ND.UTC; D.parse = ND.parse;
+  try { Object.defineProperty(P, 'constructor', { value: D, writable: true, configurable: true }); } catch (e) {}
+  window.Date = D; window.__wfTZ = TZ;
+})();
 (function () {
   /* older Android WebViews: small fill-ins for the few newer things the page runtime uses */
   try { if (!Object.fromEntries) Object.fromEntries = function (it) { var o = {}; Array.from(it).forEach(function (p) { o[p[0]] = p[1]; }); return o; }; } catch (e) {}

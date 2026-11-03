@@ -42,12 +42,12 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   <div id="dim"></div>
   <div id="cover"><div class="st"></div><div class="wm">WISHFALL</div><div class="tg">The sky, tonight</div></div>
 </div>
-<script src="./a/three.min.js?v=1793627957"></script>
-<script src="./a/wishfall-sky8.js?v=1793627957"></script>
+<script src="./a/three.min.js?v=1793693582"></script>
+<script src="./a/wishfall-sky8.js?v=1793693582"></script>
 <script>
 (function () {
   (function(){var c=document.getElementById('cover');for(var i=0;i<26;i++){var d=document.createElement('i');d.className='ds';d.style.left=(Math.random()*100)+'%';d.style.top=(Math.random()*100)+'%';d.style.animationDelay=(Math.random()*2.4)+'s';c.appendChild(d);}})();
-  var BUILD = '1793627957'; var TABS = ['Main', 'Events', 'Sky', 'You'], STALE = 30 * 60000;
+  var BUILD = '1793693582'; var TABS = ['Main', 'Events', 'Sky', 'You'], STALE = 30 * 60000;
   var stage = document.getElementById('stage'), dim = document.getElementById('dim'), cover = document.getElementById('cover'), bgc = document.getElementById('bg');
   function toRN(m) { try { if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify(m)); } catch (e) {} }
   toRN({ t: 'log', s: 'WF shell script started, screen ' + innerWidth + 'x' + innerHeight });
@@ -88,10 +88,11 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   startBG();
 
   var lostAt = {};
+  window.__wfObsChanged = function () { window.dispatchEvent(new Event('wf-obs')); Object.keys(tabs).forEach(function (k) { if (k !== cur) dropTab(k); }); clearTimeout(window.__wfRewarm); window.__wfRewarm = setTimeout(function () { warmAll(['Main'].concat(WARM)); }, 700); };
   var tabs = {}, cur = null, stack = [], lru = [], pendF = {}, bgT = 0;
   window.__wfTabs = tabs;
   function sigNow(n) {
-    if (n === 'Sky') return '';
+    if (n === 'Sky') { try { var so = JSON.parse(localStorage.getItem('wf_obs') || 'null'); return so ? so.lat.toFixed(1) + ',' + so.lon.toFixed(1) + (so.tz || '') : ''; } catch (e) { return ''; } }
     try { return ['wf_prefs', 'wf_plans', 'wf_obs'].map(function (k) { return localStorage.getItem(k) || ''; }).join('|'); } catch (e) { return ''; }
   }
   var PERF = [];
@@ -303,7 +304,11 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
     } else if (m.t === 'nav') nav(m.href, !!m.back);
     else if (m.t === 'sensors') { rec.want = !!m.on; refresh(); }
     else if (m.t === 'local') { if (pend[m.id]) pend[m.id](!!m.ok); }
-    else if (m.t === 'obs') { window.dispatchEvent(new Event('wf-obs')); }
+    else if (m.t === 'obs') {
+      // the place was changed by hand: the star background moves now, and every other screen is rebuilt
+      // for the new place (and its local time) quietly, one at a time
+      window.__wfObsChanged();
+    }
     else if (m.t === 'stale') { schedBg(500); }
     else if (m.t === 'log') { if (/WFERR/.test(m.s)) { lastErrs.push(String(m.s).slice(6, 140)); if (lastErrs.length > 3) lastErrs.shift(); } toRN({ t: 'log', s: String(m.s).slice(0, 300) }); }
     else if (m.t === 'lost') {
@@ -325,8 +330,8 @@ iframe{position:absolute;left:0;top:0;width:390px;height:100%;border:0;backgroun
   // while the splash plays, every tab loads quietly behind it, all at once
   // the splash lifts as soon as Tonight is ready. The other tabs then get ready one at a time,
   // so a slow phone is never building several pages at once.
-  function warmAll() {
-    var todo = WARM.filter(function (n) { return !tabs[n]; }), i = 0;
+  function warmAll(list) {
+    var todo = (list || WARM).filter(function (n) { return !tabs[n]; }), i = 0;
     (function next() {
       if (i >= todo.length) return; var n = todo[i++]; if (tabs[n]) return next();
       var r = loadTab(n); whenReady(r, function () { setTimeout(next, TIER >= 2 ? 200 : 1200); }, 9000);
